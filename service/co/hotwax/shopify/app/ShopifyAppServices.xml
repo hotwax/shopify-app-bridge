@@ -40,7 +40,6 @@ under the License.
             <if condition="!shop.endsWith('/')">
                 <set field="shop" from="shop + '/'"/>
             </if>
-            <return />
             <script><![CDATA[
                 import org.moqui.util.RestClient
                 import org.moqui.util.RestClient.Method
@@ -208,14 +207,6 @@ under the License.
             <if condition="!shopifyApp">
                 <return type="warning" message="Shop ${shop} trying to install invalid app ${clientId}" public="true"/>
             </if>
-            <set field="requestBody" from="ec.getWeb().getRequestBodyText()" type="NewMap"/>
-
-            <script>
-                Map rowOpMap = org.moqui.impl.context.ContextJavaUtil.jacksonMapper.readValue((String) requestBody, Map.class)
-                rowOpMap.remove("hmac")
-                rowOpMap.remove("clientId")
-                tt= org.moqui.impl.context.ContextJavaUtil.jacksonMapper.writeValueAsString(rowOpMap)
-            </script>
             <!--TODO: Hmac verification -->
 
             <set field="appTypeEnum" from="shopifyApp?.appTypeEnum"/>
@@ -246,8 +237,8 @@ under the License.
                                   in-map="oldShopifyShopApp + [thruDate:ec.user.nowTimestamp]" ignore-error="true"/>
                 </iterate>
             </if>
-            <service-call name="create#co.hotwax.shopify.app.ShopifyShopApp" in-map="[shopId: shopId, appId: shopifyApp.appId, accessToken: accessToken, fromDate:ec.user.nowTimestamp]"/>
-            <service-call name="co.hotwax.shopify.app.ShopifyAppServices.store#ShopifyShop" in-map="context" async="true"/>
+            <service-call name="create#co.hotwax.shopify.app.ShopifyShopApp" in-map="[shopId: shopId, appId: shopifyApp.appId, appAccessToken: accessToken, fromDate:ec.user.nowTimestamp]"/>
+            <service-call name="co.hotwax.shopify.app.ShopifyAppServices.store#ShopifyShop" in-map="context" disable-authz="true" />
             <log message="${appTypeEnum?.description} [${appTypeId}] installed successfully at shop ${shop}"/>
         </actions>
     </service>
@@ -358,7 +349,7 @@ under the License.
             <if condition="!shopifyApps?.first?.apiKey">
                 <return message="No ${appTypeId} app configuration found for ${shop}" type="warning" error="true"/>
             </if>
-            <set field="apiKey" from="shopifyApps?first?.apiKey"/>
+            <set field="apiKey" from="shopifyApps?.first?.apiKey"/>
         </actions>
     </service>
 
