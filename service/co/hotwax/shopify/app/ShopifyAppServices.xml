@@ -1,0 +1,390 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+
+<services xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://moqui.org/xsd/service-definition-3.xsd">
+
+    <service verb="get" noun="ShopifyShopAccessToken">
+        <description>
+            Get the oauth shopify shop access token
+        </description>
+        <in-parameters>
+            <parameter name="shop" required="true"/>
+            <parameter name="code" required="true"/>
+            <parameter name="clientId" required="true"/>
+            <parameter name="clientSecret" required="true"/>
+        </in-parameters>
+        <out-parameters>
+            <parameter name="accessToken"/>
+        </out-parameters>
+        <actions>
+            <if condition="!shop.startsWith('https://')">
+                <set field="shop" from="'https://' +  shop"/>
+            </if>
+            <if condition="!shop.endsWith('/')">
+                <set field="shop" from="shop + '/'"/>
+            </if>
+            <return />
+            <script><![CDATA[
+                import org.moqui.util.RestClient
+                import org.moqui.util.RestClient.Method
+
+                RestClient restClient = ec.service.rest()
+                restClient.method(Method.POST)
+                restClient.uri(shop + "admin/oauth/access_token")
+                restClient.addFieldPart("code", code);
+                restClient.addFieldPart("client_id", clientId);
+                restClient.addFieldPart("client_secret", clientSecret);
+                try {
+                    RestClient.RestResponse restResponse = restClient.call()
+                    response = restResponse.jsonObject()
+                    statusCode = restResponse.getStatusCode()
+                    if (restResponse.statusCode < 200 || restResponse.statusCode >= 300) {
+                        ec.logger.warn("Unsuccessful with status code: ${statusCode} and response: ${response}")
+                        return
+                    }
+                } catch (Exception e) {
+                    ec.logger.error("Error in API call Error: ${e.getMessage()}")
+                    return
+                }
+                accessToken = response.access_token
+            ]]></script>
+        </actions>
+    </service>
+
+    <service verb="get" noun="ShopifyShop">
+        <description>Get the shopify shop data</description>
+        <in-parameters>
+            <parameter name="shop" required="true"/>
+            <parameter name="accessToken" required="true"/>
+        </in-parameters>
+        <out-parameters>
+            <parameter name="shopifyShop">
+                <auto-parameters entity-name="co.hotwax.shopify.shop.ShopifyShop"/>
+            </parameter>
+        </out-parameters>
+        <actions>
+            <if condition="!shop.startsWith('https://')">
+                <set field="shop" from="'https://' +  shop"/>
+            </if>
+            <script><![CDATA[
+                import org.moqui.util.RestClient
+                import org.moqui.util.RestClient.Method
+
+                shopifyApiVersion = System.getProperty("shopify_api_version");
+                RestClient restClient = ec.service.rest()
+                restClient.method(Method.GET)
+                restClient.uri("${shop}/admin/api/${shopifyApiVersion}/shop.json")
+                restClient.addHeader("X-Shopify-Access-Token", accessToken);
+                try {
+                    RestClient.RestResponse restResponse = restClient.call()
+                    response = restResponse.jsonObject()
+                    statusCode = restResponse.getStatusCode()
+                    if (restResponse.statusCode < 200 || restResponse.statusCode >= 300) {
+                        ec.logger.warn("Unsuccessful with status code: ${statusCode} and response: ${response}")
+                        return
+                    }
+                } catch (Exception e) {
+                    ec.logger.error("Error in API call Error: ${e.getMessage()}")
+                    return
+                }
+                shopifyShop = ["shopifyShopId": response.shop.id, "shopName": response.shop.name, "email":response.shop.email,"phone": response.shop.phone,
+                    "domain": response.shop.domain,
+                    "myshopifyDomain":response.shop.myshopify_domain,
+                    "shopOwner":response.shop.shop_owner,
+                    "timezone":response.shop.timezone,
+                    "planName":response.shop.plan_display_name,
+                    "weightUnit":response.shop.weight_unit,
+                    "currency":response.shop.currency,
+                    "countryCode":response.shop.country]
+            ]]></script>
+        </actions>
+    </service>
+    <service verb="validate" noun="ShopifySessionToken">
+        <in-parameters>
+            <parameter name="sessionToken" required="true"/>
+            <parameter name="clientSecret" required="true"/>
+            <parameter name="shop" required="true"/>
+        </in-parameters>
+        <out-parameters>
+            <parameter name="validToken" type="Boolean"/>
+        </out-parameters>
+        <actions>
+            <set field="validToken" value="false" type="Boolean"/>
+            <if condition="!shop.startsWith('https://')">
+                <set field="shop" from="'https://' + shop"/>
+            </if>
+            <script>
+                import com.auth0.jwt.algorithms.Algorithm;
+                import com.auth0.jwt.exceptions.JWTDecodeException;
+                import com.auth0.jwt.exceptions.JWTVerificationException;
+                import com.auth0.jwt.interfaces.JWTVerifier;
+                import com.auth0.jwt.interfaces.DecodedJWT;
+                import com.auth0.jwt.JWT;
+                <![CDATA[
+                    try {
+                        Algorithm algorithm = Algorithm.HMAC256(clientSecret);
+                        JWTVerifier verifier = JWT.require(algorithm)
+                            .withIssuer(shop + "/admin")
+                            .build(); //Reusable verifier instance
+
+                        DecodedJWT jwt = verifier.verify(sessionToken);
+                        // Extract the exp value from the payload.
+                        def exp = jwt.getClaim('exp').asString()
+                        // TODO Verify that it's in the future.
+
+                        // Extract the nbf value from the payload.
+                        def nbf = jwt.getClaim('nbf').asString()
+                        // TODO Verify that it was in the past.
+
+                        // Extract the iss and dest fields from the payload.
+                        def iss = jwt.getClaim('nbf').asString()
+                        def dest = jwt.getClaim('dest').asString()
+                        // TODO The top-level domains should match.
+                        // The dest field specifies the shops that the request originated from. For example, myshop.myshopify.com.
+                        if (!(shop.equals(dest))) {
+                            ec.logger.warn("shop: ${shop} does not match with dest: ${dest} received in claim")
+                            return;
+                        }
+
+                        // Extract the aud value from the payload.
+                        def aud = jwt.getClaim('aud').asString()
+                        // Verify that it matches the API key of your app.
+                        if (!clientId.equals(aud)) {
+                            ec.logger.warn("clientId: ${clientId} does not match with aud: ${aud} received in claim")
+                            return;
+                        }
+
+                        //Extract the sub value from the payload.
+                        def sub = jwt.getClaim('sub').asString() //This is the ID of the user that made the request.
+                    } catch (JWTVerificationException exception) {
+                        // Invalid signature/claims
+                        ec.logger.warn("JWT Verification failed. Invalid signature/claims")
+                        return;
+                    } catch (JWTDecodeException exception) {
+                        // Invalid token
+                        ec.logger.warn("JWT Decoding failed. Invalid token")
+                        return;
+                    }
+                ]]>
+            </script>
+            <set field="validToken" value="true" type="Boolean"/>
+        </actions>
+    </service>
+
+    <service verb="register" noun="ShopifyShopApp">
+        <in-parameters>
+            <parameter name="clientId" required="true">
+                <description>Shopify app clientId</description>
+            </parameter>
+            <parameter name="code" required="true"><description>Authorization code</description></parameter>
+            <parameter name="host" required="true"/>
+            <parameter name="hmac" required="true"/>
+            <parameter name="timestamp" required="true"/>
+            <parameter name="state"/>
+            <parameter name="shop" required="true"> <description>Shopify shop url</description></parameter>
+        </in-parameters>
+        <actions>
+            <entity-find entity-name="co.hotwax.shopify.app.ShopifyApp" list="shopifyApps" cache="true">
+                <econdition field-name="apiKey" from="clientId"/>
+            </entity-find>
+            <set field="shopifyApp" from="shopifyApps?.first"/>
+            <if condition="!shopifyApp">
+                <return type="warning" message="Shop ${shop} trying to install invalid app ${clientId}" public="true"/>
+            </if>
+            <set field="requestBody" from="ec.getWeb().getRequestBodyText()" type="NewMap"/>
+
+            <script>
+                Map rowOpMap = org.moqui.impl.context.ContextJavaUtil.jacksonMapper.readValue((String) requestBody, Map.class)
+                rowOpMap.remove("hmac")
+                rowOpMap.remove("clientId")
+                tt= org.moqui.impl.context.ContextJavaUtil.jacksonMapper.writeValueAsString(rowOpMap)
+            </script>
+            <!--TODO: Hmac verification -->
+
+            <set field="appTypeEnum" from="shopifyApp?.appTypeEnum"/>
+            <set field="appTypeId" from="shopifyApp.appTypeId"/>
+            <log level="warn" message="Request received for ${appTypeEnum?.description} [${appTypeId}] installation for shop ${shop} from host ${host}"/>
+            <entity-find entity-name="co.hotwax.shopify.shop.ShopifyShop" list="shopifyShops" cache="true">
+                <econdition field-name="myshopifyDomain" from="shop"/>
+            </entity-find>
+            <if condition="shopifyShops">
+                <set field="shopId" from="shopifyShops?.first.shopId"/>
+             <else>
+                <service-call name="create#co.hotwax.shopify.shop.ShopifyShop" in-map="[myshopifyDomain: shop]" out-map="context" transaction="force-new"/>
+             </else>
+            </if>
+            <service-call name="co.hotwax.shopify.app.ShopifyAppServices.get#ShopifyShopAccessToken" in-map="[shop: shop, code: code, clientId: clientId, clientSecret: shopifyApp.secretKey]" ignore-error="true" out-map="context"/>
+            <if condition="!accessToken">
+                <return type="warning" message="Failed to get the oauth access token for shop ${shop}"/>
+            </if>
+            <!--Check for already installed app, if found expire them and create new record -->
+            <entity-find entity-name="co.hotwax.shopify.app.ShopifyShopApp" list="shopifyShopApps" cache="true">
+                <date-filter/>
+                <econdition field-name="shopId" from="shopId"/>
+                <econdition field-name="appId" from="shopifyApp.appId"/>
+            </entity-find>
+            <if condition="shopifyShopApps">
+                <iterate list="shopifyShopApps" entry="oldShopifyShopApp">
+                    <service-call name="update#co.hotwax.shopify.app.ShopifyShopApp"
+                                  in-map="oldShopifyShopApp + [thruDate:ec.user.nowTimestamp]" ignore-error="true"/>
+                </iterate>
+            </if>
+            <service-call name="create#co.hotwax.shopify.app.ShopifyShopApp" in-map="[shopId: shopId, appId: shopifyApp.appId, accessToken: accessToken, fromDate:ec.user.nowTimestamp]"/>
+            <service-call name="co.hotwax.shopify.app.ShopifyAppServices.store#ShopifyShop" in-map="context" async="true"/>
+            <log message="${appTypeEnum?.description} [${appTypeId}] installed successfully at shop ${shop}"/>
+        </actions>
+    </service>
+    <service verb="store" noun="ShopifyShop">
+        <description>
+            Get the shopify shop data and update existing shopifyShop
+        </description>
+        <in-parameters>
+            <parameter name="shopId" required="true"/>
+            <parameter name="shop" required="true"/>
+            <parameter name="accessToken" required="true"/>
+        </in-parameters>
+        <actions>
+            <service-call name="co.hotwax.shopify.app.ShopifyAppServices.get#ShopifyShop" in-map="context" out-map="result" />
+            <if condition="result.shopifyShop">
+                <service-call name="update#co.hotwax.shopify.shop.ShopifyShop" in-map="result.shopifyShop + ['shopId': shopId]"/>
+             <else>
+                 <log level="error" message="Unable to get shop data for shopId ${shopId}"/>
+             </else>
+            </if>
+        </actions>
+    </service>
+
+    <service verb="set" noun="HotwaxInstance">
+        <description>Set the Hotwax instance url and token</description>
+        <in-parameters>
+            <parameter name="session" required="true"/>
+            <parameter name="clientId" required="true"/>
+            <parameter name="shop" required="true"/>
+            <parameter name="instanceAddress" required="true"/>
+            <parameter name="instanceToken" required="true"/>
+        </in-parameters>
+        <actions>
+            <entity-find entity-name="co.hotwa.shopify.app.ShopifyShopAndApp" list="shopApps">
+                <econdition field-name="apiKey" from="clientId"/>
+                <econdition field-name="myshopifyDomain" from="shop"/>
+            </entity-find>
+            <if condition="!shopApps">
+                <return type="warning" error="true" message="Shop ${shop} not registered for app ${clientId}"/>
+            </if>
+            <set field="shopApp" from="shopApps?.first"/>
+            <service-call name="co.hotwax.shopify.app.ShopifyAppServices.validate#ShopifySessionToken" in-map="[shop: shop, sessionToken: session, clientSecret: shopApp.secretKey]" out-map="context"/>
+            <if condition="!context.validToken">
+                <return type="warning" message="Shop ${shop} sessionToken verification fails for app ${shopApp.appName!}"/>
+            </if>
+            <!-- TODO: Remove https and leading/trailing space -->
+            <entity-find entity-name="co.hotwax.shopify.app.HotwaxInstance" list="hotwaxInstances" cache="true">
+                <econdition field-name="hostAddress" from="instanceAddress"/>
+            </entity-find>
+            <if condition="hotwaxInstances">
+                <set field="instanceId" from="hotwaxInstances?.first?.instanceId" />
+            <else>
+                <service-call name="create#co.hotwax.shopify.app.HotwaxInstance" in-map="[hostAddress: instanceAddress]" out-map="context"/>
+            </else>
+            </if>
+            <service-call name="update#co.hotwax.shopify.app.ShopifyShopApp" in-map="[shopId: shopApp.shopId, appId: shopApp.appId, fromDate: shopApp.fromDate, hotwaxAccessToken: instanceToken, hotwaxInstanceId: instanceId]"/>
+        </actions>
+    </service>
+    <service verb="get" noun="HotwaxInstance">
+        <description>Get the Hotwax instance address and token for already installed shopify app</description>
+        <in-parameters>
+            <parameter name="session" required="true"/>
+            <parameter name="clientId" required="true"/>
+            <parameter name="shop" required="true"/>
+        </in-parameters>
+        <out-parameters>
+            <parameter name="instanceAddress"/>
+            <parameter name="instanceToken"/>
+        </out-parameters>
+        <actions>
+            <entity-find entity-name="co.hotwa.shopify.app.ShopifyShopAndApp" list="shopApps">
+                <econdition field-name="apiKey" from="clientId"/>
+                <econdition field-name="myshopifyDomain" from="shop"/>
+            </entity-find>
+            <if condition="!shopApps">
+                <return type="warning" error="true" message="Shop ${shop} not registered for app ${clientId}"/>
+            </if>
+            <set field="shopApp" from="shopApps?.first"/>
+            <service-call name="co.hotwax.shopify.ShopifyAppServices.validate#ShopifySessionToken" in-map="[shop: shop, sessionToken: session, clientSecret: shopApp.secretKey]" out-map="context"/>
+            <if condition="!context.validToken">
+                <return type="warning" message="Shop ${shop} sessionToken verification fails for app ${shopApp.appName!}"/>
+            </if>
+            <set field="instanceAddress" from="shopApp.instanceAddress"/>
+            <set field="instanceToken" from="shopApp.instanceToken"/>
+        </actions>
+    </service>
+
+    <service verb="get" noun="ShopifyAppKey">
+        <description>
+            Get the shopify api key for custom app installation.
+        </description>
+        <in-parameters>
+            <parameter name="shop" required="true">
+                <description>Shopify shop name</description>
+            </parameter>
+            <parameter name="appTypeId" required="true">
+                <description>Shopify App type id to get the app API key</description>
+            </parameter>
+        </in-parameters>
+        <out-parameters>
+            <parameter name="apiKey" required="true"><description>Shopify app apiKey/clientId</description></parameter>
+        </out-parameters>
+        <actions>
+            <entity-find entity-name="co.hotwax.shopify.app.ShopifyApp" list="shopifyApps" cache="true">
+                <econdition field-name="myshopifyDomain" from="shop"/>
+                <econdition field-name="appTypeId" from="appTypeId"/>
+            </entity-find>
+            <if condition="!shopifyApps?.first?.apiKey">
+                <return message="No ${appTypeId} app configuration found for ${shop}" type="warning" error="true"/>
+            </if>
+            <set field="apiKey" from="shopifyApps?first?.apiKey"/>
+        </actions>
+    </service>
+
+    <service verb="verify" noun="Hmac" authenticate="anonymous-all">
+        <in-parameters>
+            <parameter name="requestBody"/>
+            <parameter name="hmacString"/>
+            <parameter name="sharedSecret"/>
+        </in-parameters>
+        <out-parameters>
+            <parameter name="isValid" type="Boolean"/>
+        </out-parameters>
+        <actions>
+            <!-- Verifying the hmac -->
+            <!-- Calculate hmac using request body message and shared secret, and compare with the incoming hmac header -->
+            <script><![CDATA[
+                import javax.crypto.Mac
+                import javax.crypto.spec.SecretKeySpec
+
+                Mac hmac = Mac.getInstance("HmacSHA256")
+                hmac.init(new SecretKeySpec(sharedSecret.getBytes("UTF-8"), "HmacSHA256"))
+
+                String calculatedHmac = Base64.encoder.encodeToString(hmac.doFinal(requestBody.getBytes("UTF-8")))
+            ]]></script>
+
+            <set field="isValid" from="calculatedHmac.equals(hmacString)"/>
+        </actions>
+    </service>
+</services>

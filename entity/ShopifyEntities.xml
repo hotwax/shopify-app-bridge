@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+<entities xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="http://moqui.org/xsd/entity-definition-3.xsd">
+
+    <!-- ========================================================= -->
+    <!-- co.hotwax.shopify.shop -->
+    <!-- co.hotwax.shopify.app -->
+    <!-- ========================================================= -->
+    
+    <entity entity-name="ShopifyShop" package="co.hotwax.shopify.shop">
+        <description>
+            The Shop resource is a collection of general business and store management settings and information about the store
+            https://shopify.dev/api/admin-graphql/2023-01/objects/Shop
+        </description>
+        <field name="shopId" type="id" is-pk="true"><description>A globally-unique identifier.</description></field>
+        <field name="shopifyShopId" type="id-long"><description>Shopify Shop id.</description></field>
+        <field name="productStoreId" type="id"/>
+        <field name="shopName" type="text-short"><description>The shop's name.</description></field>
+        <field name="email" type="text-medium"><description>The shop owner's email address.</description></field>
+        <field name="phone" type="text-medium"><description>The shop's billing plan.</description></field>
+        <field name="shopOwner" type="text-short"/>
+        <field name="timezone" type="text-short"><description>The shop's time zone abbreviation.</description></field>
+        <field name="planName" type="text-medium"/>
+        <field name="domain" type="text-medium"><description>The primary domain of the shop's online store.</description></field>
+        <field name="myshopifyDomain" type="text-medium"><description>The shop's .myshopify.com domain name.</description></field>
+        <field name="weightUnit" type="id"/>
+        <field name="currency" type="id"/>
+        <field name="countryCode" type="id"/>
+        <relationship type="many" related="co.hotwax.shopify.app.ShopifyShopApp" short-alias="shopApps">
+            <key-map field-name="shopId"/>
+        </relationship>
+    </entity>
+
+    <entity entity-name="ShopifyApp" package="co.hotwax.shopify.app">
+        <description>Shopify published app on shopify</description>
+        <field name="appId" type="id" is-pk="true"><description>A globally-unique identifier.</description></field>
+        <field name="appTypeId" type="id" ><description>App type eg. Preorder, BOPIS etc</description></field>
+        <field name="statusId" type="id" enable-audit-log="true"><description>Current status of published app</description></field>
+        <field name="appName" type="id"/>
+        <field name="apiKey" type="text-intermediate" encrypt="true" enable-audit-log="true"><description>apiKey for published app</description></field>
+        <field name="secretKey" type="text-medium" encrypt="true" enable-audit-log="true"><description>secretKey for published app</description></field>
+        <field name="myshopifyDomain" type="text-medium">
+            <description>If app is created for specific shop, if myshopifyDomain is set for any app it will consider as custom app,
+                In case of public app, this will be empty
+            </description>
+        </field>
+        <field name="introductionDate" type="date-time"/>
+        <relationship type="one-nofk" title="AppType" related="moqui.basic.Enumeration" short-alias="appTypeEnum">
+            <key-map field-name="appTypeId"/></relationship>
+        <relationship type="many" related="co.hotwax.shopify.app.ShopifyShopApp" short-alias="appsShop">
+            <key-map field-name="appId"/>
+        </relationship>
+        <seed-data>
+            <moqui.basic.EnumerationType enumTypeId="SHOPIFY_APP_TYPE" description="Shopify app type"/>
+            <moqui.basic.Enumeration enumId="SHOP_PRE_ORDER_APP" enumTypeId="SHOPIFY_APP_TYPE" description="Pre-order"/>
+            <moqui.basic.Enumeration enumId="SHOP_BOPIS_APP" enumTypeId="SHOPIFY_APP_TYPE" description="Backorder"/>
+            <moqui.basic.Enumeration enumId="SHOP_OMS_APP" enumTypeId="SHOPIFY_APP_TYPE" description="OMS Config"/>
+        </seed-data>
+    </entity>
+
+    <entity entity-name="ShopifyShopApp" package="co.hotwax.shopify.app">
+        <field name="shopId" type="id" is-pk="true"/>
+        <field name="appId" type="id" is-pk="true"/>
+        <field name="fromDate" type="date-time" is-pk="true"/>
+        <field name="appAccessToken" type="text-intermediate" encrypt="true"><description>An API access token that can be used to access the shopify shop’s data as long as your app is installed.</description></field>
+        <field name="hotwaxAccessToken" type="text-intermediate" encrypt="true"/>
+        <field name="hotwaxInstanceId" type="id"/>
+        <field name="comments" type="text-medium"/>
+        <field name="thruDate" type="date-time"/>
+        <relationship type="one" related="co.hotwax.shopify.shop.ShopifyShop" short-alias="shopifyShop">
+            <key-map field-name="shopId"/>
+        </relationship>
+        <relationship type="one" related="co.hotwax.shopify.app.ShopifyApp" short-alias="shopifyApp">
+            <key-map field-name="appId"/>
+        </relationship>
+        <relationship type="one" related="co.hotwax.shopify.app.HotwaxInstance" short-alias="hotwaxInstance">
+            <key-map field-name="hotwaxInstanceId"/>
+        </relationship>
+    </entity>
+
+    <entity entity-name="HotwaxInstance" package="co.hotwax.shopify.app">
+        <field name="instanceId" type="id" is-pk="true"/>
+        <field name="hostAddress" type="text-medium"/>
+        <relationship type="many" related="co.hotwax.shopify.app.ShopifyShopApp" short-alias="shopifyShopApp">
+            <key-map field-name="instanceId"/>
+        </relationship>
+    </entity>
+</entities>

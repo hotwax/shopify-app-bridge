@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+
+<entities xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://moqui.org/xsd/entity-definition-3.xsd">
+    <view-entity entity-name="ShopifyShopAndApp" package="co.hotwax.shopify.app">
+        <member-entity entity-alias="SS" entity-name="co.hotwax.shopify.shop.ShopifyShop"/>
+        <member-entity entity-alias="SSA" entity-name="co.hotwax.shopify.app.ShopifyShopApp" join-from-alias="SS">
+            <key-map field-name="shopId"/>
+        </member-entity>
+        <member-entity entity-alias="SA" entity-name="co.hotwax.shopify.app.ShopifyApp" join-from-alias="SSA">
+            <key-map field-name="appId"/>
+        </member-entity>
+        <alias entity-alias="SS" name="shopId"/>
+        <alias entity-alias="SS" name="shopifyShopId"/>
+        <alias entity-alias="SS" name="shopName"/>
+        <alias entity-alias="SS" name="domain"/>
+        <alias entity-alias="SS" name="myshopifyDomain"/>
+        <alias entity-alias="SSA" name="fromDate"/>
+        <alias entity-alias="SSA" name="thruDate"/>
+        <alias entity-alias="SA" name="appTypeId"/>
+        <alias entity-alias="SA" name="statusId"/>
+        <alias entity-alias="SA" name="apiKey"/>
+        <alias entity-alias="SA" name="secretKey"/>
+    </view-entity>
+</entities>
