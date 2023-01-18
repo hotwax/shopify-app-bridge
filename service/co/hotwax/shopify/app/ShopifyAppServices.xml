@@ -219,8 +219,24 @@ under the License.
             <if condition="!shopifyApp">
                 <return type="warning" message="Shop ${shop} trying to install invalid app ${clientId}" public="true"/>
             </if>
-            <!--TODO: Hmac verification -->
-
+            <set field="requestBody" from="ec.web.getRequestBodyText()" />
+            <script>
+                /*
+                https://shopify.dev/apps/auth/oauth/getting-started#remove-the-hmac-parameter-from-the-query-string
+                To remove the HMAC parameter, you can transform the query string to a key-value table,
+                remove the hmac key-value pair, and then transform your map back to a query string.
+                The remaining parameters must be sorted alphabetically as strings,
+                in the format "parameter_name=parameter_value".
+                */
+                TreeMap rowBodyMap = org.moqui.impl.context.ContextJavaUtil.jacksonMapper.readValue((String) requestBody, LinkedHashMap.class)
+                rowBodyMap.remove("hmac")
+                rowBodyMap.remove("clientId")
+                message = org.moqui.util.RestClient.parametersMapToString(rowBodyMap)
+            </script>
+            <service-call name="co.hotwax.shopify.app.ShopifyAppServices.verify#Hmac" in-map="[message: message, hmacString: hmac, sharedSecret: shopifyApp.secretKey, digest: 'Hex']" out-map="context"/>
+            <if condition="!isValid">
+                <return type="danger" message="App ${clientId} installation request failed due to hmac verification failure for ${shop}"/>
+            </if>
             <set field="appTypeEnum" from="shopifyApp?.appTypeEnum"/>
             <set field="appTypeId" from="shopifyApp.appTypeId"/>
             <log level="warn" message="Request received for ${appTypeEnum?.description} [${appTypeId}] installation for shop ${shop} from host ${host}"/>
@@ -392,9 +408,10 @@ under the License.
     <!-- Utility service to verify Hmac -->
     <service verb="verify" noun="Hmac" authenticate="anonymous-all">
         <in-parameters>
-            <parameter name="requestBody"/>
+            <parameter name="message"/>
             <parameter name="hmacString"/>
             <parameter name="sharedSecret"/>
+            <parameter name="digest" default-value="Base64"/>
         </in-parameters>
         <out-parameters>
             <parameter name="isValid" type="Boolean"/>
@@ -408,10 +425,14 @@ under the License.
 
                 Mac hmac = Mac.getInstance("HmacSHA256")
                 hmac.init(new SecretKeySpec(sharedSecret.getBytes("UTF-8"), "HmacSHA256"))
-
-                String calculatedHmac = Base64.encoder.encodeToString(hmac.doFinal(requestBody.getBytes("UTF-8")))
+                byte[] bytes = hmac.doFinal(message.getBytes("UTF-8"));
+                String calculatedHmac = "";
+                if ("Base64".equals(digest)) {
+                    calculatedHmac = Base64.encoder.encodeToString(bytes)
+                } else if ("Hex".equals(digest)) {
+                    calculatedHmac = org.apache.commons.codec.binary.Hex.encodeHexString(bytes)
+                }
             ]]></script>
-
             <set field="isValid" from="calculatedHmac.equals(hmacString)"/>
         </actions>
     </service>
