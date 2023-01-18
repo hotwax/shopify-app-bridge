@@ -370,12 +370,20 @@ under the License.
             <parameter name="apiKey" required="true"><description>Shopify app apiKey/clientId</description></parameter>
         </out-parameters>
         <actions>
+            <!-- Check for custom app -->
             <entity-find entity-name="co.hotwax.shopify.app.ShopifyApp" list="shopifyApps" cache="true">
                 <econdition field-name="myshopifyDomain" from="shop"/>
                 <econdition field-name="appTypeId" from="appTypeId"/>
             </entity-find>
+            <if condition="!shopifyApps">
+                <!-- If no custom app found then check for public app -->
+                <entity-find entity-name="co.hotwax.shopify.app.ShopifyApp" list="shopifyApps" cache="true">
+                    <econdition field-name="myshopifyDomain" from="null"/>
+                    <econdition field-name="appTypeId" from="appTypeId"/>
+                </entity-find>
+            </if>
             <if condition="!shopifyApps?.first?.apiKey">
-                <return message="No ${appTypeId} app configuration found for ${shop}" type="warning" error="true"/>
+                <return message="No ${appTypeId} app configuration found for ${shop}" type="warning"/>
             </if>
             <set field="apiKey" from="shopifyApps?.first?.apiKey"/>
         </actions>
