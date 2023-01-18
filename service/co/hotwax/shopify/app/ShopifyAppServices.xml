@@ -178,12 +178,12 @@ under the License.
                     } catch (JWTVerificationException exception) {
                         // Invalid signature/claims
                         ec.logger.warn("JWT Verification failed : ${exception.toString()}")
-                        ec.message.addMessage("JWT Verification failed: : ${exception.toString()", "danger")
+                        ec.message.addMessage("JWT Verification failed: : ${exception.toString()}", "danger")
                         return;
                     } catch (JWTDecodeException exception) {
                         // Invalid token
                         ec.logger.warn("JWT Decoding failed : ${exception.toString()}")
-                        ec.message.addMessage("JWT Decoding failed : ${exception.toString()", "danger")
+                        ec.message.addMessage("JWT Decoding failed : ${exception.toString()}", "danger")
                         return;
                     }
                 ]]>
