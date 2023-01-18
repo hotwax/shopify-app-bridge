@@ -175,11 +175,13 @@ under the License.
                         def sub = jwt.getClaim('sub').asString() //This is the ID of the user that made the request.
                     } catch (JWTVerificationException exception) {
                         // Invalid signature/claims
-                        ec.logger.warn("JWT Verification failed. Invalid signature/claims")
+                        ec.logger.warn("JWT Verification failed : ${exception.toString()}")
+                        ec.message.addMessage("JWT Verification failed: : ${exception.toString()", "danger")
                         return;
                     } catch (JWTDecodeException exception) {
                         // Invalid token
-                        ec.logger.warn("JWT Decoding failed. Invalid token")
+                        ec.logger.warn("JWT Decoding failed : ${exception.toString()}")
+                        ec.message.addMessage("JWT Decoding failed : ${exception.toString()", "danger")
                         return;
                     }
                 ]]>
@@ -281,9 +283,9 @@ under the License.
                 <return type="warning" error="true" message="Shop ${shop} not registered for app ${clientId}"/>
             </if>
             <set field="shopApp" from="shopApps?.first"/>
-            <service-call name="co.hotwax.shopify.app.ShopifyAppServices.validate#ShopifySessionToken" in-map="[shop: shop, sessionToken: session, clientSecret: shopApp.secretKey]" out-map="context"/>
+            <service-call name="co.hotwax.shopify.app.ShopifyAppServices.validate#ShopifySessionToken" in-map="[shop: shop, sessionToken: session, clientSecret: shopApp.secretKey, clientId: clientId]" out-map="context"/>
             <if condition="!context.validToken">
-                <return type="warning" message="Shop ${shop} sessionToken verification fails for app ${shopApp.appName!}"/>
+                <return type="warning" message="Shop ${shop} sessionToken verification fails for app ${shopApp.appName!}" error="true"/>
             </if>
             <!-- TODO: Remove https and leading/trailing space -->
             <entity-find entity-name="co.hotwax.shopify.app.HotwaxInstance" list="hotwaxInstances" cache="true">
@@ -320,7 +322,7 @@ under the License.
             <set field="shopApp" from="shopApps?.first"/>
             <service-call name="co.hotwax.shopify.app.ShopifyAppServices.validate#ShopifySessionToken" in-map="[shop: shop, sessionToken: session, clientSecret: shopApp.secretKey, clientId: clientId]" out-map="context"/>
             <if condition="!context.validToken">
-                <return type="warning" message="Shop ${shop} sessionToken verification fails for app ${shopApp.appName!}"/>
+                <return type="warning" message="Shop ${shop} sessionToken verification fails for app ${shopApp.appName!}" error="true"/>
             </if>
             <set field="instanceAddress" from="shopApp.hostAddress"/>
             <set field="instanceToken" from="shopApp.hotwaxAccessToken"/>

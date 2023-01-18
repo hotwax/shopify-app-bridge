@@ -24,7 +24,7 @@ under the License.
         <member-entity entity-alias="SSA" entity-name="co.hotwax.shopify.app.ShopifyShopApp" join-from-alias="SS">
             <key-map field-name="shopId"/>
         </member-entity>
-        <member-entity entity-alias="HI" entity-name="co.hotwax.shopify.app.HotwaxInstance" join-from-alias="SSA">
+        <member-entity entity-alias="HI" entity-name="co.hotwax.shopify.app.HotwaxInstance" join-from-alias="SSA" join-optional="true">
             <key-map field-name="hotwaxInstanceId"/>
         </member-entity>
         <member-entity entity-alias="SA" entity-name="co.hotwax.shopify.app.ShopifyApp" join-from-alias="SSA">
@@ -39,6 +39,7 @@ under the License.
         <alias entity-alias="SSA" name="thruDate"/>
         <alias entity-alias="SSA" name="hotwaxAccessToken"/>
         <alias entity-alias="HI" name="hostAddress"/>
+        <alias entity-alias="SA" name="appId"/>
         <alias entity-alias="SA" name="appTypeId"/>
         <alias entity-alias="SA" name="statusId"/>
         <alias entity-alias="SA" name="appName"/>
