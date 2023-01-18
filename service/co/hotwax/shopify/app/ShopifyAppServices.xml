@@ -118,6 +118,7 @@ under the License.
     <service verb="validate" noun="ShopifySessionToken">
         <in-parameters>
             <parameter name="sessionToken" required="true"/>
+            <parameter name="clientId" required="true"/>
             <parameter name="clientSecret" required="true"/>
             <parameter name="shop" required="true"/>
         </in-parameters>
@@ -317,12 +318,12 @@ under the License.
                 <return type="warning" error="true" message="Shop ${shop} not registered for app ${clientId}"/>
             </if>
             <set field="shopApp" from="shopApps?.first"/>
-            <service-call name="co.hotwax.shopify.app.ShopifyAppServices.validate#ShopifySessionToken" in-map="[shop: shop, sessionToken: session, clientSecret: shopApp.secretKey]" out-map="context"/>
+            <service-call name="co.hotwax.shopify.app.ShopifyAppServices.validate#ShopifySessionToken" in-map="[shop: shop, sessionToken: session, clientSecret: shopApp.secretKey, clientId: clientId]" out-map="context"/>
             <if condition="!context.validToken">
                 <return type="warning" message="Shop ${shop} sessionToken verification fails for app ${shopApp.appName!}"/>
             </if>
-            <set field="instanceAddress" from="shopApp.instanceAddress"/>
-            <set field="instanceToken" from="shopApp.instanceToken"/>
+            <set field="instanceAddress" from="shopApp.hostAddress"/>
+            <set field="instanceToken" from="shopApp.hotwaxAccessToken"/>
         </actions>
     </service>
 
