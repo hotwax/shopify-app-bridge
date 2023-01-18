@@ -19,8 +19,6 @@ under the License.
 -->
 
 <services xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://moqui.org/xsd/service-definition-3.xsd">
-
-
     <service verb="get" noun="ShopifyShopAccessToken">
         <description>
             Get the oauth shopify shop access token.
