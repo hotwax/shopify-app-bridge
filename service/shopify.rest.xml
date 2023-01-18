@@ -29,4 +29,6 @@ under the License.
             <method type="get"><service name="co.hotwax.shopify.app.ShopifyAppServices.get#HotwaxInstance"/></method>
         </resource>
     </resource>
+
+<!--    uninstall webhook-->
 </resource>

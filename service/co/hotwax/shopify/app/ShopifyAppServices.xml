@@ -20,9 +20,11 @@ under the License.
 
 <services xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://moqui.org/xsd/service-definition-3.xsd">
 
+
     <service verb="get" noun="ShopifyShopAccessToken">
         <description>
-            Get the oauth shopify shop access token
+            Get the oauth shopify shop access token.
+            https://shopify.dev/apps/auth/oauth/getting-started#step-5-get-an-access-token
         </description>
         <in-parameters>
             <parameter name="shop" required="true"/>
@@ -37,16 +39,13 @@ under the License.
             <if condition="!shop.startsWith('https://')">
                 <set field="shop" from="'https://' +  shop"/>
             </if>
-            <if condition="!shop.endsWith('/')">
-                <set field="shop" from="shop + '/'"/>
-            </if>
             <script><![CDATA[
                 import org.moqui.util.RestClient
                 import org.moqui.util.RestClient.Method
 
                 RestClient restClient = ec.service.rest()
                 restClient.method(Method.POST)
-                restClient.uri(shop + "admin/oauth/access_token")
+                restClient.uri("${shop}/admin/oauth/access_token")
                 restClient.addFieldPart("code", code);
                 restClient.addFieldPart("client_id", clientId);
                 restClient.addFieldPart("client_secret", clientSecret);
@@ -115,7 +114,12 @@ under the License.
             ]]></script>
         </actions>
     </service>
+
     <service verb="validate" noun="ShopifySessionToken">
+        <description>
+            Shopify session token authentication for embedded app.
+            https://shopify.dev/apps/auth/oauth/session-tokens/getting-started
+        </description>
         <in-parameters>
             <parameter name="sessionToken" required="true"/>
             <parameter name="clientId" required="true"/>
@@ -191,6 +195,13 @@ under the License.
     </service>
 
     <service verb="register" noun="ShopifyShopApp">
+        <description>
+            Authorize app using OAuth
+            https://shopify.dev/apps/auth/oauth/getting-started
+
+            Using a Shopify Admin API library helps to keep app secure and reduce implementation time.
+            Shopify recommends that you use a library where possible.
+        </description>
         <in-parameters>
             <parameter name="clientId" required="true">
                 <description>Shopify app clientId</description>
@@ -226,7 +237,7 @@ under the License.
             </if>
             <service-call name="co.hotwax.shopify.app.ShopifyAppServices.get#ShopifyShopAccessToken" in-map="[shop: shop, code: code, clientId: clientId, clientSecret: shopifyApp.secretKey]" ignore-error="true" out-map="context"/>
             <if condition="!accessToken">
-                <return type="warning" message="Failed to get the oauth access token for shop ${shop}"/>
+                <return type="warning" message="Failed to get the oauth access token for shop ${shop}" error="true" public="true"/>
             </if>
             <!--Check for already installed app, if found expire them and create new record -->
             <entity-find entity-name="co.hotwax.shopify.app.ShopifyShopApp" list="shopifyShopApps" cache="true">
@@ -234,15 +245,25 @@ under the License.
                 <econdition field-name="shopId" from="shopId"/>
                 <econdition field-name="appId" from="shopifyApp.appId"/>
             </entity-find>
+            <set field="alreadyRegistered" value="false" type="Boolean"/>
             <if condition="shopifyShopApps">
                 <iterate list="shopifyShopApps" entry="oldShopifyShopApp">
+                    <if condition="accessToken.equals(oldShopifyShopApp.appAccessToken)">
+                        <set field="alreadyRegistered" value="true" type="Boolean"/>
+                        <continue/>
+                    </if>
                     <service-call name="update#co.hotwax.shopify.app.ShopifyShopApp"
-                                  in-map="oldShopifyShopApp + [thruDate:ec.user.nowTimestamp]" ignore-error="true"/>
+                            in-map="oldShopifyShopApp + [thruDate:ec.user.nowTimestamp]" ignore-error="true"/>
                 </iterate>
             </if>
-            <service-call name="create#co.hotwax.shopify.app.ShopifyShopApp" in-map="[shopId: shopId, appId: shopifyApp.appId, appAccessToken: accessToken, fromDate:ec.user.nowTimestamp]"/>
-            <service-call name="co.hotwax.shopify.app.ShopifyAppServices.store#ShopifyShop" in-map="context" disable-authz="true" />
-            <log message="${appTypeEnum?.description} [${appTypeId}] installed successfully at shop ${shop}"/>
+            <if condition="!alreadyRegistered">
+                <service-call name="create#co.hotwax.shopify.app.ShopifyShopApp" in-map="[shopId: shopId, appId: shopifyApp.appId, appAccessToken: accessToken, fromDate:ec.user.nowTimestamp]"/>
+                <service-call name="co.hotwax.shopify.app.ShopifyAppServices.store#ShopifyShop" in-map="context" disable-authz="true" />
+                <log message="${appTypeEnum?.description} [${appTypeId}] installed successfully at shop ${shop}"/>
+            <else>
+                <log message="${appTypeEnum?.description} [${appTypeId}] duplicate installation request received for ${shop}"/>
+            </else>
+            </if>
         </actions>
     </service>
     <service verb="store" noun="ShopifyShop">
@@ -265,8 +286,11 @@ under the License.
         </actions>
     </service>
 
+    <!-- Shopify embedded app api -->
     <service verb="set" noun="HotwaxInstance">
-        <description>Set the Hotwax instance url and token</description>
+        <description>
+            Set the Hotwax instance address and token
+        </description>
         <in-parameters>
             <parameter name="session" required="true"/>
             <parameter name="clientId" required="true"/>
@@ -285,7 +309,7 @@ under the License.
             <set field="shopApp" from="shopApps?.first"/>
             <service-call name="co.hotwax.shopify.app.ShopifyAppServices.validate#ShopifySessionToken" in-map="[shop: shop, sessionToken: session, clientSecret: shopApp.secretKey, clientId: clientId]" out-map="context"/>
             <if condition="!context.validToken">
-                <return type="warning" message="Shop ${shop} sessionToken verification fails for app ${shopApp.appName!}" error="true"/>
+                <return type="warning" message="Shop ${shop} sessionToken verification fails for app ${shopApp.appName}" error="true"/>
             </if>
             <!-- TODO: Remove https and leading/trailing space -->
             <entity-find entity-name="co.hotwax.shopify.app.HotwaxInstance" list="hotwaxInstances" cache="true">
@@ -301,7 +325,9 @@ under the License.
         </actions>
     </service>
     <service verb="get" noun="HotwaxInstance">
-        <description>Get the Hotwax instance address and token for already installed shopify app</description>
+        <description>
+            Get the Hotwax instance address and token for already installed shopify app
+        </description>
         <in-parameters>
             <parameter name="session" required="true"/>
             <parameter name="clientId" required="true"/>
@@ -322,12 +348,13 @@ under the License.
             <set field="shopApp" from="shopApps?.first"/>
             <service-call name="co.hotwax.shopify.app.ShopifyAppServices.validate#ShopifySessionToken" in-map="[shop: shop, sessionToken: session, clientSecret: shopApp.secretKey, clientId: clientId]" out-map="context"/>
             <if condition="!context.validToken">
-                <return type="warning" message="Shop ${shop} sessionToken verification fails for app ${shopApp.appName!}" error="true"/>
+                <return type="warning" message="Shop ${shop} sessionToken verification fails for app ${shopApp.appName}" error="true"/>
             </if>
             <set field="instanceAddress" from="shopApp.hostAddress"/>
             <set field="instanceToken" from="shopApp.hotwaxAccessToken"/>
         </actions>
     </service>
+    <!--Shopify embedded app api end-->
 
     <service verb="get" noun="ShopifyAppKey">
         <description>
@@ -356,6 +383,7 @@ under the License.
         </actions>
     </service>
 
+    <!-- Utility service to verify Hmac -->
     <service verb="verify" noun="Hmac" authenticate="anonymous-all">
         <in-parameters>
             <parameter name="requestBody"/>
