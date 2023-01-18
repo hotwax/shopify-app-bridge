@@ -272,7 +272,7 @@ under the License.
             <parameter name="instanceToken" required="true"/>
         </in-parameters>
         <actions>
-            <entity-find entity-name="co.hotwa.shopify.app.ShopifyShopAndApp" list="shopApps">
+            <entity-find entity-name="co.hotwax.shopify.app.ShopifyShopAndApp" list="shopApps">
                 <econdition field-name="apiKey" from="clientId"/>
                 <econdition field-name="myshopifyDomain" from="shop"/>
             </entity-find>
@@ -309,7 +309,7 @@ under the License.
             <parameter name="instanceToken"/>
         </out-parameters>
         <actions>
-            <entity-find entity-name="co.hotwa.shopify.app.ShopifyShopAndApp" list="shopApps">
+            <entity-find entity-name="co.hotwax.shopify.app.ShopifyShopAndApp" list="shopApps">
                 <econdition field-name="apiKey" from="clientId"/>
                 <econdition field-name="myshopifyDomain" from="shop"/>
             </entity-find>
@@ -317,7 +317,7 @@ under the License.
                 <return type="warning" error="true" message="Shop ${shop} not registered for app ${clientId}"/>
             </if>
             <set field="shopApp" from="shopApps?.first"/>
-            <service-call name="co.hotwax.shopify.ShopifyAppServices.validate#ShopifySessionToken" in-map="[shop: shop, sessionToken: session, clientSecret: shopApp.secretKey]" out-map="context"/>
+            <service-call name="co.hotwax.shopify.app.ShopifyAppServices.validate#ShopifySessionToken" in-map="[shop: shop, sessionToken: session, clientSecret: shopApp.secretKey]" out-map="context"/>
             <if condition="!context.validToken">
                 <return type="warning" message="Shop ${shop} sessionToken verification fails for app ${shopApp.appName!}"/>
             </if>
