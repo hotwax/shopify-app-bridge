@@ -27,10 +27,13 @@ import org.moqui.entity.EntityValue
 import org.moqui.impl.context.ExecutionContextFactoryImpl
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.apache.commons.io.IOUtils
+import org.moqui.impl.context.ContextJavaUtil;
 
 import javax.servlet.*
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
+import java.util.stream.Collectors
 
 /** shopify webhook HMAC verification  */
 @CompileStatic
@@ -82,18 +85,14 @@ class ShopifyWebhookFilter implements Filter {
         String shopDomain = request.getHeader("X-Shopify-Shop-Domain")
         String webhookTopic = request.getHeader("X-Shopify-Topic")
 
-        // Extract Request Body of the webhook
-        StringBuilder requestBody = new StringBuilder()
-        BufferedReader reader = request.getReader()
-        String line;
-        while ((line = reader.readLine()) != null) {
-            requestBody.append(line)
-        }
+        String requestBody = IOUtils.toString(request.getReader());
         if (requestBody.length() == 0) {
             logger.warn("The request body for webhook ${webhookTopic} is empty for Shopify ${shopDomain}, cannot verify webhook")
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, "The Request Body is empty for Shopify webhook")
             return
         }
+        request.setAttribute("webhookPayload", ContextJavaUtil.jacksonMapper.readValue(requestBody, Map.class))
+
 
         EntityList shopifyShopApps = ec.entityFacade.find("co.hotwax.shopify.app.ShopifyShopAndApp")
                 .condition("domain", shopDomain)
