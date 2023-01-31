@@ -22,10 +22,11 @@ under the License.
     <service verb="dummy" noun="WebhookListner">
         <in-parameters>
             <parameter name="appTypeId"/>
+            <parameter name="webhookPayload"/>
         </in-parameters>
         <actions>
             <log message="Webhook received for ${appTypeId}"/>
-            <log message="${ec.web.getRequestBodyText()}"/>
+            <log message="${webhookPayload}"/>
             <log message="${ec.web.getRequestDetails()}"/>
         </actions>
     </service>
