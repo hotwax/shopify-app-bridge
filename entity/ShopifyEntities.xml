@@ -31,7 +31,7 @@ under the License.
             https://shopify.dev/api/admin-graphql/2023-01/objects/Shop
         </description>
         <field name="shopId" type="id" is-pk="true"><description>A globally-unique identifier.</description></field>
-        <field name="shopifyShopId" type="id-long"><description>Shopify Shop id.</description></field>
+        <field name="externalId" type="id-long"><description>Shopify Shop id.</description></field>
         <field name="productStoreId" type="id"/>
         <field name="shopName" type="text-short"><description>The shop's name.</description></field>
         <field name="email" type="text-medium"><description>The shop owner's email address.</description></field>
@@ -50,7 +50,7 @@ under the License.
     </entity>
 
     <entity entity-name="ShopifyApp" package="co.hotwax.shopify.app">
-        <description>Shopify published app on shopify</description>
+        <description>Shopify published app on shopify app store</description>
         <field name="appId" type="id" is-pk="true"><description>A globally-unique identifier.</description></field>
         <field name="appTypeId" type="id" ><description>App type eg. Preorder, BOPIS etc</description></field>
         <field name="statusId" type="id" enable-audit-log="true"><description>Current status of published app</description></field>
@@ -77,6 +77,10 @@ under the License.
     </entity>
 
     <entity entity-name="ShopifyShopApp" package="co.hotwax.shopify.app">
+        <description>
+            ShopifyShop and ShopifyApp assoc entity
+            This entity keep the information about installed app on shopify shop
+        </description>
         <field name="shopId" type="id" is-pk="true"/>
         <field name="appId" type="id" is-pk="true"/>
         <field name="fromDate" type="date-time" is-pk="true"/>
@@ -97,6 +101,9 @@ under the License.
     </entity>
 
     <entity entity-name="HotwaxInstance" package="co.hotwax.shopify.app">
+        <description>
+            Store the Hotwax instance details
+        </description>
         <field name="instanceId" type="id" is-pk="true"/>
         <field name="hostAddress" type="text-medium"/>
         <relationship type="many" related="co.hotwax.shopify.app.ShopifyShopApp" short-alias="shopifyShopApp">

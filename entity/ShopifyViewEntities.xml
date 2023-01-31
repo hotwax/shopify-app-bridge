@@ -31,7 +31,7 @@ under the License.
             <key-map field-name="appId"/>
         </member-entity>
         <alias entity-alias="SS" name="shopId"/>
-        <alias entity-alias="SS" name="shopifyShopId"/>
+        <alias entity-alias="SS" name="externalId"/>
         <alias entity-alias="SS" name="shopName"/>
         <alias entity-alias="SS" name="domain"/>
         <alias entity-alias="SS" name="myshopifyDomain"/>

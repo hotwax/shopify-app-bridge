@@ -100,7 +100,7 @@ under the License.
                     ec.logger.error("Error in API call Error: ${e.getMessage()}")
                     return
                 }
-                shopifyShop = ["shopifyShopId": response.shop.id, "shopName": response.shop.name, "email":response.shop.email,"phone": response.shop.phone,
+                shopifyShop = ["externalId": response.shop.id, "shopName": response.shop.name, "email":response.shop.email,"phone": response.shop.phone,
                     "domain": response.shop.domain,
                     "myshopifyDomain":response.shop.myshopify_domain,
                     "shopOwner":response.shop.shop_owner,
