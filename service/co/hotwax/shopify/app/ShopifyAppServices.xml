@@ -228,13 +228,13 @@ under the License.
                 The remaining parameters must be sorted alphabetically as strings,
                 in the format "parameter_name=parameter_value".
                 */
-                TreeMap rowBodyMap = org.moqui.impl.context.ContextJavaUtil.jacksonMapper.readValue((String) requestBody, LinkedHashMap.class)
+                TreeMap rowBodyMap = org.moqui.impl.context.ContextJavaUtil.jacksonMapper.readValue((String) requestBody, Map.class)
                 rowBodyMap.remove("hmac")
                 rowBodyMap.remove("clientId")
                 message = org.moqui.util.RestClient.parametersMapToString(rowBodyMap)
             </script>
             <service-call name="co.hotwax.shopify.app.ShopifyAppServices.verify#Hmac" in-map="[message: message, hmacString: hmac, sharedSecret: shopifyApp.secretKey, digest: 'Hex']" out-map="context"/>
-            <if condition="!isValid">
+            <if condition="!isValidWebhook">
                 <return type="danger" message="App ${clientId} installation request failed due to hmac verification failure for ${shop}"/>
             </if>
             <set field="appTypeEnum" from="shopifyApp?.appTypeEnum"/>
@@ -316,6 +316,7 @@ under the License.
             <entity-find entity-name="co.hotwax.shopify.app.ShopifyShopAndApp" list="shopApps">
                 <econdition field-name="apiKey" from="clientId"/>
                 <econdition field-name="myshopifyDomain" from="shop"/>
+                <date-filter/>
             </entity-find>
             <if condition="!shopApps">
                 <return type="warning" error="true" message="Shop ${shop} not registered for app ${clientId}"/>
@@ -355,6 +356,7 @@ under the License.
             <entity-find entity-name="co.hotwax.shopify.app.ShopifyShopAndApp" list="shopApps">
                 <econdition field-name="apiKey" from="clientId"/>
                 <econdition field-name="myshopifyDomain" from="shop"/>
+                <date-filter
             </entity-find>
             <if condition="!shopApps">
                 <return type="warning" error="true" message="Shop ${shop} not registered for app ${clientId}"/>
@@ -414,7 +416,7 @@ under the License.
             <parameter name="digest" default-value="Base64"/>
         </in-parameters>
         <out-parameters>
-            <parameter name="isValid" type="Boolean"/>
+            <parameter name="isValidWebhook" type="Boolean"/>
         </out-parameters>
         <actions>
             <!-- Verifying the hmac -->
@@ -433,7 +435,7 @@ under the License.
                     calculatedHmac = org.apache.commons.codec.binary.Hex.encodeHexString(bytes)
                 }
             ]]></script>
-            <set field="isValid" from="calculatedHmac.equals(hmacString)"/>
+            <set field="isValidWebhook" from="calculatedHmac.equals(hmacString)"/>
         </actions>
     </service>
 </services>

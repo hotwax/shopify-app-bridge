@@ -2,4 +2,12 @@
 <!-- No copyright or license for configuration file, details here are not considered a creative work. -->
 <moqui-conf xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://moqui.org/xsd/moqui-conf-3.xsd">
     <default-property name="shopify_api_version" value="2022-10"/>
+    <webapp-list>
+        <webapp name="webroot">
+            <!-- Shopify Webhook Request Filter  -->
+            <filter name="ShopifyWebhookFilter" class="co.hotwax.shopify.app.ShopifyWebhookFilter" async-supported="true">
+                <url-pattern>/rest/s1/shopify/app/webhook/*</url-pattern>
+            </filter>
+        </webapp>
+    </webapp-list>
 </moqui-conf>
