@@ -78,7 +78,7 @@ class ShopifyWebhookFilter implements Filter {
 
     void verifyIncomingWebhook(HttpServletRequest request, HttpServletResponse response, ExecutionContextImpl ec) {
 
-        String hmacString = request.getHeader("X-Shopify-Hmac-SHA256")
+        String hmac = request.getHeader("X-Shopify-Hmac-SHA256")
         String shopDomain = request.getHeader("X-Shopify-Shop-Domain")
         String webhookTopic = request.getHeader("X-Shopify-Topic")
 
@@ -96,20 +96,19 @@ class ShopifyWebhookFilter implements Filter {
         }
 
         EntityList shopifyShopApps = ec.entityFacade.find("co.hotwax.shopify.app.ShopifyShopAndApp")
-                .condition("myshopifyDomain", shopDomain)
+                .condition("domain", shopDomain)
                 .condition("secretKey", EntityCondition.ComparisonOperator.NOT_EQUAL, null)
                 .disableAuthz().list().filterByDate("fromDate", "thruDate", null)
-
         for (EntityValue shopifyShopApp in shopifyShopApps) {
             // Call service to verify Hmac
             Map result = ec.serviceFacade.sync().name("co.hotwax.shopify.app.ShopifyAppServices.verify#Hmac")
-                    .parameters([message:requestBody.toString(), hmacString:hmacString, sharedSecret:shopifyShopApp.secretKey])
+                    .parameters([message:requestBody, hmac:hmac, sharedSecret:shopifyShopApp.secretKey])
                     .disableAuthz().call()
-
             // If the hmac matched with the calculatedHmac, break the loop and return
             if (result.isValidWebhook) {
                 request.setAttribute("shopId", shopifyShopApp.shopId)
                 request.setAttribute("appId", shopifyShopApp.appId)
+                return;
             }
         }
         logger.warn("The webhook ${webhookTopic} HMAC header did not match with the computed HMAC for Shopify ${shopDomain}")

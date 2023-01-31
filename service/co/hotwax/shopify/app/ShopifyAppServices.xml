@@ -233,7 +233,7 @@ under the License.
                 rowBodyMap.remove("clientId")
                 message = org.moqui.util.RestClient.parametersMapToString(rowBodyMap)
             </script>
-            <service-call name="co.hotwax.shopify.app.ShopifyAppServices.verify#Hmac" in-map="[message: message, hmacString: hmac, sharedSecret: shopifyApp.secretKey, digest: 'Hex']" out-map="context"/>
+            <service-call name="co.hotwax.shopify.app.ShopifyAppServices.verify#Hmac" in-map="[message: message, hmac: hmac, sharedSecret: shopifyApp.secretKey, digest: 'Hex']" out-map="context"/>
             <if condition="!isValidWebhook">
                 <return type="danger" message="App ${clientId} installation request failed due to hmac verification failure for ${shop}"/>
             </if>
@@ -356,7 +356,7 @@ under the License.
             <entity-find entity-name="co.hotwax.shopify.app.ShopifyShopAndApp" list="shopApps">
                 <econdition field-name="apiKey" from="clientId"/>
                 <econdition field-name="myshopifyDomain" from="shop"/>
-                <date-filter
+                <date-filter/>
             </entity-find>
             <if condition="!shopApps">
                 <return type="warning" error="true" message="Shop ${shop} not registered for app ${clientId}"/>
@@ -411,7 +411,7 @@ under the License.
     <service verb="verify" noun="Hmac" authenticate="anonymous-all">
         <in-parameters>
             <parameter name="message"/>
-            <parameter name="hmacString"/>
+            <parameter name="hmac"/>
             <parameter name="sharedSecret"/>
             <parameter name="digest" default-value="Base64"/>
         </in-parameters>
@@ -419,15 +419,15 @@ under the License.
             <parameter name="isValidWebhook" type="Boolean"/>
         </out-parameters>
         <actions>
-            <!-- Verifying the hmac -->
+            <!-- Verifying hmac -->
             <!-- Calculate hmac using request body message and shared secret, and compare with the incoming hmac header -->
             <script><![CDATA[
                 import javax.crypto.Mac
                 import javax.crypto.spec.SecretKeySpec
 
-                Mac hmac = Mac.getInstance("HmacSHA256")
-                hmac.init(new SecretKeySpec(sharedSecret.getBytes("UTF-8"), "HmacSHA256"))
-                byte[] bytes = hmac.doFinal(message.getBytes("UTF-8"));
+                Mac hmacSha256 = Mac.getInstance("HmacSHA256")
+                hmacSha256.init(new SecretKeySpec(sharedSecret.getBytes("UTF-8"), "HmacSHA256"))
+                byte[] bytes = hmacSha256.doFinal(message.getBytes("UTF-8"));
                 String calculatedHmac = "";
                 if ("Base64".equals(digest)) {
                     calculatedHmac = Base64.encoder.encodeToString(bytes)
@@ -435,7 +435,7 @@ under the License.
                     calculatedHmac = org.apache.commons.codec.binary.Hex.encodeHexString(bytes)
                 }
             ]]></script>
-            <set field="isValidWebhook" from="calculatedHmac.equals(hmacString)"/>
+            <set field="isValidWebhook" from="calculatedHmac.equals(hmac)"/>
         </actions>
     </service>
 </services>
