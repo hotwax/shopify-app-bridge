@@ -84,6 +84,7 @@ class ShopifyWebhookFilter implements Filter {
         String hmac = request.getHeader("X-Shopify-Hmac-SHA256")
         String shopDomain = request.getHeader("X-Shopify-Shop-Domain")
         String webhookTopic = request.getHeader("X-Shopify-Topic")
+        String webhookId = request.getHeader("X-Shopify-Webhook-Id")
 
         String requestBody = IOUtils.toString(request.getReader());
         if (requestBody.length() == 0) {
@@ -106,7 +107,8 @@ class ShopifyWebhookFilter implements Filter {
             // If the hmac matched with the calculatedHmac, break the loop and return
             if (result.isValidWebhook) {
                 request.setAttribute("shopId", shopifyShopApp.shopId)
-                request.setAttribute("appId", shopifyShopApp.appId)
+                request.setAttribute("shopifyAppId", shopifyShopApp.appId)
+                request.setAttribute("shopifyWebhookId", webhookId)
                 return;
             }
         }

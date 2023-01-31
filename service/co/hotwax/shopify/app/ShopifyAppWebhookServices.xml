@@ -21,12 +21,21 @@ under the License.
 <services xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://moqui.org/xsd/service-definition-3.xsd">
     <service verb="dummy" noun="WebhookListner">
         <in-parameters>
-            <parameter name="appTypeId"/>
+            <parameter name="shopifyAppId"/>
+            <parameter name="shopifyWebhookId"/>
             <parameter name="webhookPayload"/>
         </in-parameters>
         <actions>
-            <log message="Webhook received for ${appTypeId}"/>
-            <log message="${webhookPayload}"/>
+            <set field="webRequest" from="ec.web.request"/>
+            <set field="webhookTopic" from="webRequest.getHeader('X-Shopify-Topic')"/>
+            <set field="shopDomain" from="webRequest.getHeader('X-Shopify-Shop-Domain')"/>
+            <if condition="!shopifyWebhookId">
+                <set field="shopifyWebhookId" from="ec.user.nowTimestamp"/>
+            </if>
+            <set field="shopifyContentRoot" from="ec.user.getPreference('shopify_root') ?: 'dbresource://Shopify/'"/>
+            <set field="contentLocation" value="${shopifyContentRoot}/webhook/${shopifyAppId}/${shopDomain}/${webhookTopic}/${shopifyWebhookId}"/>
+            <set field="docRr" from="ec.resource.getLocationReference(contentLocation)"/>
+            <script>docRr.putText("${webhookPayload}")</script>
             <log message="${ec.web.getRequestDetails()}"/>
         </actions>
     </service>
