@@ -43,7 +43,9 @@
                     <field name="shopName"><default-field><display/></default-field></field>
                     <field name="domain"><default-field><display/></default-field></field>
                     <field name="fromDate"><default-field><display/></default-field></field>
+                    <field name="appAccessToken"><default-field><display/></default-field></field>
                     <field name="hostAddress"><default-field title="Hotwax instance"><display/></default-field></field>
+                    <field name="hotwaxAccessToken"><default-field title="Hotwax access token"><display/></default-field></field>
                 </form-list>
             </widgets>
         </section>
