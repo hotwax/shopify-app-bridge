@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <entity-facade-xml type="seed-initial">
-<moqui.security.ArtifactGroup artifactGroupId="SHOPIFY_APP" description="Shopify"/>
-<moqui.security.ArtifactGroupMember artifactGroupId="SHOPIFY_APP" artifactTypeEnumId="AT_XML_SCREEN"
-                                    inheritAuthz="Y" artifactName="component://shopify-app/screen/ShopifyScreens.xml"/>
-        <!-- Full permissions for the ADMIN user group -->
-<moqui.security.ArtifactAuthz artifactAuthzId="SHOPIFY_AUTHZ_ALL" userGroupId="ADMIN" artifactGroupId="SHOPIFY_APP"
-                              authzTypeEnumId="AUTHZT_ALWAYS" authzActionEnumId="AUTHZA_ALL"/>
+    <moqui.security.ArtifactGroup artifactGroupId="SHOPIFY_APP" description="Shopify"/>
+    <moqui.security.ArtifactGroupMember artifactGroupId="SHOPIFY_APP" artifactTypeEnumId="AT_XML_SCREEN"
+            inheritAuthz="Y" artifactName="component://shopify-app/screen/ShopifyScreens.xml"/>
+    <!-- Full permissions for the ADMIN user group -->
+    <moqui.security.ArtifactAuthz artifactAuthzId="SHOPIFY_AUTHZ_ALL" userGroupId="ADMIN" artifactGroupId="SHOPIFY_APP"
+        authzTypeEnumId="AUTHZT_ALWAYS" authzActionEnumId="AUTHZA_ALL"/>
 </entity-facade-xml>

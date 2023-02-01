@@ -42,7 +42,9 @@
                     <field name="appName"><default-field><display/></default-field></field>
                     <field name="appTypeId"><default-field title="Type"><display-entity entity-name="moqui.basic.Enumeration"/></default-field></field>
                     <field name="fromDate"><default-field><display/></default-field></field>
+                    <field name="appAccessToken"><default-field><display/></default-field></field>
                     <field name="hostAddress"><default-field title="Hotwax instance"><display/></default-field></field>
+                    <field name="hotwaxAccessToken"><default-field title="Hotwax access token"><display/></default-field></field>
                 </form-list>
             </widgets>
         </section>

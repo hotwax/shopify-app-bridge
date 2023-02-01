@@ -37,6 +37,7 @@ under the License.
         <alias entity-alias="SS" name="myshopifyDomain"/>
         <alias entity-alias="SSA" name="fromDate"/>
         <alias entity-alias="SSA" name="thruDate"/>
+        <alias entity-alias="SSA" name="appAccessToken"/>
         <alias entity-alias="SSA" name="hotwaxAccessToken"/>
         <alias entity-alias="HI" name="hostAddress"/>
         <alias entity-alias="SA" name="appId"/>
