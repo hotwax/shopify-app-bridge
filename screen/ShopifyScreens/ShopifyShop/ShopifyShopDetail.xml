@@ -25,6 +25,7 @@
         <section name="ShopifyAppSection">
             <actions>
                 <entity-find entity-name="co.hotwax.shopify.app.ShopifyShopAndApp" list="ssaList">
+                    <econdition field-name="shopId" from="shopId"/>
                     <date-filter/>
                     <order-by field-name="fromDate"/>
                 </entity-find>
@@ -37,7 +38,7 @@
                 </container-row>
                 <form-list name="ShopifyShopApp" list="ssaList">
                     <field name="appId">
-                        <default-field><link text="${shopId}" url="ShopifyAppDetail" link-type="anchor" condition="appId"/></default-field>
+                        <default-field><link text="${appId}" url="ShopifyAppDetail" link-type="anchor" condition="appId"/></default-field>
                     </field>
                     <field name="appName"><default-field><display/></default-field></field>
                     <field name="appTypeId"><default-field title="Type"><display-entity entity-name="moqui.basic.Enumeration"/></default-field></field>
