@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://moqui.org/xsd/xml-screen-3.xsd"
+        default-menu-include="false">
+
+    <transition name="FindShopifyApp"><default-response url="."/></transition>
+
+    <pre-actions>
+        <set field="html_title" value="Find Shopify app"/>
+        <set field="html_description" value="A page for finding shopify shop"/>
+    </pre-actions>
+
+    <actions>
+        <entity-find entity-name="co.hotwax.shopify.app.ShopifyApp" list="shopifyApps">
+            <search-form-inputs default-order-by="^introductionDate"/></entity-find>
+    </actions>
+    <widgets>
+        <container-box><box-header><label text="Find Shopify App" type="h5"/></box-header>
+            <box-body>
+            <form-list name="ListShopifyApp" list="shopifyApps" skip-form="true" header-dialog="true"
+                       show-csv-button="true" show-text-button="true">
+                <row-actions>
+                    <set field="customApp" from="myshopifyDomain ?'Y': 'N'"/>
+                </row-actions>
+                <field name="appId" print-width="10" print-width-type="characters">
+                    <header-field><text-find hide-options="true"/></header-field>
+                    <default-field><display/></default-field>
+                </field>
+                <field name="appName" print-width="40">
+                    <header-field title="Name" show-order-by="case-insensitive"><text-find/></header-field>
+                    <default-field><display/></default-field>
+                </field>
+                <field name="introductionDate" print-width="40">
+                    <header-field show-order-by="case-insensitive"><text-find/></header-field>
+                    <default-field><display/></default-field>
+                </field>
+                <field name="customApp">
+                    <default-field><display/></default-field>
+                </field>
+                <field name="findButton"><header-field title=""><submit text="Find"/></header-field>
+                    <default-field><ignored/></default-field></field>
+            </form-list>
+        </box-body></container-box>
+    </widgets>
+</screen>

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://moqui.org/xsd/xml-screen-3.xsd"
+        default-menu-include="false">
+
+    <transition name="FindShopifyShop"><default-response url="."/></transition>
+
+    <pre-actions>
+        <set field="html_title" value="Find Shopify Shop"/>
+        <set field="html_description" value="A page for finding shopify shop"/>
+    </pre-actions>
+
+    <actions>
+        <entity-find entity-name="co.hotwax.shopify.shop.ShopifyShop" list="shopifyShops">
+            <search-form-inputs default-order-by="^shopName"/></entity-find>
+    </actions>
+    <widgets>
+        <container-box><box-header><label text="Find Shopify Shop" type="h5"/></box-header>
+            <box-body>
+                <form-list name="ListShopifyShop" list="shopifyShops" skip-form="true" header-dialog="true">
+                    <field name="shopId" print-width="10" print-width-type="characters">
+                        <header-field><text-find hide-options="true"/></header-field>
+                        <default-field><display/></default-field>
+                    </field>
+                    <field name="externalId" print-width="10" print-width-type="characters">
+                        <header-field><text-find hide-options="true"/></header-field>
+                        <default-field><display/></default-field>
+                    </field>
+                    <field name="shopName" print-width="40">
+                        <header-field title="Name" show-order-by="case-insensitive"><text-find/></header-field>
+                        <default-field><display/></default-field>
+                    </field>
+                    <field name="domain" print-width="40">
+                        <header-field show-order-by="case-insensitive"><text-find/></header-field>
+                        <default-field><display/></default-field>
+                    </field>
+                    <field name="myshopifyDomain" print-width="40">
+                        <header-field show-order-by="case-insensitive"><text-find/></header-field>
+                        <default-field><display/></default-field>
+                    </field>
+                    <field name="shopOwner">
+                        <header-field show-order-by="case-insensitive"><text-find/></header-field>
+                        <default-field><display/></default-field>
+                    </field>
+                    <field name="email">
+                        <header-field show-order-by="case-insensitive"><text-find/></header-field>
+                        <default-field><display/></default-field>
+                    </field>
+                    <field name="phone">
+                        <header-field show-order-by="case-insensitive"><text-find/></header-field>
+                        <default-field><display/></default-field>
+                    </field>
+                    <field name="planName">
+                        <header-field show-order-by="case-insensitive"><text-find/></header-field>
+                        <default-field><display/></default-field>
+                    </field>
+                    <field name="currency">
+                        <header-field show-order-by="case-insensitive"><text-find/></header-field>
+                        <default-field><display/></default-field>
+                    </field>
+                    <field name="countryCode">
+                        <header-field show-order-by="case-insensitive"><text-find/></header-field>
+                        <default-field><display/></default-field>
+                    </field>
+
+                </form-list>
+            </box-body></container-box>
+    </widgets>
+</screen>
