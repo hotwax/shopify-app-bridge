@@ -3,7 +3,9 @@
         xsi:noNamespaceSchemaLocation="http://moqui.org/xsd/xml-screen-3.xsd"
         include-child-content="true" menu-image="fa fa-flash" menu-image-type="icon">
 
-    <subscreens default-item="ShopifyApp"></subscreens>
+    <subscreens default-item="ShopifyApp">
+    </subscreens>
+
     <widgets>
         <subscreens-panel id="shopify" type="popup"/>
     </widgets>

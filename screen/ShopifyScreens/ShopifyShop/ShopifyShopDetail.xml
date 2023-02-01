@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://moqui.org/xsd/xml-screen-3.xsd"
+        default-menu-include="false">
+
+    <parameter name="shopId" required="true"/>
+    <transition name="updateShopifyShop"><service-call name="update#co.hotwax.shopify.shop.ShopifyShop"/>
+        <default-response url="."/></transition>
+    <transition name="ShopifyAppDetail"><default-response url="../../ShopifyApp/ShopifyAppDetail"/></transition>
+    <actions>
+        <entity-find-one entity-name="co.hotwax.shopify.shop.ShopifyShop" value-field="shopifyShop"/>
+    </actions>
+    <widgets>
+        <section name="ShopifyShopSection">
+            <widgets>
+                <container-row>
+                    <row-col lg="6">
+                        <label text="Shopify Shop #${shopId}" type="h4"/>
+                    </row-col>
+                </container-row>
+                <form-single name="ShopifyApp" dynamic="true" map="shopifyShop">
+                    <auto-fields-entity entity-name="co.hotwax.shopify.shop.ShopifyShop"/>
+                </form-single>
+            </widgets>
+        </section>
+        <section name="ShopifyAppSection">
+            <actions>
+                <entity-find entity-name="co.hotwax.shopify.app.ShopifyShopAndApp" list="ssaList">
+                    <date-filter/>
+                    <order-by field-name="fromDate"/>
+                </entity-find>
+            </actions>
+            <widgets>
+                <container-row>
+                    <row-col lg="6">
+                        <label text="Shopify App" type="h4"/>
+                    </row-col>
+                </container-row>
+                <form-list name="ShopifyShopApp" list="ssaList">
+                    <field name="appId">
+                        <default-field><link text="${shopId}" url="ShopifyAppDetail" link-type="anchor" condition="appId"/></default-field>
+                    </field>
+                    <field name="appName"><default-field><display/></default-field></field>
+                    <field name="appTypeId"><default-field title="Type"><display-entity entity-name="moqui.basic.Enumeration"/></default-field></field>
+                    <field name="fromDate"><default-field><display/></default-field></field>
+                    <field name="hostAddress"><default-field title="Hotwax instance"><display/></default-field></field>
+                </form-list>
+            </widgets>
+        </section>
+    </widgets>
+</screen>

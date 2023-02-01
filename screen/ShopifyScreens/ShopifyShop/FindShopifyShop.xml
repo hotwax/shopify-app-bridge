@@ -4,6 +4,7 @@
         default-menu-include="false">
 
     <transition name="FindShopifyShop"><default-response url="."/></transition>
+    <transition name="ShopifyShopDetail"><default-response url="../ShopifyShopDetail"/></transition>
 
     <pre-actions>
         <set field="html_title" value="Find Shopify Shop"/>
@@ -20,7 +21,7 @@
                 <form-list name="ListShopifyShop" list="shopifyShops" skip-form="true" header-dialog="true">
                     <field name="shopId" print-width="10" print-width-type="characters">
                         <header-field><text-find hide-options="true"/></header-field>
-                        <default-field><display/></default-field>
+                        <default-field><link text="${shopId}" url="ShopifyShopDetail" link-type="anchor" condition="shopId"/></default-field>
                     </field>
                     <field name="externalId" print-width="10" print-width-type="characters">
                         <header-field><text-find hide-options="true"/></header-field>

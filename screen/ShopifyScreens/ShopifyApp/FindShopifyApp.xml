@@ -3,6 +3,7 @@
         default-menu-include="false">
 
     <transition name="FindShopifyApp"><default-response url="."/></transition>
+    <transition name="ShopifyAppDetail"><default-response url="../ShopifyAppDetail"/></transition>
 
     <pre-actions>
         <set field="html_title" value="Find Shopify app"/>
@@ -23,7 +24,7 @@
                 </row-actions>
                 <field name="appId" print-width="10" print-width-type="characters">
                     <header-field><text-find hide-options="true"/></header-field>
-                    <default-field><display/></default-field>
+                    <default-field><link text="${appId}" url="ShopifyAppDetail" link-type="anchor" condition="appId"/></default-field>
                 </field>
                 <field name="appName" print-width="40">
                     <header-field title="Name" show-order-by="case-insensitive"><text-find/></header-field>
