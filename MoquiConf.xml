@@ -11,4 +11,9 @@
             </filter>
         </webapp>
     </webapp-list>
+    <screen-facade>
+        <screen location="component://webroot/screen/webroot/apps.xml">
+            <subscreens-item name="shopify" menu-title="Shopify" menu-index="100" location="component://shopify-app/screen/ShopifyScreens.xml"/>
+        </screen>
+    </screen-facade>
 </moqui-conf>

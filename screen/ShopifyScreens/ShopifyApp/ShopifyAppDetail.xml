@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://moqui.org/xsd/xml-screen-3.xsd"
+        default-menu-include="false">
+
+    <parameter name="appId" required="true"/>
+    <transition name="updateShopifyApp"><service-call name="update#co.hotwax.shopify.app.ShopifyApp"/>
+        <default-response url="."/></transition>
+    <transition name="ShopifyShopDetail"><default-response url="../../ShopifyShop/ShopifyShopDetail"/></transition>
+    <actions>
+        <entity-find-one entity-name="co.hotwax.shopify.app.ShopifyApp" value-field="shopifyApp"/>
+    </actions>
+    <widgets>
+        <section name="ShopifyAppSection">
+            <widgets>
+                <container-row>
+                    <row-col lg="6">
+                        <label text="Shopify App #${appId}" type="h4"/>
+                    </row-col>
+                </container-row>
+                <form-single name="ShopifyApp" dynamic="true" map="shopifyApp">
+                    <auto-fields-entity entity-name="co.hotwax.shopify.app.ShopifyApp"/>
+                </form-single>
+            </widgets>
+        </section>
+        <section name="ShopifyShopSection">
+            <actions>
+                <entity-find entity-name="co.hotwax.shopify.app.ShopifyShopAndApp" list="ssaList">
+                    <date-filter/>
+                    <order-by field-name="fromDate"/>
+                </entity-find>
+            </actions>
+            <widgets>
+                <container-row>
+                    <row-col lg="6">
+                        <label text="Shopify Shop" type="h4"/>
+                    </row-col>
+                </container-row>
+                <form-list name="ShopifyShopApp" list="ssaList">
+                    <field name="shopId">
+                        <default-field><link text="${shopId}" url="ShopifyShopDetail" link-type="anchor" condition="shopId"/></default-field>
+                    </field>
+                    <field name="externalId"><default-field><display/></default-field></field>
+                    <field name="shopName"><default-field><display/></default-field></field>
+                    <field name="domain"><default-field><display/></default-field></field>
+                    <field name="fromDate"><default-field><display/></default-field></field>
+                    <field name="hostAddress"><default-field title="Hotwax instance"><display/></default-field></field>
+                </form-list>
+            </widgets>
+        </section>
+    </widgets>
+</screen>

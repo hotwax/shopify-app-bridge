@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="http://moqui.org/xsd/xml-screen-3.xsd"
+        include-child-content="true" menu-image="fa fa-flash" menu-image-type="icon">
+
+    <subscreens default-item="ShopifyApp">
+    </subscreens>
+
+    <widgets>
+        <subscreens-panel id="shopify" type="popup"/>
+    </widgets>
+</screen>
