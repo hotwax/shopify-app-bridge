@@ -25,6 +25,7 @@
         <section name="ShopifyShopSection">
             <actions>
                 <entity-find entity-name="co.hotwax.shopify.app.ShopifyShopAndApp" list="ssaList">
+                    <econdition field-name="appId" from="appId"/>
                     <date-filter/>
                     <order-by field-name="fromDate"/>
                 </entity-find>
