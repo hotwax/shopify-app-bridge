@@ -312,6 +312,9 @@ under the License.
             <parameter name="instanceAddress" required="true"/>
             <parameter name="instanceToken" required="true"/>
         </in-parameters>
+        <out-parameters>
+            <parameter name="error" required="false"/>
+        </out-parameters>
         <actions>
             <entity-find entity-name="co.hotwax.shopify.app.ShopifyShopAndApp" list="shopApps">
                 <econdition field-name="apiKey" from="clientId"/>
@@ -337,7 +340,7 @@ under the License.
             </else>
             </if>
             <service-call name="update#co.hotwax.shopify.app.ShopifyShopApp" in-map="[shopId: shopApp.shopId, appId: shopApp.appId, fromDate: shopApp.fromDate, hotwaxAccessToken: instanceToken, hotwaxInstanceId: instanceId]"/>
-            <service-call name="co.hotwax.shopify.app.ShopifyAppServices.sync#HotwaxInstance" in-map="[shop: shopApp.myshopifyDomain, accessToken: shopApp.appAccessToken, sharedSecret: shopApp.secretKey, instanceAddress: instanceAddress, instanceToken: instanceToken ]" transaction="force-new"/>
+            <service-call name="co.hotwax.shopify.app.ShopifyAppServices.sync#HotwaxInstance" in-map="[shop: shopApp.myshopifyDomain, accessToken: shopApp.appAccessToken, sharedSecret: shopApp.secretKey, instanceAddress: instanceAddress, instanceToken: instanceToken ]" out-map="context" transaction="force-new"/>
         </actions>
     </service>
     <service verb="sync" noun="HotwaxInstance">
@@ -351,6 +354,9 @@ under the License.
             <parameter name="instanceAddress" required="true"/>
             <parameter name="instanceToken" required="true"/>
         </in-parameters>
+        <out-parameters>
+            <parameter name="error" required="false"/>
+        </out-parameters>
         <actions>
             <if condition="!instanceAddress.startsWith('https://')">
                 <set field="instanceAddress" from="'https://' +  instanceAddress"/>
@@ -362,11 +368,11 @@ under the License.
                 RestClient restClient = ec.service.rest()
                 restClient.method(Method.POST)
 
-                shopifyConfigName = shop.toUpperCase()
+                shop = shop.replace(".myshopify.com", "")
                 shopifyConfigId = shopifyConfigName + "_CONFIG"
                 shopId = shopifyConfigName + "_SHOP"
                 // TODO take dynamic values for productStoreId and webSiteId
-                Map parameters = ["shop": shop, "shopId": shopId, "shopifyConfigId": shopifyConfigId, "shopifyConfigName": shopifyConfigName, "sharedSecret": sharedSecret, "accessToken": accessToken, "productStoreId": "STORE", "webSiteId": "WEBSTORE"]
+                Map parameters = ["shop": shop, "shopId": shopId, "shopifyConfigId": shopifyConfigId, "shopifyConfigName": shop, "sharedSecret": sharedSecret, "accessToken": accessToken, "productStoreId": "STORE", "webSiteId": "WEBSTORE"]
                 restClient.uri("${instanceAddress}/api/service/setupShopifyShop")
                 restClient.addHeader("Authorization", "Bearer " + instanceToken);
                 restClient.addBodyParameters(parameters);
@@ -375,11 +381,13 @@ under the License.
                     response = restResponse.jsonObject()
                     statusCode = restResponse.getStatusCode()
                     if (restResponse.statusCode < 200 || restResponse.statusCode >= 300) {
-                        ec.logger.warn("Unsuccessful with status code: ${statusCode} and response: ${response}")
+                        error = "Error connecting to OMS status code: ${statusCode} and response: ${response}"
+                        ec.logger.warn(error)
                         return
                     }
                 } catch (Exception e) {
-                    ec.logger.error("Error in API call Error: ${e.getMessage()}")
+                    error = "Error connecting to OMS API call Error:: ${e.getMessage()}"
+                    ec.logger.error(error)
                     return
                 }
             ]]></script>
