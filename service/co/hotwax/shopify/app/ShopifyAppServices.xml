@@ -365,7 +365,7 @@ under the License.
                 shop = shop.replace(".myshopify.com", "")
                 // TODO take dynamic values for productStoreId and webSiteId
                 Map parameters = ["shop": shop , "shopifyConfigName": shop, "sharedSecret": sharedSecret, "accessToken": accessToken, "productStoreId": "STORE", "webSiteId": "WEBSTORE"]
-                restClient.uri("${instanceAddress}/api/service/setupShopifyShop")
+                restClient.uri("${instanceAddress}/api/service/createUpdateShopifyShop")
                 restClient.addHeader("Authorization", "Bearer " + instanceToken);
                 restClient.addBodyParameters(parameters);
                 try {
