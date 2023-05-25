@@ -312,9 +312,6 @@ under the License.
             <parameter name="instanceAddress" required="true"/>
             <parameter name="instanceToken" required="true"/>
         </in-parameters>
-        <out-parameters>
-            <parameter name="error" required="false"/>
-        </out-parameters>
         <actions>
             <entity-find entity-name="co.hotwax.shopify.app.ShopifyShopAndApp" list="shopApps">
                 <econdition field-name="apiKey" from="clientId"/>
@@ -354,9 +351,6 @@ under the License.
             <parameter name="instanceAddress" required="true"/>
             <parameter name="instanceToken" required="true"/>
         </in-parameters>
-        <out-parameters>
-            <parameter name="error" required="false"/>
-        </out-parameters>
         <actions>
             <if condition="!instanceAddress.startsWith('https://')">
                 <set field="instanceAddress" from="'https://' +  instanceAddress"/>
