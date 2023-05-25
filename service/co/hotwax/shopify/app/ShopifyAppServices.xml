@@ -369,10 +369,8 @@ under the License.
                 restClient.method(Method.POST)
 
                 shop = shop.replace(".myshopify.com", "")
-                shopifyConfigId = shopifyConfigName + "_CONFIG"
-                shopId = shopifyConfigName + "_SHOP"
                 // TODO take dynamic values for productStoreId and webSiteId
-                Map parameters = ["shop": shop, "shopId": shopId, "shopifyConfigId": shopifyConfigId, "shopifyConfigName": shop, "sharedSecret": sharedSecret, "accessToken": accessToken, "productStoreId": "STORE", "webSiteId": "WEBSTORE"]
+                Map parameters = ["shop": shop , "shopifyConfigName": shop, shopId: shop.toUpperCase() + "_SHOP", "sharedSecret": sharedSecret, "accessToken": accessToken, "productStoreId": "STORE", "webSiteId": "WEBSTORE"]
                 restClient.uri("${instanceAddress}/api/service/setupShopifyShop")
                 restClient.addHeader("Authorization", "Bearer " + instanceToken);
                 restClient.addBodyParameters(parameters);
@@ -381,13 +379,15 @@ under the License.
                     response = restResponse.jsonObject()
                     statusCode = restResponse.getStatusCode()
                     if (restResponse.statusCode < 200 || restResponse.statusCode >= 300) {
-                        error = "Error connecting to OMS status code: ${statusCode} and response: ${response}"
-                        ec.logger.warn(error)
+                        ec.logger.error("Error connecting to OMS status code: ${statusCode} and response: ${response}")
+                        error = response.get("error")
+                        message = error != null && error.get("message") != null ? error.get("message").toString() : "Error connecting to OMS response ${error}";
+                        ec.message.addError(message)
                         return
                     }
                 } catch (Exception e) {
-                    error = "Error connecting to OMS API call Error:: ${e.getMessage()}"
-                    ec.logger.error(error)
+                    ec.logger.error("Error connecting to OMS API call Error: ${e.getMessage()}")
+                    ec.message.addError("Error connecting to OMS API call Error: ${e.getMessage()}")
                     return
                 }
             ]]></script>
