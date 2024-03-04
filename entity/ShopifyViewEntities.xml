@@ -44,7 +44,7 @@ under the License.
         <alias entity-alias="SA" name="appTypeId"/>
         <alias entity-alias="SA" name="statusId"/>
         <alias entity-alias="SA" name="appName"/>
-        <alias entity-alias="SA" name="apiKey"/>
-        <alias entity-alias="SA" name="secretKey"/>
+        <alias entity-alias="SA" name="clientId"/>
+        <alias entity-alias="SA" name="clientSecret"/>
     </view-entity>
 </entities>

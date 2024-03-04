@@ -39,7 +39,7 @@ under the License.
         <field name="timezone" type="text-short"><description>The shop's time zone abbreviation.</description></field>
         <field name="planName" type="text-medium"/>
         <field name="domain" type="text-medium"><description>The primary domain of the shop's online store.</description></field>
-        <field name="myshopifyDomain" type="text-medium"><description>The shop's .myshopify.com domain name.</description></field>
+        <field name="myshopifyDomain" type="text-medium"><description>The shop's myshopify.com domain name.</description></field>
         <field name="weightUnit" type="id"/>
         <field name="currency" type="id"/>
         <field name="countryCode" type="id"/>
@@ -55,8 +55,8 @@ under the License.
         <field name="appTypeId" type="id" ><description>App type eg. Custom/Public</description></field>
         <field name="statusId" type="id" enable-audit-log="true"><description>Current status of published app</description></field>
         <field name="appName" type="id"/>
-        <field name="apiKey" type="text-intermediate" encrypt="true" enable-audit-log="true"><description>apiKey for published app</description></field>
-        <field name="secretKey" type="text-medium" encrypt="true" enable-audit-log="true"><description>secretKey for published app</description></field>
+        <field name="clientId" type="text-intermediate" encrypt="true" enable-audit-log="true"><description>clientId for published app</description></field>
+        <field name="clientSecret" type="text-medium" encrypt="true" enable-audit-log="true"><description>clientSecret for published app</description></field>
         <field name="createdDate" type="date-time"/>
         <field name="publishedDate" type="date-time"/>
         <relationship type="one-nofk" title="AppType" related="moqui.basic.Enumeration" short-alias="appTypes">
