@@ -19,7 +19,7 @@ under the License.
 -->
 
 <resource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://moqui.org/xsd/rest-api-3.xsd"
-          name="shopify" displayName="Shopify API" version="1.0.0" description="Shopify integration REST api">
+          name="shopify" displayName="Shopify App API" version="1.0.0" description="Shopify App installation REST api">
 
     <resource name="app" require-authentication="anonymous-all">
         <method type="post"><service name="co.hotwax.shopify.app.ShopifyAppServices.register#ShopifyShopApp"/></method>
@@ -46,6 +46,5 @@ under the License.
             </resource>
         </resource>
     </resource>
-
 <!--    uninstall webhook-->
 </resource>

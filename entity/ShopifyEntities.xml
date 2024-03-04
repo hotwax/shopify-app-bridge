@@ -32,7 +32,6 @@ under the License.
         </description>
         <field name="shopId" type="id" is-pk="true"><description>A globally-unique identifier.</description></field>
         <field name="externalId" type="id-long"><description>Shopify Shop id.</description></field>
-        <field name="productStoreId" type="id"/>
         <field name="shopName" type="text-short"><description>The shop's name.</description></field>
         <field name="email" type="text-medium"><description>The shop owner's email address.</description></field>
         <field name="phone" type="text-medium"><description>The shop's billing plan.</description></field>
@@ -44,6 +43,7 @@ under the License.
         <field name="weightUnit" type="id"/>
         <field name="currency" type="id"/>
         <field name="countryCode" type="id"/>
+        <field name="createdDate" type="date-time"/>
         <relationship type="many" related="co.hotwax.shopify.app.ShopifyShopApp" short-alias="shopApps">
             <key-map field-name="shopId"/>
         </relationship>
@@ -52,27 +52,29 @@ under the License.
     <entity entity-name="ShopifyApp" package="co.hotwax.shopify.app">
         <description>Shopify published app on shopify app store</description>
         <field name="appId" type="id" is-pk="true"><description>A globally-unique identifier.</description></field>
-        <field name="appTypeId" type="id" ><description>App type eg. Preorder, BOPIS etc</description></field>
+        <field name="appTypeId" type="id" ><description>App type eg. Custom/Public</description></field>
         <field name="statusId" type="id" enable-audit-log="true"><description>Current status of published app</description></field>
         <field name="appName" type="id"/>
         <field name="apiKey" type="text-intermediate" encrypt="true" enable-audit-log="true"><description>apiKey for published app</description></field>
         <field name="secretKey" type="text-medium" encrypt="true" enable-audit-log="true"><description>secretKey for published app</description></field>
-        <field name="myshopifyDomain" type="text-medium">
-            <description>If app is created for specific shop, if myshopifyDomain is set for any app it will consider as custom app,
-                In case of public app, this will be empty
-            </description>
-        </field>
-        <field name="introductionDate" type="date-time"/>
-        <relationship type="one-nofk" title="AppType" related="moqui.basic.Enumeration" short-alias="appTypeEnum">
+        <field name="createdDate" type="date-time"/>
+        <field name="publishedDate" type="date-time"/>
+        <relationship type="one-nofk" title="AppType" related="moqui.basic.Enumeration" short-alias="appTypes">
             <key-map field-name="appTypeId"/></relationship>
-        <relationship type="many" related="co.hotwax.shopify.app.ShopifyShopApp" short-alias="appsShop">
+        <relationship type="one-nofk" title="AppType" related="moqui.basic.Enumeration" short-alias="status">
+            <key-map field-name="statusId"/></relationship>
+        <relationship type="many" related="co.hotwax.shopify.app.ShopifyShopApp" short-alias="shops">
             <key-map field-name="appId"/>
         </relationship>
         <seed-data>
             <moqui.basic.EnumerationType enumTypeId="SHOPIFY_APP_TYPE" description="Shopify app type"/>
-            <moqui.basic.Enumeration enumId="SHOP_PRE_ORDER_APP" enumTypeId="SHOPIFY_APP_TYPE" description="Pre-order"/>
-            <moqui.basic.Enumeration enumId="SHOP_BOPIS_APP" enumTypeId="SHOPIFY_APP_TYPE" description="Backorder"/>
-            <moqui.basic.Enumeration enumId="SHOP_OMS_APP" enumTypeId="SHOPIFY_APP_TYPE" description="OMS Config"/>
+            <moqui.basic.Enumeration enumId="SHOP_APP_CUSTOM" enumTypeId="SHOPIFY_APP_TYPE" description="Custom"/>
+            <moqui.basic.Enumeration enumId="SHOP_APP_PUBLIC" enumTypeId="SHOPIFY_APP_TYPE" description="Public"/>
+
+            <moqui.basic.EnumerationType enumTypeId="SHOPIFY_APP_STATUS" description="Shopify App Status" hasTable="N"/>
+            <moqui.basic.Enumeration enumId="SHOPIFY_APP_DRAFT" description="Draft" sequenceNum="01" enumCode="DRAFT" enumTypeId="SHOPIFY_APP_STATUS"/>
+            <moqui.basic.Enumeration enumId="SHOPIFY_APP_ACTIVE" description="Active" sequenceNum="02" enumCode="ACTIVE" enumTypeId="SHOPIFY_APP_STATUS"/>
+            <moqui.basic.Enumeration enumId="SHOPIFY_APP_ARCHIVED" description="Archived" sequenceNum="02" enumCode="ARCHIVED" enumTypeId="SHOPIFY_APP_STATUS"/>
         </seed-data>
     </entity>
 
@@ -84,7 +86,7 @@ under the License.
         <field name="shopId" type="id" is-pk="true"/>
         <field name="appId" type="id" is-pk="true"/>
         <field name="fromDate" type="date-time" is-pk="true"/>
-        <field name="appAccessToken" type="text-intermediate" encrypt="true"><description>An API access token that can be used to access the shopify shop’s data as long as your app is installed.</description></field>
+        <field name="shopAccessToken" type="text-intermediate" encrypt="true"><description>An API access token that can be used to access the shopify shop’s data as long as your app is installed.</description></field>
         <field name="hotwaxAccessToken" type="text-intermediate" encrypt="true"/>
         <field name="hotwaxInstanceId" type="id"/>
         <field name="comments" type="text-medium"/>
