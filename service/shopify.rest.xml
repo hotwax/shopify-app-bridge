@@ -18,12 +18,17 @@ specific language governing permissions and limitations
 under the License.
 -->
 
-<resource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://moqui.org/xsd/rest-api-3.xsd"
+<resource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://moqui.org/xsd/rest-api-3.xsd"
           name="shopify" displayName="Shopify App API" version="1.0.0" description="Shopify App installation REST api">
 
     <resource name="app" require-authentication="anonymous-all">
         <method type="post"><service name="co.hotwax.shopify.app.ShopifyAppServices.register#ShopifyShopApp"/></method>
         <method type="get"><service name="co.hotwax.shopify.app.ShopifyAppServices.get#ShopifyAppKey"/></method>
+        <resource name="verify" require-authentication="anonymous-all">
+            <method type="get">
+                <service name="co.hotwax.shopify.app.ShopifyAppServices.verify#AppInstallationRequest"/>
+            </method>
+        </resource>
         <resource name="instance" require-authentication="anonymous-all">
             <method type="put"><service name="co.hotwax.shopify.app.ShopifyAppServices.set#HotwaxInstance"/></method>
             <method type="get"><service name="co.hotwax.shopify.app.ShopifyAppServices.get#HotwaxInstance"/></method>

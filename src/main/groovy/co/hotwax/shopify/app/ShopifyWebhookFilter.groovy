@@ -97,12 +97,12 @@ class ShopifyWebhookFilter implements Filter {
 
         EntityList shopifyShopApps = ec.entityFacade.find("co.hotwax.shopify.app.ShopifyShopAndApp")
                 .condition("domain", shopDomain)
-                .condition("secretKey", EntityCondition.ComparisonOperator.NOT_EQUAL, null)
+                .condition("clientSecret", EntityCondition.ComparisonOperator.NOT_EQUAL, null)
                 .disableAuthz().list().filterByDate("fromDate", "thruDate", null)
         for (EntityValue shopifyShopApp in shopifyShopApps) {
             // Call service to verify Hmac
             Map result = ec.serviceFacade.sync().name("co.hotwax.shopify.app.ShopifyAppServices.verify#Hmac")
-                    .parameters([message:requestBody, hmac:hmac, sharedSecret:shopifyShopApp.secretKey])
+                    .parameters([message:requestBody, hmac:hmac, sharedSecret:shopifyShopApp.clientSecret])
                     .disableAuthz().call()
             // If the hmac matched with the calculatedHmac, break the loop and return
             if (result.isValidWebhook) {

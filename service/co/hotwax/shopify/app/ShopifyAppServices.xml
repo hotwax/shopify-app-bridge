@@ -213,7 +213,7 @@ under the License.
         </in-parameters>
         <actions>
             <entity-find entity-name="co.hotwax.shopify.app.ShopifyApp" list="shopifyApps" cache="true">
-                <econdition field-name="apiKey" from="clientId"/>
+                <econdition field-name="clientId" from="clientId"/>
             </entity-find>
             <set field="shopifyApp" from="shopifyApps?.first"/>
             <if condition="!shopifyApp">
@@ -233,7 +233,7 @@ under the License.
                 rowBodyMap.remove("clientId")
                 message = org.moqui.util.RestClient.parametersMapToString(rowBodyMap)
             </script>
-            <service-call name="co.hotwax.shopify.app.ShopifyAppServices.verify#Hmac" in-map="[message: message, hmac: hmac, sharedSecret: shopifyApp.secretKey, digest: 'Hex']" out-map="context"/>
+            <service-call name="co.hotwax.shopify.app.ShopifyAppServices.verify#Hmac" in-map="[message: message, hmac: hmac, sharedSecret: shopifyApp.clientSecret, digest: 'Hex']" out-map="context"/>
             <if condition="!isValidWebhook">
                 <return type="danger" message="App ${clientId} installation request failed due to hmac verification failure for ${shop}"/>
             </if>
@@ -249,7 +249,7 @@ under the License.
                 <service-call name="create#co.hotwax.shopify.shop.ShopifyShop" in-map="[myshopifyDomain: shop]" out-map="context" transaction="force-new"/>
              </else>
             </if>
-            <service-call name="co.hotwax.shopify.app.ShopifyAppServices.get#ShopifyShopAccessToken" in-map="[shop: shop, code: code, clientId: clientId, clientSecret: shopifyApp.secretKey]" ignore-error="true" out-map="context"/>
+            <service-call name="co.hotwax.shopify.app.ShopifyAppServices.get#ShopifyShopAccessToken" in-map="[shop: shop, code: code, clientId: clientId, clientSecret: shopifyApp.clientSecret]" ignore-error="true" out-map="context"/>
             <if condition="!accessToken">
                 <return type="warning" message="Failed to get the oauth access token for shop ${shop}" error="true" public="true"/>
             </if>
@@ -314,7 +314,7 @@ under the License.
         </in-parameters>
         <actions>
             <entity-find entity-name="co.hotwax.shopify.app.ShopifyShopAndApp" list="shopApps">
-                <econdition field-name="apiKey" from="clientId"/>
+                <econdition field-name="clientId" from="clientId"/>
                 <econdition field-name="myshopifyDomain" from="shop"/>
                 <date-filter/>
             </entity-find>
@@ -322,7 +322,7 @@ under the License.
                 <return type="warning" error="true" message="Shop ${shop} not registered for app ${clientId}"/>
             </if>
             <set field="shopApp" from="shopApps?.first"/>
-            <service-call name="co.hotwax.shopify.app.ShopifyAppServices.validate#ShopifySessionToken" in-map="[shop: shop, sessionToken: session, clientSecret: shopApp.secretKey, clientId: clientId]" out-map="context"/>
+            <service-call name="co.hotwax.shopify.app.ShopifyAppServices.validate#ShopifySessionToken" in-map="[shop: shop, sessionToken: session, clientSecret: shopApp.clientSecret, clientId: clientId]" out-map="context"/>
             <if condition="!context.validToken">
                 <return type="warning" message="Shop ${shop} sessionToken verification fails for app ${shopApp.appName}" error="true"/>
             </if>
@@ -337,7 +337,7 @@ under the License.
             </else>
             </if>
             <service-call name="update#co.hotwax.shopify.app.ShopifyShopApp" in-map="[shopId: shopApp.shopId, appId: shopApp.appId, fromDate: shopApp.fromDate, hotwaxAccessToken: instanceToken, hotwaxInstanceId: instanceId]"/>
-            <service-call name="co.hotwax.shopify.app.ShopifyAppServices.sync#HotwaxInstance" in-map="[shop: shopApp.myshopifyDomain, accessToken: shopApp.appAccessToken, sharedSecret: shopApp.secretKey, instanceAddress: instanceAddress, instanceToken: instanceToken ]" out-map="context" transaction="force-new"/>
+            <service-call name="co.hotwax.shopify.app.ShopifyAppServices.sync#HotwaxInstance" in-map="[shop: shopApp.myshopifyDomain, accessToken: shopApp.appAccessToken, sharedSecret: shopApp.clientSecret, instanceAddress: instanceAddress, instanceToken: instanceToken ]" out-map="context" transaction="force-new"/>
         </actions>
     </service>
     <service verb="sync" noun="HotwaxInstance">
@@ -402,7 +402,7 @@ under the License.
         </out-parameters>
         <actions>
             <entity-find entity-name="co.hotwax.shopify.app.ShopifyShopAndApp" list="shopApps">
-                <econdition field-name="apiKey" from="clientId"/>
+                <econdition field-name="clientId" from="clientId"/>
                 <econdition field-name="myshopifyDomain" from="shop"/>
                 <date-filter/>
             </entity-find>
@@ -410,7 +410,7 @@ under the License.
                 <return type="warning" error="true" message="Shop ${shop} not registered for app ${clientId}"/>
             </if>
             <set field="shopApp" from="shopApps?.first"/>
-            <service-call name="co.hotwax.shopify.app.ShopifyAppServices.validate#ShopifySessionToken" in-map="[shop: shop, sessionToken: session, clientSecret: shopApp.secretKey, clientId: clientId]" out-map="context"/>
+            <service-call name="co.hotwax.shopify.app.ShopifyAppServices.validate#ShopifySessionToken" in-map="[shop: shop, sessionToken: session, clientSecret: shopApp.clientSecret, clientId: clientId]" out-map="context"/>
             <if condition="!context.validToken">
                 <return type="warning" message="Shop ${shop} sessionToken verification fails for app ${shopApp.appName}" error="true"/>
             </if>
@@ -420,7 +420,7 @@ under the License.
     </service>
     <!--Shopify embedded app api end-->
 
-    <service verb="get" noun="ShopifyAppKey">
+    <service verb="get" noun="ShopifyAppClientId">
         <description>
             Get the shopify api key for custom app installation.
         </description>
@@ -433,7 +433,7 @@ under the License.
             </parameter>
         </in-parameters>
         <out-parameters>
-            <parameter name="apiKey" required="true"><description>Shopify app apiKey/clientId</description></parameter>
+            <parameter name="clientId" required="true"><description>Shopify app apiKey/clientId</description></parameter>
         </out-parameters>
         <actions>
             <!-- Check for custom app -->
@@ -451,7 +451,7 @@ under the License.
             <if condition="!shopifyApps?.first?.apiKey">
                 <return message="No ${appTypeId} app configuration found for ${shop}" type="warning"/>
             </if>
-            <set field="apiKey" from="shopifyApps?.first?.apiKey"/>
+            <set field="clientId" from="shopifyApps?.first?.clientId"/>
         </actions>
     </service>
 
@@ -484,6 +484,59 @@ under the License.
                 }
             ]]></script>
             <set field="isValidWebhook" from="calculatedHmac.equals(hmac)"/>
+        </actions>
+    </service>
+
+    <service verb="verify" noun="AppInstallationRequest">
+        <description>
+            https://shopify.dev/docs/apps/auth/get-access-tokens/authorization-code-grant/getting-started#step-1-verify-the-installation-request
+        </description>
+        <in-parameters>
+            <parameter name="clientId" required="true">
+                <description>Shopify app clientId</description>
+            </parameter>
+            <parameter name="code" required="true"><description>Authorization code</description></parameter>
+            <parameter name="hmac" required="true"/>
+            <parameter name="state"/>
+            <parameter name="shop" required="true"> <description>Shopify shop url</description></parameter>
+        </in-parameters>
+        <out-parameters>
+            <parameter name="requestAccessToken"/>
+        </out-parameters>
+        <actions>
+        <!--
+            Perform following check to re/request accessToken
+            - Your app doesn't have a token for that shop.
+            - Your app uses online tokens and the token for that shop has expired.
+            - Your app has a token for that shop, but it was created before you rotated the app's secret.
+            - Your app has a token for that shop, but your app now requires scopes that differ from the scopes granted with that token.
+        -->
+        <!--TODO: Add status check while fetch shopify app -->
+            <entity-find entity-name="co.hotwax.shopify.app.ShopifyApp" list="shopifyApps" cache="true">
+                <econdition field-name="clientId" from="clientId"/>
+            </entity-find>
+            <set field="shopifyApp" from="shopifyApps?.first"/>
+            <if condition="!shopifyApp">
+                <return type="warning" message="Shop ${shop} trying to install invalid app ${clientId}" public="true"/>
+            </if>
+            <set field="requestBody" from="ec.web.getRequestBodyText()" />
+            <script>
+                /*
+                https://shopify.dev/apps/auth/oauth/getting-started#remove-the-hmac-parameter-from-the-query-string
+                To remove the HMAC parameter, you can transform the query string to a key-value table,
+                remove the hmac key-value pair, and then transform your map back to a query string.
+                The remaining parameters must be sorted alphabetically as strings,
+                in the format "parameter_name=parameter_value".
+                */
+                TreeMap rowBodyMap = org.moqui.impl.context.ContextJavaUtil.jacksonMapper.readValue((String) requestBody, Map.class)
+                rowBodyMap.remove("hmac")
+                message = org.moqui.util.RestClient.parametersMapToString(rowBodyMap)
+            </script>
+            <service-call name="co.hotwax.shopify.app.ShopifyAppServices.verify#Hmac" in-map="[message: message, hmac: hmac, sharedSecret: shopifyApp.clientSecret, digest: 'Hex']" out-map="context"/>
+            <if condition="!isValidWebhook">
+                <return type="danger" message="App ${clientId} installation request failed due to hmac verification failure for ${shop}"/>
+            </if>
+            <set field="requestAccessToken" value="true"/>
         </actions>
     </service>
 </services>
