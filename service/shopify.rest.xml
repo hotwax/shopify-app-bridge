@@ -23,7 +23,7 @@ under the License.
 
     <resource name="app" require-authentication="anonymous-all">
         <method type="post"><service name="co.hotwax.shopify.app.ShopifyAppServices.register#ShopifyShopApp"/></method>
-        <method type="get"><service name="co.hotwax.shopify.app.ShopifyAppServices.get#ShopifyAppKey"/></method>
+        <method type="get"><service name="co.hotwax.shopify.app.ShopifyAppServices.get#ShopifyAppClientId"/></method>
         <resource name="verify" require-authentication="anonymous-all">
             <method type="get">
                 <service name="co.hotwax.shopify.app.ShopifyAppServices.verify#AppInstallationRequest"/>
