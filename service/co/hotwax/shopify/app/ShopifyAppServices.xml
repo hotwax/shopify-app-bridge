@@ -239,7 +239,7 @@ under the License.
             </if>
             <set field="appTypeEnum" from="shopifyApp?.appTypeEnum"/>
             <set field="appTypeId" from="shopifyApp.appTypeId"/>
-            <log level="warn" message="Request received for ${appTypeEnum?.description} [${appTypeId}] installation for shop ${shop} from host ${host}"/>
+            <log level="warn" message="Request received for ${shopifyApp.appName?:shopifyApp.appId} [${appTypeId}] installation for shop ${shop} from host ${host}"/>
             <entity-find entity-name="co.hotwax.shopify.shop.ShopifyShop" list="shopifyShops" cache="true">
                 <econdition field-name="myshopifyDomain" from="shop"/>
             </entity-find>
@@ -262,7 +262,7 @@ under the License.
             <set field="alreadyRegistered" value="false" type="Boolean"/>
             <if condition="shopifyShopApps">
                 <iterate list="shopifyShopApps" entry="oldShopifyShopApp">
-                    <if condition="accessToken.equals(oldShopifyShopApp.appAccessToken)">
+                    <if condition="accessToken.equals(oldShopifyShopApp.shopAccessToken)">
                         <set field="alreadyRegistered" value="true" type="Boolean"/>
                         <continue/>
                     </if>
@@ -271,7 +271,7 @@ under the License.
                 </iterate>
             </if>
             <if condition="!alreadyRegistered">
-                <service-call name="create#co.hotwax.shopify.app.ShopifyShopApp" in-map="[shopId: shopId, appId: shopifyApp.appId, appAccessToken: accessToken, fromDate:ec.user.nowTimestamp]"/>
+                <service-call name="create#co.hotwax.shopify.app.ShopifyShopApp" in-map="[shopId: shopId, appId: shopifyApp.appId, shopAccessToken: accessToken, fromDate:ec.user.nowTimestamp]"/>
                 <service-call name="co.hotwax.shopify.app.ShopifyAppServices.store#ShopifyShop" in-map="context" disable-authz="true" />
                 <log message="${appTypeEnum?.description} [${appTypeId}] installed successfully at shop ${shop}"/>
             <else>
@@ -337,7 +337,7 @@ under the License.
             </else>
             </if>
             <service-call name="update#co.hotwax.shopify.app.ShopifyShopApp" in-map="[shopId: shopApp.shopId, appId: shopApp.appId, fromDate: shopApp.fromDate, hotwaxAccessToken: instanceToken, hotwaxInstanceId: instanceId]"/>
-            <service-call name="co.hotwax.shopify.app.ShopifyAppServices.sync#HotwaxInstance" in-map="[shop: shopApp.myshopifyDomain, accessToken: shopApp.appAccessToken, sharedSecret: shopApp.clientSecret, instanceAddress: instanceAddress, instanceToken: instanceToken ]" out-map="context" transaction="force-new"/>
+            <service-call name="co.hotwax.shopify.app.ShopifyAppServices.sync#HotwaxInstance" in-map="[shop: shopApp.myshopifyDomain, accessToken: shopApp.shopAccessToken, sharedSecret: shopApp.clientSecret, instanceAddress: instanceAddress, instanceToken: instanceToken ]" out-map="context" transaction="force-new"/>
         </actions>
     </service>
     <service verb="sync" noun="HotwaxInstance">
