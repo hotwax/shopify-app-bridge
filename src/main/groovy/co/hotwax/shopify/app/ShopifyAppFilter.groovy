@@ -20,29 +20,27 @@
 package co.hotwax.shopify.app
 
 import groovy.transform.CompileStatic
-import org.moqui.entity.EntityCondition
 import org.moqui.impl.context.ExecutionContextImpl;
 import org.moqui.entity.EntityList
 import org.moqui.entity.EntityValue
 import org.moqui.impl.context.ExecutionContextFactoryImpl
+import org.moqui.util.WebUtilities
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.apache.commons.io.IOUtils
-import org.moqui.impl.context.ContextJavaUtil;
 
 import javax.servlet.*
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 import java.util.stream.Collectors
 
-/** shopify webhook HMAC verification  */
+/** shopify APP HMAC verification  */
 @CompileStatic
-class ShopifyWebhookFilter implements Filter {
-    protected final static Logger logger = LoggerFactory.getLogger(ShopifyWebhookFilter.class)
+class ShopifyAppFilter implements Filter {
+    protected final static Logger logger = LoggerFactory.getLogger(ShopifyAppFilter.class)
 
     protected FilterConfig filterConfig = null
 
-    ShopifyWebhookFilter() { super() }
+    ShopifyAppFilter() { super() }
 
     @Override
     void init(FilterConfig filterConfig) throws ServletException {
@@ -69,7 +67,14 @@ class ShopifyWebhookFilter implements Filter {
 
         try {
             // Verify the incoming webhook request
-            verifyIncomingWebhook(request, response, ecfi.getEci())
+            /*
+                The HMAC verification procedure for authorization code grant is different from the procedure for verifying webhooks.
+             */
+            boolean validRequest = verifyShopifyAppRequest (request, ecfi.getEci())
+            if (!validRequest) {
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "HMAC verification failed.")
+                return
+            }
             chain.doFilter(req, resp)
         } catch(Throwable t) {
             logger.error("Error occurred in Shopify Webhook verification", t)
@@ -79,40 +84,30 @@ class ShopifyWebhookFilter implements Filter {
 
     @Override void destroy() { }
 
-    void verifyIncomingWebhook(HttpServletRequest request, HttpServletResponse response, ExecutionContextImpl ec) {
+    boolean verifyShopifyAppRequest(HttpServletRequest request, ExecutionContextImpl ec) {
+        //Map<String, Object> requestParamMap = new HashMap(ec.web?.getRequestParameters())
+        Map<String, Object> requestParamMap = new TreeMap(WebUtilities.simplifyRequestParameters(request, false))
+        String hmac = requestParamMap.remove("hmac");
+        String clientId = requestParamMap.remove("clientId");
+        String message = org.moqui.util.RestClient.parametersMapToString(requestParamMap)
+        logger.info("App verification request received for clientId ${clientId} , hmac ${hmac} and message ${message}");
+        boolean validSignature = false;
 
-        String hmac = request.getHeader("X-Shopify-Hmac-SHA256")
-        String shopDomain = request.getHeader("X-Shopify-Shop-Domain")
-        String webhookTopic = request.getHeader("X-Shopify-Topic")
-        String webhookId = request.getHeader("X-Shopify-Webhook-Id")
-
-        String requestBody = IOUtils.toString(request.getReader());
-        if (requestBody.length() == 0) {
-            logger.warn("The request body for webhook ${webhookTopic} is empty for Shopify ${shopDomain}, cannot verify webhook")
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "The Request Body is empty for Shopify webhook")
-            return
-        }
-        request.setAttribute("webhookPayload", ContextJavaUtil.jacksonMapper.readValue(requestBody, Map.class))
-
-
-        EntityList shopifyShopApps = ec.entityFacade.find("co.hotwax.shopify.app.ShopifyShopAndApp")
-                .condition("domain", shopDomain)
-                .condition("clientSecret", EntityCondition.ComparisonOperator.NOT_EQUAL, null)
-                .disableAuthz().list().filterByDate("fromDate", "thruDate", null)
-        for (EntityValue shopifyShopApp in shopifyShopApps) {
-            // Call service to verify Hmac
+        EntityList shopifyApps = ec.entityFacade.find("co.hotwax.shopify.app.ShopifyApp")
+                .condition("clientId", clientId)
+                .disableAuthz().list()
+        if (shopifyApps.size() > 0) {
+            EntityValue shopifyApp = shopifyApps.get(0)
             Map result = ec.serviceFacade.sync().name("co.hotwax.shopify.app.ShopifyAdminServices.verify#Hmac")
-                    .parameters([message:requestBody, hmac:hmac, sharedSecret:shopifyShopApp.clientSecret])
+                    .parameters([message:message, hmac:hmac, sharedSecret:shopifyApp.clientSecret, digest: 'Hex'])
                     .disableAuthz().call()
-            // If the hmac matched with the calculatedHmac, break the loop and return
             if (result.validSignature) {
-                request.setAttribute("shopId", shopifyShopApp.shopId)
-                request.setAttribute("shopifyAppId", shopifyShopApp.appId)
-                request.setAttribute("shopifyWebhookId", webhookId)
-                return;
+                request.setAttribute("appId", shopifyApp.appId)
+            } else {
+                logger.error("HMAC ${hmac} verification failed for clientId ${clientId} and message ${message}")
             }
+            validSignature=  result.validSignature
         }
-        logger.warn("The webhook ${webhookTopic} HMAC header did not match with the computed HMAC for Shopify ${shopDomain}")
-        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "HMAC verification failed for Shopify ${shopDomain} for webhook ${webhookTopic}")
+        return validSignature;
     }
 }

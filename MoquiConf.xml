@@ -4,10 +4,13 @@
     <default-property name="shopify_api_version" value="2022-10"/>
     <default-property name="shopify_root" value="dbresource://Shopify/"/>
     <webapp-list>
-        <webapp name="webroot">
+        <webapp name="webroot" require-session-token="false">
             <!-- Shopify Webhook Request Filter  -->
             <filter name="ShopifyWebhookFilter" class="co.hotwax.shopify.app.ShopifyWebhookFilter" async-supported="true">
-                <url-pattern>/rest/s1/shopify/app/webhook/*</url-pattern>
+                <url-pattern>/rest/s1/shopify/webhook/*</url-pattern>
+            </filter>
+            <filter name="ShopifyAppFilter" class="co.hotwax.shopify.app.ShopifyAppFilter" async-supported="true">
+                <url-pattern>/rest/s1/shopify/app/*</url-pattern>
             </filter>
         </webapp>
     </webapp-list>
