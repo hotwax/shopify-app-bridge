@@ -23,19 +23,19 @@ under the License.
 
     <resource name="app" require-authentication="anonymous-all">
         <method type="post"><service name="co.hotwax.shopify.app.ShopifyAppServices.register#ShopifyShopApp"/></method>
-        <method type="get"><service name="co.hotwax.shopify.app.ShopifyAppServices.get#ShopifyAppClientId"/></method>
         <resource name="verify" require-authentication="anonymous-all">
             <method type="get">
                 <service name="co.hotwax.shopify.app.ShopifyAppServices.verify#AppInstallationRequest"/>
             </method>
         </resource>
         <resource name="instance" require-authentication="anonymous-all">
-            <method type="put"><service name="co.hotwax.shopify.app.ShopifyAppServices.set#HotwaxInstance"/></method>
+            <method type="post"><service name="co.hotwax.shopify.app.ShopifyAppServices.set#HotwaxInstance"/></method>
             <method type="get"><service name="co.hotwax.shopify.app.ShopifyAppServices.get#HotwaxInstance"/></method>
         </resource>
-
-        <!-- https://shopify.dev/apps/webhooks/configuration/mandatory-webhooks -->
-        <resource name="webhook" require-authentication="anonymous-all">
+    </resource>
+    <!-- https://shopify.dev/apps/webhooks/configuration/mandatory-webhooks -->
+    <resource name="webhook" require-authentication="anonymous-all">
+        <id name="shopifyAppId">
             <resource name="cusotmers" require-authentication="anonymous-all">
                 <resource name="data_request" require-authentication="anonymous-all">
                     <method type="post"><service name="co.hotwax.shopify.app.ShopifyAppWebhookServices.dummy#WebhookListner"/></method>
@@ -49,7 +49,7 @@ under the License.
                     <method type="post"><service name="co.hotwax.shopify.app.ShopifyAppWebhookServices.dummy#WebhookListner"/></method>
                 </resource>
             </resource>
-        </resource>
+        </id>
     </resource>
 <!--    uninstall webhook-->
 </resource>

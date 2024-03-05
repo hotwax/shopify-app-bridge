@@ -22,13 +22,13 @@ under the License.
     <service verb="dummy" noun="WebhookListner">
         <in-parameters>
             <parameter name="shopifyAppId"/>
-            <parameter name="shopifyWebhookId"/>
             <parameter name="webhookPayload"/>
         </in-parameters>
         <actions>
             <set field="webRequest" from="ec.web.request"/>
             <set field="webhookTopic" from="webRequest.getHeader('X-Shopify-Topic')"/>
             <set field="shopDomain" from="webRequest.getHeader('X-Shopify-Shop-Domain')"/>
+            <set field="shopifyWebhookId" from="webRequest.getHeader('X-Shopify-Webhook-Id')"/>
             <if condition="!shopifyWebhookId">
                 <set field="shopifyWebhookId" from="ec.user.nowTimestamp"/>
             </if>

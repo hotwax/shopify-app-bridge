@@ -20,7 +20,6 @@
 package co.hotwax.shopify.app
 
 import groovy.transform.CompileStatic
-import org.moqui.entity.EntityCondition
 import org.moqui.impl.context.ExecutionContextImpl;
 import org.moqui.entity.EntityList
 import org.moqui.entity.EntityValue
@@ -28,12 +27,11 @@ import org.moqui.impl.context.ExecutionContextFactoryImpl
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.apache.commons.io.IOUtils
-import org.moqui.impl.context.ContextJavaUtil;
+import org.moqui.impl.context.ContextJavaUtil
 
 import javax.servlet.*
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
-import java.util.stream.Collectors
 
 /** shopify webhook HMAC verification  */
 @CompileStatic
@@ -87,6 +85,7 @@ class ShopifyWebhookFilter implements Filter {
         String webhookId = request.getHeader("X-Shopify-Webhook-Id")
 
         String requestBody = IOUtils.toString(request.getReader());
+
         if (requestBody.length() == 0) {
             logger.warn("The request body for webhook ${webhookTopic} is empty for Shopify ${shopDomain}, cannot verify webhook")
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, "The Request Body is empty for Shopify webhook")
@@ -94,25 +93,32 @@ class ShopifyWebhookFilter implements Filter {
         }
         request.setAttribute("webhookPayload", ContextJavaUtil.jacksonMapper.readValue(requestBody, Map.class))
 
-
-        EntityList shopifyShopApps = ec.entityFacade.find("co.hotwax.shopify.app.ShopifyShopAndApp")
-                .condition("domain", shopDomain)
-                .condition("clientSecret", EntityCondition.ComparisonOperator.NOT_EQUAL, null)
-                .disableAuthz().list().filterByDate("fromDate", "thruDate", null)
-        for (EntityValue shopifyShopApp in shopifyShopApps) {
-            // Call service to verify Hmac
-            Map result = ec.serviceFacade.sync().name("co.hotwax.shopify.app.ShopifyAdminServices.verify#Hmac")
-                    .parameters([message:requestBody, hmac:hmac, sharedSecret:shopifyShopApp.clientSecret])
-                    .disableAuthz().call()
-            // If the hmac matched with the calculatedHmac, break the loop and return
-            if (result.validSignature) {
-                request.setAttribute("shopId", shopifyShopApp.shopId)
-                request.setAttribute("shopifyAppId", shopifyShopApp.appId)
-                request.setAttribute("shopifyWebhookId", webhookId)
-                return;
-            }
+        String pathInfo = request.getRequestURI();
+        int startIndex = pathInfo.indexOf("webhook/") + "webhook/".length()
+        int endIndex = pathInfo.indexOf("/", startIndex)
+        if (startIndex < 0 || endIndex < 0) {
+            logger.warn("Invalid webhook received. ClientId is missing in the URL ${pathInfo}")
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid webhook received. ClientId is missing in the URL ${pathInfo}")
+            return
         }
-        logger.warn("The webhook ${webhookTopic} HMAC header did not match with the computed HMAC for Shopify ${shopDomain}")
-        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "HMAC verification failed for Shopify ${shopDomain} for webhook ${webhookTopic}")
+
+        String clientId = pathInfo.substring(startIndex, endIndex)
+        EntityList shopifyApps = ec.entityFacade.find("co.hotwax.shopify.app.ShopifyApp")
+                .condition("clientId", clientId).useCache(true)
+                .disableAuthz().list()
+        if (!shopifyApps) {
+            logger.warn("No Shopify app configured for clientId ${clientId}")
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "No Shopify app configured for clientId ${clientId}")
+            return
+        }
+        EntityValue shopifyApp = shopifyApps.get(0)
+        Map result = ec.serviceFacade.sync().name("co.hotwax.shopify.app.ShopifyAdminServices.verify#Hmac")
+                .parameters([message:requestBody, hmac:hmac, sharedSecret:shopifyApp.clientSecret])
+                .disableAuthz().call()
+        if (!result.validSignature) {
+            logger.warn("The webhook ${webhookTopic} HMAC header did not match with the computed HMAC for Shopify ${shopDomain}")
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "HMAC verification failed for Shopify ${shopDomain} for webhook ${webhookTopic}")
+            return
+        }
     }
 }
