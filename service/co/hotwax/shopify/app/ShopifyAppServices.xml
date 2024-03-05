@@ -113,7 +113,6 @@ under the License.
             Set the Hotwax instance address and token
         </description>
         <in-parameters>
-            <parameter name="session" required="true"/>
             <parameter name="clientId" required="true"/>
             <parameter name="shop" required="true"/>
             <parameter name="instanceAddress" required="true"/>
@@ -129,10 +128,6 @@ under the License.
                 <return type="warning" error="true" message="Shop ${shop} not registered for app ${clientId}"/>
             </if>
             <set field="shopApp" from="shopApps?.first"/>
-            <service-call name="co.hotwax.shopify.app.ShopifyAdminServices.validate#ShopifySessionToken" in-map="[shop: shop, sessionToken: session, clientSecret: shopApp.clientSecret, clientId: clientId]" out-map="context"/>
-            <if condition="!context.validToken">
-                <return type="warning" message="Shop ${shop} sessionToken verification fails for app ${shopApp.appName}" error="true"/>
-            </if>
             <!-- TODO: Remove https and leading/trailing space -->
             <entity-find entity-name="co.hotwax.shopify.app.HotwaxInstance" list="hotwaxInstances" cache="true">
                 <econdition field-name="hostAddress" from="instanceAddress"/>
@@ -199,7 +194,6 @@ under the License.
             Get the Hotwax instance address and token for already installed shopify app
         </description>
         <in-parameters>
-            <parameter name="session" required="true"/>
             <parameter name="clientId" required="true"/>
             <parameter name="shop" required="true"/>
         </in-parameters>
@@ -213,14 +207,11 @@ under the License.
                 <econdition field-name="myshopifyDomain" from="shop"/>
                 <date-filter/>
             </entity-find>
+
             <if condition="!shopApps">
                 <return type="warning" error="true" message="Shop ${shop} not registered for app ${clientId}"/>
             </if>
             <set field="shopApp" from="shopApps?.first"/>
-            <service-call name="co.hotwax.shopify.app.ShopifyAdminServices.validate#ShopifySessionToken" in-map="[shop: shop, sessionToken: session, clientSecret: shopApp.clientSecret, clientId: clientId]" out-map="context"/>
-            <if condition="!context.validToken">
-                <return type="warning" message="Shop ${shop} sessionToken verification fails for app ${shopApp.appName}" error="true"/>
-            </if>
             <set field="instanceAddress" from="shopApp.hostAddress"/>
             <set field="instanceToken" from="shopApp.hotwaxAccessToken"/>
         </actions>
