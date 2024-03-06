@@ -283,13 +283,13 @@ under the License.
                 <date-filter/>
                 <order-by field-name="-fromDate"/>
             </entity-find>
-            <set field="shopifyApp" from="shopifyApps?.first"/>
+            <set field="shopifyShopApp" from="shopifyShopApps?.first"/>
             <!---CASE 1: Your app doesn't have a token for that shop. -->
-            <if condition="shopifyApp &amp;&amp; shopifyApp.shopAccessToken">
+            <if condition="shopifyShopApp &amp;&amp; shopifyShopApp.shopAccessToken">
                 <log message="Configuration found for clientId ${clientId} and shop ${shop}"/>
                 <set field="requestAuthorizationCode" value="false"/>
-                <set field="instanceAddress" from="shopifyApp.hostAddress"/>
             </if>
+            <set field="instanceAddress" from="shopifyShopApp?.hostAddress"/>
             <if condition="requestAuthorizationCode">
                 <set field="accessScopes" value="read_products,write_products,read_orders,write_orders,read_inventory,write_inventory,read_fulfillments,write_fulfillments,read_customers,write_customers,read_assigned_fulfillment_orders,write_assigned_fulfillment_orders"/>
             </if>

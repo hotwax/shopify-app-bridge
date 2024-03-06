@@ -90,7 +90,7 @@ class ShopifyAppFilter implements Filter {
         String hmac = requestParamMap.remove("hmac");
         String clientId = requestParamMap.remove("clientId");
         String message = org.moqui.util.RestClient.parametersMapToString(requestParamMap)
-        logger.info("App verification request received for clientId ${clientId} , hmac ${hmac} and message ${message}");
+        logger.info("App verification request received for clientId ${clientId} for shop ${requestParamMap.shop} with HMAC ${hmac} and message ${message}.")
         boolean validSignature = false;
 
         EntityList shopifyApps = ec.entityFacade.find("co.hotwax.shopify.app.ShopifyApp")

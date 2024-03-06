@@ -213,7 +213,7 @@ under the License.
 
                 Mac hmacSha256 = Mac.getInstance("HmacSHA256")
                 hmacSha256.init(new SecretKeySpec(sharedSecret.getBytes("UTF-8"), "HmacSHA256"))
-                byte[] bytes = hmacSha256.doFinal(message.getBytes("UTF-8"));
+                byte[] bytes = hmacSha256.doFinal(message?.getBytes("UTF-8"));
                 String calculatedHmac = "";
                 if ("Base64".equals(digest)) {
                     calculatedHmac = Base64.encoder.encodeToString(bytes)
