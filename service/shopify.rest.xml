@@ -36,7 +36,7 @@ under the License.
     <!-- https://shopify.dev/apps/webhooks/configuration/mandatory-webhooks -->
     <resource name="webhook" require-authentication="anonymous-all">
         <id name="shopifyAppId">
-            <resource name="cusotmers" require-authentication="anonymous-all">
+            <resource name="customers" require-authentication="anonymous-all">
                 <resource name="data_request" require-authentication="anonymous-all">
                     <method type="post"><service name="co.hotwax.shopify.app.ShopifyAppWebhookServices.dummy#WebhookListner"/></method>
                 </resource>

@@ -33,9 +33,17 @@ under the License.
                 <set field="shopifyWebhookId" from="ec.user.nowTimestamp"/>
             </if>
             <set field="shopifyContentRoot" from="ec.user.getPreference('shopify_root') ?: 'dbresource://Shopify/'"/>
-            <set field="contentLocation" value="${shopifyContentRoot}/webhook/${shopifyAppId}/${shopDomain}/${webhookTopic}/${shopifyWebhookId}.txt"/>
+            <set field="contentLocation" value="${shopifyContentRoot}webhook/${shopifyAppId}/${shopDomain}/${webhookTopic}/${shopifyWebhookId}.md"/>
             <set field="docRr" from="ec.resource.getLocationReference(contentLocation)"/>
             <script>docRr.putText("${webhookPayload}")</script>
+            <entity-find entity-name="co.hotwax.shopify.shop.ShopifyShop" cache="true" list="shopifyShops">
+                <econdition field-name="myshopifyDomain" from="shopDomain"/>
+            </entity-find>
+            <set field="shopifyShop" from="shopifyShops?.first"/>
+            <if condition="shopifyShop &amp;&amp; contentLocation">
+                <service-call name="create#co.hotwax.shopify.shop.ShopifyShopWebhookContent" disable-authz="true"
+                    in-map="[shopId: shopifyShop.shopId, contentLocation: contentLocation, receivedDate: ec.user.nowTimestamp, topic: webhookTopic]"/>
+            </if>
             <log message="${ec.web.getRequestDetails()}"/>
         </actions>
     </service>

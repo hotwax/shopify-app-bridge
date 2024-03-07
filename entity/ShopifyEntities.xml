@@ -112,4 +112,16 @@ under the License.
             <key-map field-name="instanceId"/>
         </relationship>
     </entity>
+
+    <entity entity-name="ShopifyShopWebhookContent" package="co.hotwax.shopify.shop">
+        <description>
+            Store the shopify mandatory webhook json
+        </description>
+        <field name="webhookContentId" type="id" is-pk="true"/>
+        <field name="topic" type="text-medium"/>
+        <field name="shopId" type="id" not-null="true"/>
+        <field name="contentLocation" type="text-medium"/>
+        <field name="receivedDate" type="date-time"/>
+        <field name="comments" type="text-medium"/>
+    </entity>
 </entities>

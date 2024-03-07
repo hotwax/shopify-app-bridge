@@ -6,6 +6,18 @@
     <transition name="updateShopifyShop"><service-call name="update#co.hotwax.shopify.shop.ShopifyShop"/>
         <default-response url="."/></transition>
     <transition name="ShopifyAppDetail"><default-response url="../../ShopifyApp/ShopifyAppDetail"/></transition>
+    <transition name="downloadContent" read-only="true">
+        <parameter name="webhookContentId"/>
+        <actions>
+            <entity-find-one entity-name="co.hotwax.shopify.shop.ShopifyShopWebhookContent" value-field="webhookContent"/>
+            <script>ec.web.sendResourceResponse(webhookContent.contentLocation)</script>
+        </actions>
+        <default-response type="none"/>
+    </transition>
+    <transition name="updateShopifyShopWebhook">
+        <service-call name="update#co.hotwax.shopify.shop.ShopifyShopWebhookContent"/>
+        <default-response url="."/>
+    </transition>
     <actions>
         <entity-find-one entity-name="co.hotwax.shopify.shop.ShopifyShop" value-field="shopifyShop"/>
     </actions>
@@ -46,6 +58,31 @@
                     <field name="shopAccessToken"><default-field><display/></default-field></field>
                     <field name="hostAddress"><default-field title="Hotwax instance"><display/></default-field></field>
                     <field name="hotwaxAccessToken"><default-field title="Hotwax access token"><display/></default-field></field>
+                </form-list>
+            </widgets>
+        </section>
+        <section name="ShopifyShopWebhook">
+            <actions>
+                <set field="pageSize" from="pageSize ?: '10'"/>
+                <entity-find entity-name="co.hotwax.shopify.shop.ShopifyShopWebhookContent" list="shopWebhooks">
+                    <search-form-inputs default-order-by="-receivedDate"/>
+                    <econdition field-name="shopId" from="shopId"/>
+                </entity-find>
+            </actions>
+            <widgets>
+                <container-row>
+                    <row-col lg="6">
+                        <label text="Shopify Shop Webhook" type="h4"/>
+                    </row-col>
+                </container-row>
+                <form-list name="ShopifyShopWebhook" list="shopWebhooks" transition="updateShopifyShopWebhook">
+                    <field name="download"><default-field title="">
+                        <link url="downloadContent" text="Download" condition="contentLocation" tooltip="${contentLocation}"/>
+                    </default-field></field>
+                    <field name="topic"><default-field><display/></default-field></field>
+                    <field name="receivedDate"><default-field><display/></default-field> </field>
+                    <field name="comments"><default-field><text-line/></default-field></field>
+                    <field name="submitButton"><default-field title="Update"><submit/></default-field></field>
                 </form-list>
             </widgets>
         </section>
