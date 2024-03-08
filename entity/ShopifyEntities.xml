@@ -98,7 +98,7 @@ under the License.
             <key-map field-name="appId"/>
         </relationship>
         <relationship type="one" related="co.hotwax.shopify.app.HotwaxInstance" short-alias="hotwaxInstance">
-            <key-map field-name="hotwaxInstanceId"/>
+            <key-map field-name="hotwaxInstanceId" related="instanceId"/>
         </relationship>
     </entity>
 

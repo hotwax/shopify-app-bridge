@@ -38,6 +38,7 @@ under the License.
         <alias entity-alias="SSA" name="fromDate"/>
         <alias entity-alias="SSA" name="thruDate"/>
         <alias entity-alias="SSA" name="shopAccessToken"/>
+        <alias entity-alias="SSA" name="hotwaxInstanceId"/>
         <alias entity-alias="SSA" name="hotwaxAccessToken"/>
         <alias entity-alias="SSA" name="comments"/>
         <alias entity-alias="HI" name="hostAddress"/>

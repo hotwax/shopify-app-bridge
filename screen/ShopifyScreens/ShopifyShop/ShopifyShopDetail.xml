@@ -18,64 +18,73 @@
         <service-call name="update#co.hotwax.shopify.shop.ShopifyShopWebhookContent"/>
         <default-response url="."/>
     </transition>
+    <transition name="updateShopifyShopApp">
+        <service-call name="update#co.hotwax.shopify.app.ShopifyShopApp"/>
+        <default-response></default-response>
+    </transition>
+    <transition name="expireShopifyShopApp">
+        <service-call name="update#co.hotwax.shopify.app.ShopifyShopApp"/>
+        <default-response></default-response>
+    </transition>
     <actions>
         <entity-find-one entity-name="co.hotwax.shopify.shop.ShopifyShop" value-field="shopifyShop"/>
+        <entity-find entity-name="co.hotwax.shopify.app.ShopifyShopAndApp" list="ssaList">
+            <search-form-inputs/>
+            <econdition field-name="shopId" from="shopId"/>
+            <date-filter/>
+            <order-by field-name="fromDate"/>
+        </entity-find>
+        <entity-find entity-name="co.hotwax.shopify.shop.ShopifyShopWebhookContent" list="shopWebhooks">
+            <search-form-inputs default-order-by="-receivedDate"/>
+            <econdition field-name="shopId" from="shopId"/>
+        </entity-find>
+        <entity-find entity-name="co.hotwax.shopify.app.HotwaxInstance" list="hotwaxInstanceList" cache="true">
+            <search-form-inputs/>
+        </entity-find>
     </actions>
     <widgets>
-        <section name="ShopifyShopSection">
-            <widgets>
-                <container-row>
-                    <row-col lg="6">
-                        <label text="Shopify Shop #${shopId}" type="h4"/>
-                    </row-col>
-                </container-row>
-                <form-single name="ShopifyApp" dynamic="true" map="shopifyShop">
-                    <auto-fields-entity entity-name="co.hotwax.shopify.shop.ShopifyShop"/>
-                </form-single>
-            </widgets>
-        </section>
-        <section name="ShopifyAppSection">
-            <actions>
-                <entity-find entity-name="co.hotwax.shopify.app.ShopifyShopAndApp" list="ssaList">
-                    <econdition field-name="shopId" from="shopId"/>
-                    <date-filter/>
-                    <order-by field-name="fromDate"/>
-                </entity-find>
-            </actions>
-            <widgets>
-                <container-row>
-                    <row-col lg="6">
-                        <label text="Shopify App" type="h4"/>
-                    </row-col>
-                </container-row>
-                <form-list name="ShopifyShopApp" list="ssaList">
-                    <field name="appId">
+        <container-row><row-col md="6">
+            <container-box><box-header title="Shopify Shop #${shopId}"/>
+                <box-body>
+                    <form-single name="ShopifyApp" dynamic="true" map="shopifyShop">
+                        <auto-fields-entity entity-name="co.hotwax.shopify.shop.ShopifyShop"/>
+                    </form-single>
+                </box-body>
+            </container-box>
+        </row-col></container-row>
+        <container-box><box-header title="Shopify App"/>
+            <box-body>
+                <form-list name="ShopifyShopApp" list="ssaList" transition="updateShopifyShopApp">
+                    <field name="appId"><default-field><hidden/></default-field></field>
+                    <field name="shopId"><default-field><hidden/></default-field></field>
+                    <field name="app">
                         <default-field><link text="${appId}" url="ShopifyAppDetail" link-type="anchor" condition="appId"/></default-field>
                     </field>
                     <field name="appName"><default-field><display/></default-field></field>
                     <field name="appTypeId"><default-field title="Type"><display-entity entity-name="moqui.basic.Enumeration"/></default-field></field>
                     <field name="fromDate"><default-field><display/></default-field></field>
-                    <field name="shopAccessToken"><default-field><display/></default-field></field>
-                    <field name="hostAddress"><default-field title="Hotwax instance"><display/></default-field></field>
-                    <field name="hotwaxAccessToken"><default-field title="Hotwax access token"><display/></default-field></field>
+                    <field name="shopAccessToken"><default-field><text-line/></default-field></field>
+                    <field name="hotwaxInstanceId">
+                        <default-field title="Hotwax instance">
+                            <drop-down>
+                                <list-options list="hotwaxInstanceList" key="${instanceId}" text="${hostAddress}"/>
+                            </drop-down>
+                        </default-field>
+                        </field>
+                    <field name="hotwaxAccessToken"><default-field title="Hotwax access token"><text-line/></default-field></field>
+                    <field name="submitButton"><default-field title="Update"><submit/></default-field></field>
+                    <field name="deleteLink"><default-field title="">
+                        <link url="expireShopifyShopApp" text="X" parameter-map="[appId:appId, shopId:shopId, fromDate:fromDate, thruDate:ec.user.nowTimestamp]"
+                              confirmation="Are you sure want to delete app for shop ${shopName?:shopId}?"/>
+                    </default-field></field>
                 </form-list>
-            </widgets>
-        </section>
-        <section name="ShopifyShopWebhook">
-            <actions>
-                <set field="pageSize" from="pageSize ?: '10'"/>
-                <entity-find entity-name="co.hotwax.shopify.shop.ShopifyShopWebhookContent" list="shopWebhooks">
-                    <search-form-inputs default-order-by="-receivedDate"/>
-                    <econdition field-name="shopId" from="shopId"/>
-                </entity-find>
-            </actions>
-            <widgets>
-                <container-row>
-                    <row-col lg="6">
-                        <label text="Shopify Shop Webhook" type="h4"/>
-                    </row-col>
-                </container-row>
-                <form-list name="ShopifyShopWebhook" list="shopWebhooks" transition="updateShopifyShopWebhook">
+            </box-body>
+        </container-box>
+        <container-box><box-header title="Shopify Shop Webhook"/>
+            <box-body>
+                <form-list name="ShopifyShopWebhook" list="shopWebhooks" transition="updateShopifyShopWebhook" dynamic="true">
+                    <field name="webhookContentId"><default-field><hidden/></default-field></field>
+                    <field name="shopId"><default-field><hidden/></default-field></field>
                     <field name="download"><default-field title="">
                         <link url="downloadContent" text="Download" condition="contentLocation" tooltip="${contentLocation}"/>
                     </default-field></field>
@@ -84,7 +93,7 @@
                     <field name="comments"><default-field><text-line/></default-field></field>
                     <field name="submitButton"><default-field title="Update"><submit/></default-field></field>
                 </form-list>
-            </widgets>
-        </section>
+            </box-body>
+        </container-box>
     </widgets>
 </screen>
