@@ -39,7 +39,7 @@
             <econdition field-name="shopId" from="shopId"/>
         </entity-find>
         <entity-find entity-name="co.hotwax.shopify.app.HotwaxInstance" list="hotwaxInstanceList" cache="true">
-            <search-form-inputs/>
+            <econdition field-name="hostAddress" operator="is-not-null"/>
         </entity-find>
     </actions>
     <widgets>
