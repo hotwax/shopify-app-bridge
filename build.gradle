@@ -51,6 +51,7 @@ dependencies {
     implementation project(':framework')
 
     implementation 'org.apache.commons:commons-text:1.9'
+    runtimeOnly 'mysql:mysql-connector-java:8.0.30'
     runtimeOnly 'com.auth0:java-jwt:3.18.2'
 }
 

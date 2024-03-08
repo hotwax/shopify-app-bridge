@@ -279,10 +279,10 @@ under the License.
         <actions>
             <!--
                 Perform following check to re/request accessToken
-                - Your app doesn't have a token for that shop.
-                - Your app uses online tokens and the token for that shop has expired.
+                - Your app doesn't have a token for that shop : Fresh app installation request
+                - Your app uses online tokens and the token for that shop has expired: Not applicable for HotWax OMS connector
                 - Your app has a token for that shop, but it was created before you rotated the app's secret.
-                - Your app has a token for that shop, but your app now requires scopes that differ from the scopes granted with that token.
+                - Your app has a token for that shop, but your app now requires scopes that differ from the scopes granted with that token: Shopify returns old access token.
             -->
             <set field="requestAuthorizationCode" value="true"/>
             <entity-find entity-name="co.hotwax.shopify.app.ShopifyShopAndApp" list="shopifyShopApps" cache="true">
