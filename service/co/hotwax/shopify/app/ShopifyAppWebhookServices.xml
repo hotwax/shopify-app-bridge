@@ -33,7 +33,7 @@ under the License.
                 <set field="shopifyWebhookId" from="ec.user.nowTimestamp"/>
             </if>
             <set field="shopifyContentRoot" from="ec.user.getPreference('shopify_root') ?: 'dbresource://Shopify/'"/>
-            <set field="contentLocation" value="${shopifyContentRoot}webhook/${shopifyAppId}/${shopDomain}/${webhookTopic}/${shopifyWebhookId}.md"/>
+            <set field="contentLocation" value="${shopifyContentRoot}webhook/${shopifyAppId}/${shopDomain}/${webhookTopic}/${shopifyWebhookId}.json"/>
             <set field="docRr" from="ec.resource.getLocationReference(contentLocation)"/>
             <script>docRr.putText("${webhookPayload}")</script>
             <entity-find entity-name="co.hotwax.shopify.shop.ShopifyShop" cache="true" list="shopifyShops">

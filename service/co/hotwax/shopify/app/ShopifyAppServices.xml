@@ -67,10 +67,17 @@ under the License.
                 <econdition field-name="appId" from="shopifyApp.appId"/>
             </entity-find>
             <set field="alreadyRegistered" value="false" type="Boolean"/>
+            <set field="hotwaxInstanceId" value=""/>
+            <set field="hotwaxAccessToken" value=""/>
             <if condition="shopifyShopApps">
                 <iterate list="shopifyShopApps" entry="oldShopifyShopApp">
+                    <!-- In case of new permission addon to app, we get the same token after re-validating app
+                        TODO: Check if we want to create new record to maintain the history
+                     -->
                     <if condition="accessToken.equals(oldShopifyShopApp.shopAccessToken)">
                         <set field="alreadyRegistered" value="true" type="Boolean"/>
+                        <set field="hotwaxInstanceId" value="oldShopifyShopApp.hotwaxInstanceId" set-if-empty="false"/>
+                        <set field="hotwaxAccessToken" value="oldShopifyShopApp.hotwaxAccessToken" set-if-empty="false"/>
                         <continue/>
                     </if>
                     <service-call name="update#co.hotwax.shopify.app.ShopifyShopApp"
@@ -78,11 +85,12 @@ under the License.
                 </iterate>
             </if>
             <if condition="!alreadyRegistered">
-                <service-call name="create#co.hotwax.shopify.app.ShopifyShopApp" in-map="[shopId: shopId, appId: shopifyApp.appId, shopAccessToken: accessToken, fromDate:ec.user.nowTimestamp]"/>
+                <service-call name="create#co.hotwax.shopify.app.ShopifyShopApp"
+                        in-map="[shopId: shopId, appId: shopifyApp.appId, shopAccessToken: accessToken, fromDate:ec.user.nowTimestamp, hotwaxInstanceId: hotwaxInstanceId, hotwaxAccessToken: hotwaxAccessToken]"/>
                 <service-call name="co.hotwax.shopify.app.ShopifyAppServices.store#ShopifyShop" in-map="context" disable-authz="true" />
                 <log message="${appTypeEnum?.description} [${appTypeId}] installed successfully at shop ${shop}"/>
             <else>
-                <log message="${appTypeEnum?.description} [${appTypeId}] duplicate installation request received for ${shop}"/>
+                <log message="${appTypeEnum?.description} [${appTypeId}] already register with same access token for ${shop}"/>
             </else>
             </if>
         </actions>
