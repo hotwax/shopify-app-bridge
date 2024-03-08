@@ -19,7 +19,7 @@
 
 apply plugin: 'groovy'
 
-def jarBaseName = 'mantle-shopify-app'
+def jarBaseName = 'shopify-oms-connector'
 def moquiDir = projectDir.parentFile.parentFile.parentFile
 def frameworkDir = file(moquiDir.absolutePath + '/framework')
 

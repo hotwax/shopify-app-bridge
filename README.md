@@ -1,3 +1,3 @@
-# mantle-shopify-app
+# shopify-oms-connector
 
 t
