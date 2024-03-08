@@ -2,7 +2,7 @@ FROM ubuntu:18.04
 MAINTAINER HotWax Commerce (sandeep.kose@hotwaxsystems.com)
 
 #Install Open JDK 11
-RUN apt-get update && apt-get -y install openjdk-11-jdk ca-certificates-java git wget  gnupg bash vim screen
+RUN apt-get update && apt-get -y install openjdk-11-jdk ca-certificates-java git vim screen bash
 
 ENV JAVA_HOME /usr/lib/jvm/java-11-openjdk-amd64
 ENV PATH $JAVA_HOME/bin:$PATH
@@ -34,14 +34,14 @@ WORKDIR /moqui-framework
 RUN git clone -b "main" https://github.com/hotwax/moqui-runtime.git runtime
 
 WORKDIR /moqui-framework/runtime/component
-RUN git clone -b "main" https://git.hotwax.co/HC2/commerce/apps.git
 
 RUN git clone -b "main" https://github.com/hotwax/shopify-oms-connector.git
 
 RUN rm -rf /root/.netrc
 
 WORKDIR /moqui-framework
-RUN cp -rf runtime/component/apps/docker/MoquiProductionConf.xml runtime/conf/
+
+RUN cp -rf runtime/component/shopify-oms-connector/docker/MoquiProductionConf.xml runtime/conf/
 #RUN for i in runtime/component/*/patches/*.patch; do echo =========$i======; patch -p0 < $i; done
 #Make it configurable using environment thing for dev/prod environment
 #RUN for i in runtime/component/*/patches/staging/*.patch; do echo =========$i======; patch -p0 < $i; done
@@ -60,13 +60,17 @@ RUN sed -i 's/name="entity_ds_database_configuration" value="moqui_configuration
 RUN sed -i 's|name="default_time_zone" value=""|name="default_time_zone" value="'$TIME_ZONE'"|g' runtime/conf/MoquiProductionConf.xml
 RUN sed -i 's|name="database_time_zone" value=""|name="database_time_zone" value="'$TIME_ZONE'"|g' runtime/conf/MoquiProductionConf.xml
 
-RUN mkdir -p /opt/moqui/runtime/log
+#Create war file.
+RUN ./gradlew addRuntime
+#Extract war file.
+WORKDIR /moqui-deploy
+RUN jar -xvf /moqui-framework/moqui-plus-runtime.war
 
 ENV DB_LOAD="./gradlew loadProduction -Ptypes=seed,seed-initial,install,ext -Praw"
-ENV JAVA_OPTS="-Xms512m -Xmx2048m"
+ENV JAVA_OPTS="-Xms512m -Xmx4096m"
 ENV CONF_FILE="/moqui-framework/runtime/conf/MoquiProductionConf.xml"
 ENV SLEEP="sleep 2"
 
 EXPOSE 8080
 
-ENTRYPOINT $SLEEP && ./gradlew addRuntime && screen -dmS Moqui java $JAVA_OPTS -jar /moqui-framework/moqui-plus-runtime.war conf=$CONF_FILE && $SLEEP && ln -sf /opt/moqui/runtime/log /moqui-framework/execwartmp/ROOT/webapp/runtime/log && echo "Started Container" >> /opt/moqui/runtime/log/moqui.log && ln -sf /opt/moqui/runtime/txlog /moqui-framework/execwartmp/ROOT/webapp/runtime/txlog && tail -f /opt/moqui/runtime/log/moqui.log && bash
+ENTRYPOINT $SLEEP && screen -dmS Moqui java $JAVA_OPTS -cp . MoquiStart port=8080 conf=$CONF_FILE && tail -F runtime/log/moqui.log && bash
