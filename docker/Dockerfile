@@ -35,7 +35,7 @@ RUN git clone -b "main" https://github.com/hotwax/moqui-runtime.git runtime
 
 WORKDIR /moqui-framework/runtime/component
 
-RUN git clone -b "main" https://github.com/hotwax/mantle-shopify-app.git
+RUN git clone -b "develop" https://github.com/hotwax/mantle-shopify-app.git
 
 RUN rm -rf /root/.netrc
 
