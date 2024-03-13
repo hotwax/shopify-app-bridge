@@ -54,7 +54,8 @@ under the License.
         <field name="appId" type="id" is-pk="true"><description>A globally-unique identifier.</description></field>
         <field name="appTypeId" type="id" ><description>App type eg. Custom/Public</description></field>
         <field name="statusId" type="id" enable-audit-log="true"><description>Current status of published app</description></field>
-        <field name="appName" type="id"/>
+        <field name="appName" type="text-short"/>
+        <field name="appVersion" type="id"/>
         <field name="clientId" type="text-intermediate" encrypt="true" enable-audit-log="true"><description>clientId for published app</description></field>
         <field name="clientSecret" type="text-medium" encrypt="true" enable-audit-log="true"><description>clientSecret for published app</description></field>
         <field name="createdDate" type="date-time"/>
@@ -86,6 +87,7 @@ under the License.
         <field name="shopId" type="id" is-pk="true"/>
         <field name="appId" type="id" is-pk="true"/>
         <field name="fromDate" type="date-time" is-pk="true"/>
+        <field name="installedAppVersion" type="id"/>
         <field name="shopAccessToken" type="text-intermediate" encrypt="true"><description>An API access token that can be used to access the shopify shop’s data as long as your app is installed.</description></field>
         <field name="hotwaxAccessToken" type="text-intermediate" encrypt="true"/>
         <field name="hotwaxInstanceId" type="id"/>
