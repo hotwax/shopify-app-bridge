@@ -63,7 +63,16 @@
                     <field name="domain"><default-field><display/></default-field></field>
                     <field name="fromDate"><default-field><display/></default-field></field>
                     <field name="shopAccessToken"><default-field><text-line/></default-field></field>
-                    <field name="hostAddress"><default-field title="Hotwax instance"><text-line/></default-field></field>
+                    <field name="hotwaxInstanceId">
+                        <default-field title="Hotwax instance">
+                            <drop-down allow-empty="true">
+                                <entity-options key="${instanceId}" text="${hostAddress}">
+                                    <entity-find entity-name="co.hotwax.shopify.app.HotwaxInstance" cache="true">
+                                        <econdition field-name="hostAddress" operator="is-not-null"/>
+                                    </entity-find>
+                                </entity-options>
+                        </drop-down>
+                    </default-field></field>
                     <field name="hotwaxAccessToken"><default-field title="Hotwax access token"><text-line/></default-field></field>
                     <field name="submitButton"><default-field title="Update"><submit/></default-field></field>
                     <field name="deleteLink"><default-field title="">

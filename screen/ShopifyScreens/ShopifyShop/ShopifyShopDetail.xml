@@ -38,9 +38,6 @@
             <search-form-inputs default-order-by="-receivedDate"/>
             <econdition field-name="shopId" from="shopId"/>
         </entity-find>
-        <entity-find entity-name="co.hotwax.shopify.app.HotwaxInstance" list="hotwaxInstanceList" cache="true">
-            <econdition field-name="hostAddress" operator="is-not-null"/>
-        </entity-find>
     </actions>
     <widgets>
         <container-row><row-col md="6">
@@ -66,8 +63,12 @@
                     <field name="shopAccessToken"><default-field><text-line/></default-field></field>
                     <field name="hotwaxInstanceId">
                         <default-field title="Hotwax instance">
-                            <drop-down>
-                                <list-options list="hotwaxInstanceList" key="${instanceId}" text="${hostAddress}"/>
+                            <drop-down allow-empty="true">
+                                <entity-options key="${instanceId}" text="${hostAddress}">
+                                    <entity-find entity-name="co.hotwax.shopify.app.HotwaxInstance" cache="true">
+                                        <econdition field-name="hostAddress" operator="is-not-null"/>
+                                    </entity-find>
+                                </entity-options>
                             </drop-down>
                         </default-field>
                         </field>
