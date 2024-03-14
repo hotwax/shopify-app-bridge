@@ -7,4 +7,50 @@
     <!-- Full permissions for the ADMIN user group -->
     <moqui.security.ArtifactAuthz artifactAuthzId="SHOPIFY_AUTHZ_ALL" userGroupId="ADMIN" artifactGroupId="SHOPIFY_APP"
         authzTypeEnumId="AUTHZT_ALWAYS" authzActionEnumId="AUTHZA_ALL"/>
+
+    <!-- Shopify Access scopes -->
+    <moqui.basic.EnumerationType enumTypeId="SHOPIFY_ACCESS_SCOPES" description="Shopify API access scopea" hasTable="N"/>
+
+    <moqui.basic.Enumeration enumCode="read_products" enumId="SAC_READ_PRODUCTS" enumTypeId="SHOPIFY_ACCESS_SCOPES" description="View products, variants, and collections" sequenceNum="01"/>
+    <moqui.basic.Enumeration enumCode="write_products" enumId="SAC_WRITE_PRODUCTS" enumTypeId="SHOPIFY_ACCESS_SCOPES" description="Manage products, variants, and collections" sequenceNum="05"/>
+    <!--
+        https://shopify.dev/docs/api/usage/access-scopes#orders-permissions
+        By default, you have access to the last 60 days' worth of orders for a store. To access all the orders, you need to request access to the read_all_orders scope from the user:
+    -->
+    <moqui.basic.Enumeration enumCode="read_all_orders" enumId="SAC_READ_ALL_ORDERS" enumTypeId="SHOPIFY_ACCESS_SCOPES" description="All relevant orders rather than the default window of orders created within the last 60 days" sequenceNum="10"/>
+
+    <moqui.basic.Enumeration enumCode="read_draft_orders" enumId="SAC_READ_DRAFT_ORDERS" enumTypeId="SHOPIFY_ACCESS_SCOPES" description="View orders created by merchants on behalf of customers" sequenceNum="15"/>
+    <moqui.basic.Enumeration enumCode="write_draft_orders" enumId="SAC_WRITE_DRAFT_ORDERS" enumTypeId="SHOPIFY_ACCESS_SCOPES" description="Manage orders created by merchants on behalf of customers" sequenceNum="20"/>
+    <moqui.basic.Enumeration enumCode="read_orders" enumId="SAC_READ_ORDERS" enumTypeId="SHOPIFY_ACCESS_SCOPES" description="View orders, transactions, fulfillments, and abandoned checkouts" sequenceNum="25"/>
+    <moqui.basic.Enumeration enumCode="write_orders" enumId="SAC_WRITE_ORDERS" enumTypeId="SHOPIFY_ACCESS_SCOPES" description="Manage orders, transactions, fulfillments, and abandoned checkouts" sequenceNum="30"/>
+    <moqui.basic.Enumeration enumCode="read_returns" enumId="SAC_READ_RETURNS" enumTypeId="SHOPIFY_ACCESS_SCOPES" description="View returns" sequenceNum="35"/>
+    <moqui.basic.Enumeration enumCode="write_returns" enumId="SAC_WRITE_RETURNS" enumTypeId="SHOPIFY_ACCESS_SCOPES" description="Manage returns" sequenceNum="40"/>
+
+    <moqui.basic.Enumeration enumCode="read_fulfillments" enumId="SAC_READ_FULFILLMENTS" enumTypeId="SHOPIFY_ACCESS_SCOPES" description="View fulfillment services" sequenceNum="45"/>
+    <moqui.basic.Enumeration enumCode="write_fulfillments" enumId="SAC_WRITE_FULFILLMENTS" enumTypeId="SHOPIFY_ACCESS_SCOPES" description="Manage fulfillment services" sequenceNum="50"/>
+    <moqui.basic.Enumeration enumCode="read_assigned_fulfillment_orders" enumId="SAC_RA_FULFILLMENT_ORDERS" enumTypeId="SHOPIFY_ACCESS_SCOPES" description="View assigned fulfillment orders" sequenceNum="55"/>
+    <moqui.basic.Enumeration enumCode="write_assigned_fulfillment_orders" enumId="SAC_WA_FULFILLMENT_ORDERS" enumTypeId="SHOPIFY_ACCESS_SCOPES" description="Manage assigned fulfillment orders" sequenceNum="60"/>
+    <moqui.basic.Enumeration enumCode="read_merchant_managed_fulfillment_orders" enumId="SAC_RMM_FULFILLMENT_ORDERS" enumTypeId="SHOPIFY_ACCESS_SCOPES" description="View fulfillment orders assigned to merchant-managed locations" sequenceNum="65"/>
+    <moqui.basic.Enumeration enumCode="write_merchant_managed_fulfillment_orders" enumId="SAC_WMM_FULFILLMENT_ORDERS" enumTypeId="SHOPIFY_ACCESS_SCOPES" description="Manage fulfillment orders assigned to merchant-managed locations" sequenceNum="70"/>
+    <moqui.basic.Enumeration enumCode="read_third_party_fulfillment_orders" enumId="SAC_RTP_FULFILLMENT_ORDERS" enumTypeId="SHOPIFY_ACCESS_SCOPES" description="View fulfillment orders assigned to a location managed by any fulfillment service" sequenceNum="75"/>
+    <moqui.basic.Enumeration enumCode="write_third_party_fulfillment_orders" enumId="SAC_WTP_FULFILLMENT_ORDERS" enumTypeId="SHOPIFY_ACCESS_SCOPES" description="Manage fulfillment orders assigned to a location managed by any fulfillment service" sequenceNum="80"/>
+
+    <moqui.basic.Enumeration enumCode="read_customers" enumId="SAC_READ_CUSTOMERS" enumTypeId="SHOPIFY_ACCESS_SCOPES" description="View  customers, customer addresses, order history, and customer groups" sequenceNum="95"/>
+    <moqui.basic.Enumeration enumCode="write_customers" enumId="SAC_WRITE_CUSTOMERS" enumTypeId="SHOPIFY_ACCESS_SCOPES" description="Manage customers, customer addresses, order history, and customer groups" sequenceNum="100"/>
+
+    <!-- GraphQL Admin API GenericFile object and fileCreate, fileUpdate, and fileDelete mutations -->
+    <moqui.basic.Enumeration enumCode="read_files" enumId="SAC_READ_FILES" enumTypeId="SHOPIFY_ACCESS_SCOPES" description="View files" sequenceNum="105"/>
+    <moqui.basic.Enumeration enumCode="write_files" enumId="SAC_WRITE_FILES" enumTypeId="SHOPIFY_ACCESS_SCOPES" description="Manage files" sequenceNum="110"/>
+
+    <moqui.basic.Enumeration enumCode="read_inventory" enumId="SAC_READ_INVENTORY" enumTypeId="SHOPIFY_ACCESS_SCOPES" description="View inventory across multiple locations" sequenceNum="115"/>
+    <moqui.basic.Enumeration enumCode="write_inventory" enumId="SAC_WRITE_INVENTORY" enumTypeId="SHOPIFY_ACCESS_SCOPES" description="Manage inventory across multiple locations" sequenceNum="120"/>
+    <moqui.basic.Enumeration enumCode="read_locations" enumId="SAC_READ_LOCATIONS" enumTypeId="SHOPIFY_ACCESS_SCOPES" description="View the geographic location of stores, headquarters, and warehouses" sequenceNum="125"/>
+
+
+    <!-- Not needed permission-->
+    <moqui.basic.Enumeration enumCode="read_custom_fulfillment_services" enumId="SAC_RC_FULFILLMENT_SERVICES" enumTypeId="SHOPIFY_ACCESS_SCOPES" description="View custom_fulfillment_services" sequenceNum="85"/>
+    <moqui.basic.Enumeration enumCode="write_custom_fulfillment_services" enumId="SAC_WC_FULFILLMENT_SERVICES" enumTypeId="SHOPIFY_ACCESS_SCOPES" description="Manager custom_fulfillment_services" sequenceNum="90"/>
+    <moqui.basic.Enumeration enumCode="read_themes" enumId="SAC_READ_THEMES" enumTypeId="SHOPIFY_ACCESS_SCOPES" description="View theme templates and assets" sequenceNum="01"/>
+    <moqui.basic.Enumeration enumCode="write_themes" enumId="SAC_WRITE_THEMES" enumTypeId="SHOPIFY_ACCESS_SCOPES" description="Manage theme templates and assets" sequenceNum="01"/>
+
 </entity-facade-xml>
