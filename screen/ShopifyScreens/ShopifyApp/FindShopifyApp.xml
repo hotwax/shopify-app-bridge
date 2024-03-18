@@ -15,7 +15,7 @@
 
     <actions>
         <entity-find entity-name="co.hotwax.shopify.app.ShopifyApp" list="shopifyApps">
-            <search-form-inputs default-order-by="^introductionDate"/></entity-find>
+            <search-form-inputs default-order-by="^createdDate"/></entity-find>
     </actions>
     <widgets>
         <container-dialog id="AddShopifyApp" button-text="Add Shopify App">
@@ -49,22 +49,28 @@
         <container-box><box-header><label text="Find Shopify App" type="h5"/></box-header>
             <box-body>
             <form-list name="ListShopifyApp" list="shopifyApps" skip-form="true" header-dialog="true">
-                <row-actions>
-                    <set field="customApp" from="myshopifyDomain ?'Y': 'N'"/>
-                </row-actions>
-                <field name="appId" print-width="10" print-width-type="characters">
+                <field name="app" print-width="10" print-width-type="characters">
                     <header-field><text-find hide-options="true"/></header-field>
-                    <default-field><link text="${appId}" url="ShopifyAppDetail" link-type="anchor" condition="appId"/></default-field>
+                    <default-field><link text="${appName}" url="ShopifyAppDetail" link-type="anchor" condition="appId"/></default-field>
                 </field>
-                <field name="appName" print-width="40">
-                    <header-field title="Name" show-order-by="case-insensitive"><text-find/></header-field>
-                    <default-field><display/></default-field>
+                <field name="appTypeId" print-width="40">
+                    <header-field title="App Type" show-order-by="case-insensitive"><text-find/></header-field>
+                    <default-field><display-entity entity-name="moqui.basic.Enumeration"/></default-field>
                 </field>
-                <field name="introductionDate" print-width="40">
+                <field name="clientId" print-width="40">
                     <header-field show-order-by="case-insensitive"><text-find/></header-field>
                     <default-field><display/></default-field>
                 </field>
-                <field name="customApp">
+                <field name="createdDate" print-width="40">
+                    <header-field show-order-by="case-insensitive"><text-find/></header-field>
+                    <default-field><display/></default-field>
+                </field>
+                <field name="appVersion" print-width="40">
+                    <header-field title="Version" show-order-by="case-insensitive"><text-find/></header-field>
+                    <default-field><display/></default-field>
+                </field>
+                <field name="publishedDate" print-width="40">
+                    <header-field show-order-by="case-insensitive"><text-find/></header-field>
                     <default-field><display/></default-field>
                 </field>
                 <field name="findButton"><header-field title=""><submit text="Find"/></header-field>
