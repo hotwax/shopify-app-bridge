@@ -91,13 +91,13 @@
                     <field name="shopId"><default-field><hidden/></default-field></field>
                     <field name="shop">
                         <default-field>
-                            <link text="${shopId}" url="ShopifyShopDetail" link-type="anchor" condition="shopId"/>
+                            <link text="${shopName?:shopId}" url="ShopifyShopDetail" link-type="anchor" condition="shopId"/>
                         </default-field>
                     </field>
                     <field name="appId"><default-field><display/></default-field></field>
                     <field name="externalId"><default-field><display/></default-field></field>
-                    <field name="shopName"><default-field><display/></default-field></field>
                     <field name="domain"><default-field><display/></default-field></field>
+                    <field name="installedAppVersion"><default-field><display/></default-field></field>
                     <field name="fromDate"><default-field><display/></default-field></field>
                     <field name="shopAccessToken"><default-field><text-line/></default-field></field>
                     <field name="hotwaxInstanceId">

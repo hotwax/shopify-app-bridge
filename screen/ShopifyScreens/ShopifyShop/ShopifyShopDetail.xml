@@ -55,10 +55,10 @@
                     <field name="appId"><default-field><hidden/></default-field></field>
                     <field name="shopId"><default-field><hidden/></default-field></field>
                     <field name="app">
-                        <default-field><link text="${appId}" url="ShopifyAppDetail" link-type="anchor" condition="appId"/></default-field>
+                        <default-field><link text="${appName}" url="ShopifyAppDetail" link-type="anchor" condition="appId"/></default-field>
                     </field>
-                    <field name="appName"><default-field><display/></default-field></field>
                     <field name="appTypeId"><default-field title="Type"><display-entity entity-name="moqui.basic.Enumeration"/></default-field></field>
+                    <field name="installedAppVersion"><default-field><display/></default-field></field>
                     <field name="fromDate"><default-field><display/></default-field></field>
                     <field name="shopAccessToken"><default-field><text-line/></default-field></field>
                     <field name="hotwaxInstanceId">
