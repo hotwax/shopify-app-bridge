@@ -32,7 +32,7 @@
             <search-form-inputs/>
             <econdition field-name="shopId" from="shopId"/>
             <date-filter/>
-            <order-by field-name="fromDate"/>
+            <order-by field-name="-fromDate"/>
         </entity-find>
         <entity-find entity-name="co.hotwax.shopify.shop.ShopifyShopWebhookContent" list="shopWebhooks">
             <search-form-inputs default-order-by="-receivedDate"/>
