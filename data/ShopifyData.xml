@@ -50,7 +50,7 @@
     <!-- Not needed permission-->
     <moqui.basic.Enumeration enumCode="read_custom_fulfillment_services" enumId="SAC_RC_FULFILLMENT_SERVICES" enumTypeId="SHOPIFY_ACCESS_SCOPES" description="View custom_fulfillment_services" sequenceNum="85"/>
     <moqui.basic.Enumeration enumCode="write_custom_fulfillment_services" enumId="SAC_WC_FULFILLMENT_SERVICES" enumTypeId="SHOPIFY_ACCESS_SCOPES" description="Manager custom_fulfillment_services" sequenceNum="90"/>
-    <moqui.basic.Enumeration enumCode="read_themes" enumId="SAC_READ_THEMES" enumTypeId="SHOPIFY_ACCESS_SCOPES" description="View theme templates and assets" sequenceNum="01"/>
-    <moqui.basic.Enumeration enumCode="write_themes" enumId="SAC_WRITE_THEMES" enumTypeId="SHOPIFY_ACCESS_SCOPES" description="Manage theme templates and assets" sequenceNum="01"/>
+    <moqui.basic.Enumeration enumCode="read_themes" enumId="SAC_READ_THEMES" enumTypeId="SHOPIFY_ACCESS_SCOPES" description="View theme templates and assets" sequenceNum="130"/>
+    <moqui.basic.Enumeration enumCode="write_themes" enumId="SAC_WRITE_THEMES" enumTypeId="SHOPIFY_ACCESS_SCOPES" description="Manage theme templates and assets" sequenceNum="130"/>
 
 </entity-facade-xml>
