@@ -25,13 +25,13 @@
             <search-form-inputs/>
             <econdition field-name="appId" from="appId"/>
             <date-filter/>
-            <order-by field-name="fromDate"/>
+            <order-by field-name="-fromDate"/>
         </entity-find>
         <entity-find entity-name="co.hotwax.shopify.app.ShopifyAppAndAccessScope" cache="true" list="accessScopes">
             <econdition field-name="appId" from="appId"/>
             <date-filter/>
             <order-by field-name="-sequenceNum"/>
-            <order-by field-name="fromDate"/>
+            <order-by field-name="-fromDate"/>
         </entity-find>
     </actions>
     <widgets>
