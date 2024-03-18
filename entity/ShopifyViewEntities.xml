@@ -50,4 +50,12 @@ under the License.
         <alias entity-alias="SA" name="clientId"/>
         <alias entity-alias="SA" name="clientSecret"/>
     </view-entity>
+    <view-entity entity-name="ShopifyAppAndAccessScope" package="co.hotwax.shopify.app">
+        <member-entity entity-alias="SA" entity-name="co.hotwax.shopify.app.ShopifyAppAccessScope"/>
+        <member-entity entity-alias="ENUM" entity-name="moqui.basic.Enumeration" join-from-alias="SA">
+            <key-map field-name="scopeEnumId" related="enumId"/>
+        </member-entity>
+        <alias-all entity-alias="SA"/>
+        <alias-all entity-alias="ENUM"/>
+    </view-entity>
 </entities>

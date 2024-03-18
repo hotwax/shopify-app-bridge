@@ -333,4 +333,60 @@ under the License.
             </if>
         </actions>
     </service>
+
+    <service verb="update" noun="AppAccessScopes">
+        <in-parameters>
+            <parameter name="appId" required="true"/>
+            <parameter name="accessScopes" type="List"/>
+        </in-parameters>
+        <actions>
+            <entity-find entity-name="co.hotwax.shopify.app.ShopifyAppAndAccessScope" list="appAccessScopes" use-clone="true">
+                <econdition field-name="appId" from="appId"/>
+                <order-by field-name="-sequenceNum"/>
+                <order-by field-name="fromDate"/>
+            </entity-find>
+            <iterate list="appAccessScopes" entry="appAccessScope">
+                <if condition="!accessScopes || !accessScopes.contains(appAccessScope.scopeEnumId)">
+                    <if condition="!appAccessScope.thruDate">
+                        <log level="warn" message="Access scope ${appAccessScope.enumCode} has been removed for shopify app ${appId} by user ${ec.user.userId}" />
+                        <service-call name="update#co.hotwax.shopify.app.ShopifyAppAccessScope" in-map="appAccessScope + [thruDate: ec.user.nowTimestamp]"/>
+                    </if>
+                <else>
+                    <if condition="appAccessScope.thruDate">
+                        <log level="warn" message="Access scope ${appAccessScope.enumCode} has been added for shopify app ${appId} by user ${ec.user.userId}" />
+                        <service-call name="update#co.hotwax.shopify.app.ShopifyAppAccessScope" in-map="appAccessScope + [thruDate: null]"/>
+                    </if>
+                    <script>
+                        accessScopes?.remove(appAccessScope.scopeEnumId)
+                    </script>
+                </else>
+                </if>
+            </iterate>
+            <if condition="accessScopes">
+                <iterate list="accessScopes" entry="accessScope">
+                    <log level="warn" message="Access scope ${accessScope} has been added for shopify app ${appId} by user ${ec.user.userId}" />
+                    <service-call name="create#co.hotwax.shopify.app.ShopifyAppAccessScope"
+                            in-map="[appId: appId, scopeEnumId:accessScope, fromDate: ec.user.nowTimestamp, createdDate: ec.user.nowTimestamp]"/>
+                </iterate>
+            </if>
+            <service-call name="co.hotwax.shopify.app.ShopifyAppServices.create#ShopifyAppHistory"
+                in-map="[appId: appId, comments: 'App access scope has been updated']" />
+        </actions>
+    </service>
+    <service verb="create" noun="ShopifyAppHistory">
+        <in-parameters>
+            <parameter name="appId" required="true"/>
+            <parameter name="comments"/>
+        </in-parameters>
+        <actions>
+            <entity-find-one entity-name="co.hotwax.shopify.app.ShopifyApp" value-field="shopifyApp" cache="true"/>
+            <set field="appVersion" from="shopifyApp?.appVersion" default-value="0" type="Integer"/>
+            <set field="newAppVersion" from="appVersion +1"/>
+            <service-call name="create#co.hotwax.shopify.app.ShopifyAppHistory"
+                   in-map="context + [changedDate: ec.user.nowTimestamp, appVersion: newAppVersion , userId: ec.user.userId]" />
+
+            <service-call name="update#co.hotwax.shopify.app.ShopifyApp"
+                          in-map="[appId: appId, appVersion: newAppVersion , publishedDate:ec.user.nowTimestamp ]" />
+        </actions>
+    </service>
 </services>
