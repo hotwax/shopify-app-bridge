@@ -55,15 +55,15 @@ under the License.
         <field name="appTypeId" type="id" ><description>App type eg. Custom/Public</description></field>
         <field name="statusId" type="id" enable-audit-log="true"><description>Current status of published app</description></field>
         <field name="appName" type="text-short"/>
-        <field name="appVersion" type="id"/>
+        <field name="appVersion" type="number-integer"/>
         <field name="clientId" type="text-intermediate" encrypt="true" enable-audit-log="true"><description>clientId for published app</description></field>
         <field name="clientSecret" type="text-medium" encrypt="true" enable-audit-log="true"><description>clientSecret for published app</description></field>
         <field name="createdDate" type="date-time"/>
         <field name="publishedDate" type="date-time"/>
         <relationship type="one-nofk" title="AppType" related="moqui.basic.Enumeration" short-alias="appTypeEnum">
-            <key-map field-name="appTypeId"/></relationship>
+            <key-map field-name="appTypeId" related="enumId"/></relationship>
         <relationship type="one-nofk" title="AppType" related="moqui.basic.Enumeration" short-alias="status">
-            <key-map field-name="statusId"/></relationship>
+            <key-map field-name="statusId" related="enumId"/></relationship>
         <relationship type="many" related="co.hotwax.shopify.app.ShopifyShopApp" short-alias="shops">
             <key-map field-name="appId"/>
         </relationship>
@@ -79,6 +79,23 @@ under the License.
         </seed-data>
     </entity>
 
+    <entity entity-name="ShopifyAppAccessScope" package="co.hotwax.shopify.app">
+        <description>Shopify published app on shopify app store</description>
+        <field name="appId" type="id" is-pk="true"><description>A globally-unique identifier.</description></field>
+        <field name="scopeEnumId" type="id" is-pk="true"><description>Scople enum id</description></field>
+        <field name="requiredScope" type="text-indicator"/>
+        <field name="fromDate" type="date-time"/>
+        <field name="thruDate" type="date-time"/>
+        <field name="createdDate" type="date-time"/>
+        <field name="comments" type="text-medium"/>
+        <relationship type="one" related="co.hotwax.shopify.app.ShopifyApp" short-alias="shopifyApp">
+            <key-map field-name="appId"/>
+        </relationship>
+        <relationship type="one-nofk" related="moqui.basic.Enumeration" short-alias="accessScope">
+            <key-map field-name="scopeEnumId" related="enumId"/>
+        </relationship>
+    </entity>
+
     <entity entity-name="ShopifyShopApp" package="co.hotwax.shopify.app">
         <description>
             ShopifyShop and ShopifyApp assoc entity
@@ -87,7 +104,7 @@ under the License.
         <field name="shopId" type="id" is-pk="true"/>
         <field name="appId" type="id" is-pk="true"/>
         <field name="fromDate" type="date-time" is-pk="true"/>
-        <field name="installedAppVersion" type="id"/>
+        <field name="installedAppVersion" type="number-integer"/>
         <field name="shopAccessToken" type="text-intermediate" encrypt="true"><description>An API access token that can be used to access the shopify shop’s data as long as your app is installed.</description></field>
         <field name="hotwaxAccessToken" type="text-intermediate" encrypt="true"/>
         <field name="hotwaxInstanceId" type="id"/>
@@ -125,5 +142,17 @@ under the License.
         <field name="contentLocation" type="text-medium"/>
         <field name="receivedDate" type="date-time"/>
         <field name="comments" type="text-medium"/>
+    </entity>
+
+    <entity entity-name="ShopifyAppHistory" package="co.hotwax.shopify.app" use="nontransactional">
+        <field name="appId" type="id" is-pk="true"/>
+        <field name="historySeqId" type="id" is-pk="true"/>
+        <field name="reasonEnumId" type="id"/>
+        <field name="appVersion" type="number-integer"/>
+        <field name="changedDate" type="date-time"/>
+        <field name="userId" type="id"/>
+        <field name="comments" type="text-medium"/>
+        <relationship type="one" related="co.hotwax.shopify.app.ShopifyApp"/>
+        <relationship type="one-nofk" related="moqui.security.UserAccount" short-alias="user"/>
     </entity>
 </entities>

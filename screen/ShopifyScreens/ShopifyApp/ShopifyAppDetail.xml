@@ -6,6 +6,7 @@
     <transition name="updateShopifyApp"><service-call name="update#co.hotwax.shopify.app.ShopifyApp"/>
         <default-response url="."/></transition>
     <transition name="ShopifyShopDetail"><default-response url="../../ShopifyShop/ShopifyShopDetail"/></transition>
+    <transition name="EditAppAccessScope"><default-response url="../EditAppAccessScope"/></transition>
     <transition name="createShopifyShopApp">
         <service-call name="create#co.hotwax.shopify.app.ShopifyShopApp"/>
         <default-response></default-response>
@@ -26,6 +27,12 @@
             <date-filter/>
             <order-by field-name="fromDate"/>
         </entity-find>
+        <entity-find entity-name="co.hotwax.shopify.app.ShopifyAppAndAccessScope" cache="true" list="accessScopes">
+            <econdition field-name="appId" from="appId"/>
+            <date-filter/>
+            <order-by field-name="-sequenceNum"/>
+            <order-by field-name="fromDate"/>
+        </entity-find>
     </actions>
     <widgets>
         <container-row><row-col md="6">
@@ -36,9 +43,37 @@
                 </form-single>
             </box-body>
         </container-box>
-        </row-col></container-row>
+        </row-col>
+        <row-col md="6">
+            <container-box><box-header title="Shopify app access scope"/>
+                <box-toolbar>
+                    <link url="EditAppAccessScope" text="Edit app access scope" parameter-map="[appId: appId]"/>
+                </box-toolbar>
+                <box-body>
+                    <label text="${accessScopes?.enumCode?.join(', ')}"/>
+                </box-body>
+            </container-box>
+            <container-box><box-header title="Shopify app history"/>
+                <box-body>
+                    <form-list dynamic="true" name="ShopifyAppHistory" list="appHistoryList">
+                        <entity-find entity-name="co.hotwax.shopify.app.ShopifyAppHistory" cache="true" list="appHistoryList">
+                            <search-form-inputs/>
+                            <econdition field-name="appId" from="appId"/>
+                            <order-by field-name="-changedDate"/>
+                            <order-by field-name="-appVersion"/>
+                        </entity-find>
+                        <field name="appVersion"><default-field><display/></default-field></field>
+                        <field name="comments"><default-field><display/></default-field></field>
+                        <field name="changedDate"><default-field><display/></default-field></field>
+                        <field name="userId">
+                            <default-field title="User"><display-entity entity-name="moqui.security.UserAccount" text="${username?:userId}"/></default-field></field>
+                    </form-list>
+                </box-body>
+            </container-box>
+        </row-col>
+        </container-row>
         <container-box><box-header title="Shopify Shop"/>
-            <box-body>
+            <box-toolbar>
                 <container-dialog id="AddShopifyShopApp" button-text="Add Shopify Shop App">
                     <form-single name="CreateShpifyShopApp" transition="createShopifyShopApp">
                         <auto-fields-entity entity-name="co.hotwax.shopify.app.ShopifyShopApp" field-type="edit"/>
@@ -50,17 +85,19 @@
                         <field name="submitButton"><default-field title="Add"><submit/></default-field></field>
                     </form-single>
                 </container-dialog>
+            </box-toolbar>
+            <box-body>
                 <form-list name="ShopifyShopApp" list="ssaList" transition="updateShopifyShopApp">
                     <field name="shopId"><default-field><hidden/></default-field></field>
                     <field name="shop">
                         <default-field>
-                            <link text="${shopId}" url="ShopifyShopDetail" link-type="anchor" condition="shopId"/>
+                            <link text="${shopName?:shopId}" url="ShopifyShopDetail" link-type="anchor" condition="shopId"/>
                         </default-field>
                     </field>
                     <field name="appId"><default-field><display/></default-field></field>
                     <field name="externalId"><default-field><display/></default-field></field>
-                    <field name="shopName"><default-field><display/></default-field></field>
                     <field name="domain"><default-field><display/></default-field></field>
+                    <field name="installedAppVersion"><default-field><display/></default-field></field>
                     <field name="fromDate"><default-field><display/></default-field></field>
                     <field name="shopAccessToken"><default-field><text-line/></default-field></field>
                     <field name="hotwaxInstanceId">
