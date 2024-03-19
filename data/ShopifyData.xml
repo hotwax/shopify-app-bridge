@@ -46,6 +46,9 @@
     <moqui.basic.Enumeration enumCode="write_inventory" enumId="SAC_WRITE_INVENTORY" enumTypeId="SHOPIFY_ACCESS_SCOPES" description="Manage inventory across multiple locations" sequenceNum="120"/>
     <moqui.basic.Enumeration enumCode="read_locations" enumId="SAC_READ_LOCATIONS" enumTypeId="SHOPIFY_ACCESS_SCOPES" description="View the geographic location of stores, headquarters, and warehouses" sequenceNum="125"/>
 
+    <moqui.basic.Enumeration enumCode="read_script_tags" enumId="SAC_READ_SCRIPT_TAGS" enumTypeId="SHOPIFY_ACCESS_SCOPES" description="View ScriptTag" sequenceNum="130"/>
+    <moqui.basic.Enumeration enumCode="write_script_tags" enumId="SAC_WRITE_SCRIPT_TAGS" enumTypeId="SHOPIFY_ACCESS_SCOPES" description="Manager ScriptTag" sequenceNum="135"/>
+
 
     <!-- Not needed permission-->
     <moqui.basic.Enumeration enumCode="read_custom_fulfillment_services" enumId="SAC_RC_FULFILLMENT_SERVICES" enumTypeId="SHOPIFY_ACCESS_SCOPES" description="View custom_fulfillment_services" sequenceNum="85"/>
