@@ -16,6 +16,6 @@ The Shopify OMS Connector facilitates integration between Shopify shops and the 
 
 #### Repository Information
 
-- **Repository Link**: [Shopify OMS Connector Repository](https://github.com/hotwax/shopify-oms-connector)
+- **Repository Link**: [Shopify OMS Connector Repository](https://github.com/hotwax/shopify-app-bridge)
 
 Feel free to explore the repository for more details and updates.

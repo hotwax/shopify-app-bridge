@@ -19,7 +19,7 @@
 
 apply plugin: 'groovy'
 
-def jarBaseName = 'shopify-oms-connector'
+def jarBaseName = 'shopify-app-bridge'
 def moquiDir = projectDir.parentFile.parentFile.parentFile
 def frameworkDir = file(moquiDir.absolutePath + '/framework')
 

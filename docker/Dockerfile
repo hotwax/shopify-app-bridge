@@ -35,13 +35,13 @@ RUN git clone -b "main" https://github.com/hotwax/moqui-runtime.git runtime
 
 WORKDIR /moqui-framework/runtime/component
 
-RUN git clone -b "develop" https://github.com/hotwax/shopify-oms-connector.git
+RUN git clone -b "develop" https://github.com/hotwax/shopify-app-bridge.git
 
 RUN rm -rf /root/.netrc
 
 WORKDIR /moqui-framework
 
-RUN cp -rf runtime/component/shopify-oms-connector/docker/MoquiProductionConf.xml runtime/conf/
+RUN cp -rf runtime/component/shopify-app-bridge/docker/MoquiProductionConf.xml runtime/conf/
 #RUN for i in runtime/component/*/patches/*.patch; do echo =========$i======; patch -p0 < $i; done
 #Make it configurable using environment thing for dev/prod environment
 #RUN for i in runtime/component/*/patches/staging/*.patch; do echo =========$i======; patch -p0 < $i; done
