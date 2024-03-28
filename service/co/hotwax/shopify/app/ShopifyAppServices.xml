@@ -352,19 +352,18 @@ under the License.
                 <order-by field-name="-sequenceNum"/>
                 <order-by field-name="fromDate"/>
             </entity-find>
-            <set field="accessScopeUpdated" value="false" type="Boolean"/>
+            <set field="accessScopeRemoved" from="[]"/>
+            <set field="accessScopeAdded" from="[]"/>
             <iterate list="appAccessScopes" entry="appAccessScope">
                 <if condition="!accessScopes || !accessScopes.contains(appAccessScope.scopeEnumId)">
                     <if condition="!appAccessScope.thruDate">
-                        <log level="warn" message="Access scope ${appAccessScope.enumCode} has been removed for shopify app ${appId} by user ${ec.user.userId}" />
-                        <set field="accessScopeUpdated" value="true" type="Boolean"/>
+                        <script>accessScopeRemoved.add(appAccessScope.enumCode)</script>
                         <service-call name="update#co.hotwax.shopify.app.ShopifyAppAccessScope" in-map="appAccessScope + [thruDate: ec.user.nowTimestamp]"/>
                     </if>
                 <else>
                     <if condition="appAccessScope.thruDate">
-                        <log level="warn" message="Access scope ${appAccessScope.enumCode} has been added for shopify app ${appId} by user ${ec.user.userId}" />
-                        <set field="accessScopeUpdated" value="true" type="Boolean"/>
-                        <service-call name="update#co.hotwax.shopify.app.ShopifyAppAccessScope" in-map="appAccessScope + [thruDate: null]"/>
+                        <script>accessScopeAdded.add(appAccessScope.enumCode)</script>
+                        <service-call name="update#co.hotwax.shopify.app.ShopifyAppAccessScope" in-map="appAccessScope + [fromDate:ec.user.nowTimestamp, thruDate: null]"/>
                     </if>
                     <script>
                         accessScopes?.remove(appAccessScope.scopeEnumId)
@@ -374,16 +373,28 @@ under the License.
             </iterate>
             <if condition="accessScopes">
                 <iterate list="accessScopes" entry="accessScope">
-                    <log level="warn" message="Access scope ${accessScope} has been added for shopify app ${appId} by user ${ec.user.userId}" />
-                    <set field="accessScopeUpdated" value="true" type="Boolean"/>
+                    <script>accessScopeAdded.add(accessScope)</script>
                     <service-call name="create#co.hotwax.shopify.app.ShopifyAppAccessScope"
                             in-map="[appId: appId, scopeEnumId:accessScope, fromDate: ec.user.nowTimestamp, createdDate: ec.user.nowTimestamp]"/>
                 </iterate>
             </if>
-            <if condition="accessScopeUpdated">
+            <if condition="accessScopeRemoved || accessScopeAdded">
+                <script>
+                    StringBuffer comments = new StringBuffer();
+                    if (accessScopeRemoved) {
+                        ec.logger.warn("Access scope ${accessScopeRemoved.join(', ')} has been removed for shopify app ${appId} by user ${ec.user.userId}")
+                        comments.append("Access scope ${accessScopeRemoved.join(', ')} has been removed.");
+                    }
+                    if (accessScopeAdded) {
+                        ec.logger.warn("Access scope ${accessScopeAdded.join(', ')} has been added for shopify app ${appId} by user ${ec.user.userId}")
+                        comments.append("Access scope ${accessScopeAdded.join(', ')} has been added.");
+                    }
+
+                </script>
                 <service-call name="co.hotwax.shopify.app.ShopifyAppServices.create#ShopifyAppHistory"
-                        in-map="[appId: appId, comments: 'App access scope has been updated']" />
+                              in-map="[appId: appId, comments: comments]" />
             </if>
+
         </actions>
     </service>
     <service verb="create" noun="ShopifyAppHistory">

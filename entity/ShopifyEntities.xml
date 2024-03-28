@@ -151,7 +151,7 @@ under the License.
         <field name="appVersion" type="number-integer"/>
         <field name="changedDate" type="date-time"/>
         <field name="userId" type="id"/>
-        <field name="comments" type="text-medium"/>
+        <field name="comments" type="text-long"/>
         <relationship type="one" related="co.hotwax.shopify.app.ShopifyApp"/>
         <relationship type="one-nofk" related="moqui.security.UserAccount" short-alias="user"/>
     </entity>
