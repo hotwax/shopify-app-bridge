@@ -31,7 +31,7 @@
             <econdition field-name="appId" from="appId"/>
             <date-filter/>
             <order-by field-name="-sequenceNum"/>
-            <order-by field-name="-fromDate"/>
+            <order-by field-name="fromDate"/>
         </entity-find>
     </actions>
     <widgets>
@@ -94,7 +94,7 @@
                             <link text="${shopName?:shopId}" url="ShopifyShopDetail" link-type="anchor" condition="shopId"/>
                         </default-field>
                     </field>
-                    <field name="appId"><default-field><display/></default-field></field>
+                    <field name="appId"><default-field><hidden/></default-field></field>
                     <field name="externalId"><default-field><display/></default-field></field>
                     <field name="domain"><default-field><display/></default-field></field>
                     <field name="installedAppVersion"><default-field><display/></default-field></field>
