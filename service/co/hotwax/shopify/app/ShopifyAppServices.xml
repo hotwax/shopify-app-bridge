@@ -373,7 +373,10 @@ under the License.
             </iterate>
             <if condition="accessScopes">
                 <iterate list="accessScopes" entry="accessScope">
-                    <script>accessScopeAdded.add(accessScope)</script>
+                    <entity-find-one entity-name="moqui.basic.Enumeration" value-field="scopeEnum" cache="true">
+                        <field-map field-name="enumId" from="accessScope"/>
+                    </entity-find-one>
+                    <script>accessScopeAdded.add(scopeEnum?.enumCode)</script>
                     <service-call name="create#co.hotwax.shopify.app.ShopifyAppAccessScope"
                             in-map="[appId: appId, scopeEnumId:accessScope, fromDate: ec.user.nowTimestamp, createdDate: ec.user.nowTimestamp]"/>
                 </iterate>
