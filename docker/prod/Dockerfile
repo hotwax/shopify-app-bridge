@@ -34,7 +34,7 @@ WORKDIR /moqui-framework
 RUN git clone -b "v3.1.0" https://github.com/hotwax/moqui-runtime.git runtime
 
 WORKDIR /moqui-framework/runtime/component
-RUN git clone -b "v1.0.0" https://github.com/hotwax/shopify-app-bridge.git
+RUN git clone -b "v1.0.1" https://github.com/hotwax/shopify-app-bridge.git
 
 RUN rm -rf /root/.netrc
 
