@@ -62,8 +62,8 @@ under the License.
         <field name="publishedDate" type="date-time"/>
         <relationship type="one-nofk" title="AppType" related="moqui.basic.Enumeration" short-alias="appTypeEnum">
             <key-map field-name="appTypeId" related="enumId"/></relationship>
-        <relationship type="one-nofk" title="AppType" related="moqui.basic.Enumeration" short-alias="status">
-            <key-map field-name="statusId" related="enumId"/></relationship>
+        <relationship type="one-nofk" related="moqui.basic.StatusItem" short-alias="status">
+            <key-map field-name="statusId"/></relationship>
         <relationship type="many" related="co.hotwax.shopify.app.ShopifyShopApp" short-alias="shops">
             <key-map field-name="appId"/>
         </relationship>
@@ -72,10 +72,16 @@ under the License.
             <moqui.basic.Enumeration enumId="SHOP_APP_CUSTOM" enumTypeId="SHOPIFY_APP_TYPE" description="Custom"/>
             <moqui.basic.Enumeration enumId="SHOP_APP_PUBLIC" enumTypeId="SHOPIFY_APP_TYPE" description="Public"/>
 
-            <moqui.basic.EnumerationType enumTypeId="SHOPIFY_APP_STATUS" description="Shopify App Status" hasTable="N"/>
-            <moqui.basic.Enumeration enumId="SHOPIFY_APP_DRAFT" description="Draft" sequenceNum="01" enumCode="DRAFT" enumTypeId="SHOPIFY_APP_STATUS"/>
-            <moqui.basic.Enumeration enumId="SHOPIFY_APP_ACTIVE" description="Active" sequenceNum="02" enumCode="ACTIVE" enumTypeId="SHOPIFY_APP_STATUS"/>
-            <moqui.basic.Enumeration enumId="SHOPIFY_APP_ARCHIVED" description="Archived" sequenceNum="02" enumCode="ARCHIVED" enumTypeId="SHOPIFY_APP_STATUS"/>
+            <moqui.basic.StatusType statusTypeId="SHOPIFY_APP_STATUS" description="Shopify App Status"/>
+            <moqui.basic.StatusItem statusId="SHOPIFY_APP_DRAFT" statusTypeId="SHOPIFY_APP_STATUS" sequenceNum="01" statusCode="DRAFT" description="Draft"/>
+            <moqui.basic.StatusItem statusId="SHOPIFY_APP_ACTIVE" statusTypeId="SHOPIFY_APP_STATUS" sequenceNum="02" statusCode="ACTIVE" description="Active"/>
+            <moqui.basic.StatusItem statusId="SHOPIFY_APP_ARCHIVED" statusTypeId="SHOPIFY_APP_STATUS" sequenceNum="03" statusCode="ARCHIVED" description="Archived"/>
+
+            <moqui.basic.StatusFlowTransition statusFlowId="Default" statusId="SHOPIFY_APP_DRAFT" toStatusId="SHOPIFY_APP_ACTIVE" transitionName="Active"/>
+            <moqui.basic.StatusFlowTransition statusFlowId="Default" statusId="SHOPIFY_APP_DRAFT" toStatusId="SHOPIFY_APP_ARCHIVED" transitionName="Archived"/>
+            <moqui.basic.StatusFlowTransition statusFlowId="Default" statusId="SHOPIFY_APP_ACTIVE" toStatusId="SHOPIFY_APP_ARCHIVED" transitionName="Archived"/>
+            <moqui.basic.StatusFlowTransition statusFlowId="Default" statusId="SHOPIFY_APP_ARCHIVED" toStatusId="SHOPIFY_APP_DRAFT" transitionName="Draft"/>
+            <moqui.basic.StatusFlowTransition statusFlowId="Default" statusId="SHOPIFY_APP_ARCHIVED" toStatusId="SHOPIFY_APP_ACTIVE" transitionName="Active"/>
         </seed-data>
     </entity>
 

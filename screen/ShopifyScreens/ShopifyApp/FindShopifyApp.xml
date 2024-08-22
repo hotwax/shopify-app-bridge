@@ -35,9 +35,9 @@
                 <field name="statusId">
                     <default-field>
                         <drop-down>
-                            <entity-options key="${enumId}">
-                                <entity-find entity-name="moqui.basic.Enumeration" cache="true">
-                                    <econdition field-name="enumTypeId" value="SHOPIFY_APP_STATUS"/>
+                            <entity-options key="${statusId}">
+                                <entity-find entity-name="moqui.basic.StatusItem" cache="true">
+                                    <econdition field-name="statusTypeId" value="SHOPIFY_APP_STATUS"/>
                                 </entity-find>
                             </entity-options>
                         </drop-down>
