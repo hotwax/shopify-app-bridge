@@ -11,14 +11,12 @@
         <set field="html_description" value="A page for finding shopify shop"/>
     </pre-actions>
 
-    <actions>
-        <entity-find entity-name="co.hotwax.shopify.shop.ShopifyShop" list="shopifyShops">
-            <search-form-inputs default-order-by="^shopName"/></entity-find>
-    </actions>
     <widgets>
         <container-box><box-header><label text="Find Shopify Shop" type="h5"/></box-header>
             <box-body>
-                <form-list name="ListShopifyShop" list="shopifyShops" skip-form="true" header-dialog="true">
+                <form-list name="ListShopifyShop" list="shopifyShops" header-dialog="true">
+                    <entity-find entity-name="co.hotwax.shopify.shop.ShopifyShop" list="shopifyShops">
+                        <search-form-inputs default-order-by="^shopName"/></entity-find>
                     <field name="shopId" print-width="10" print-width-type="characters">
                         <header-field><text-find hide-options="true"/></header-field>
                         <default-field><link text="${shopId}" url="ShopifyShopDetail" link-type="anchor" condition="shopId"/></default-field>
@@ -63,7 +61,8 @@
                         <header-field show-order-by="case-insensitive"><text-find/></header-field>
                         <default-field><display/></default-field>
                     </field>
-
+                    <field name="findButton"><header-field title=""><submit text="Find"/></header-field>
+                        <default-field><ignored/></default-field></field>
                 </form-list>
             </box-body></container-box>
     </widgets>

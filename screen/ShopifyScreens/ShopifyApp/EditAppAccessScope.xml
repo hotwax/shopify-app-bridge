@@ -6,6 +6,10 @@
         <service-call name="co.hotwax.shopify.app.ShopifyAppServices.update#AppAccessScopes"/>
         <default-response url="../ShopifyAppDetail"><parameter name="appId"/></default-response>
     </transition>
+    <transition name="createShopifyScope">
+        <service-call name="create#moqui.basic.Enumeration"/>
+        <default-response url="../EditAppAccessScope"><parameter name="appId"/></default-response>
+    </transition>
     <actions>
         <entity-find entity-name="co.hotwax.shopify.app.ShopifyAppAndAccessScope" cache="true" list="appAccessScopes">
             <econdition field-name="appId" from="appId"/>
@@ -20,6 +24,23 @@
         <set field="appScopeEnumIds" from="appAccessScopes?.scopeEnumId"/>
     </actions>
     <widgets>
+        <container-dialog id="AddShopifyScope" button-text="Add Shopify Scope">
+            <form-single name="CreateShpifyScope" transition="createShopifyScope">
+                <field name="appId"><default-field>
+                    <hidden default-value="${appId}"/>
+                </default-field></field>
+                <field name="enumTypeId"><default-field>
+                    <hidden default-value="SHOPIFY_ACCESS_SCOPES"/>
+                </default-field></field>
+                <field name="enumCode"><default-field title="Scope">
+                    <text-line />
+                </default-field></field>
+                <field name="description"><default-field>
+                    <text-line />
+                </default-field></field>
+                <field name="submitButton"><default-field title="Add"><submit/></default-field></field>
+            </form-single>
+        </container-dialog>
         <container-box><box-header title="Shopify App #${appId} access scopes"/>
             <box-body>
                 <render-mode>
@@ -31,7 +52,7 @@
                               <div>
                                 <label>
                                   <input type="checkbox" name="accessScopes" value="${accessScope.enumId}" <#if appScopeEnumIds.contains(accessScope.enumId!)>checked="checked"</#if>/>
-                                  ${accessScope.enumCode} ${accessScope.description!accessScope.enumId}
+                                  ${accessScope.enumCode!''} ${accessScope.description!accessScope.enumId}
                                 </label>
                               </div>
                             </#list>
