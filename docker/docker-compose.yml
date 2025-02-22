@@ -1,0 +1,10 @@
+version: '2'  
+services:
+  moqui-server:
+    image: moqui:latest
+    container_name: moqui-server
+    restart: always
+    ports:
+     - 8080:8080
+    volumes:
+     - ./runtime/logs:/opt/moqui/runtime/log
