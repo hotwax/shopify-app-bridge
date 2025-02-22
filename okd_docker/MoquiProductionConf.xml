@@ -6,7 +6,6 @@
 <moqui-conf xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://moqui.org/xsd/moqui-conf-3.xsd">
 
     <default-property name="elasticsearch_url" value="http://127.0.0.1:9200"/>
-    <default-property name="instance_purpose" value="production"/>
     <default-property name="webapp_allow_origins" value="*"/>
     <default-property name="entity_ds_db_conf" value="mysql"/>
     <default-property name="entity_ds_host" value="127.0.0.1"/>
@@ -14,54 +13,38 @@
     <default-property name="entity_ds_user" value="moqui"/>
     <default-property name="entity_ds_password" value="moqui"/>
     <default-property name="entity_ds_database" value="moqui"/>
-
-    <default-property name="ofbiz_entity_ds_db_conf" value="mysql"/>
-    <default-property name="ofbiz_entity_ds_host" value="127.0.0.1"/>
-    <default-property name="ofbiz_entity_ds_port" value="3306"/>
-    <default-property name="ofbiz_entity_ds_user" value="moqui"/>
-    <default-property name="ofbiz_entity_ds_password" value="moqui"/>
-    <default-property name="ofbiz_entity_ds_database" value="moqui"/>
+    <default-property name="entity_ds_database_configuration" value="moqui_configuration"/>
 
     <default-property name="webapp_http_host" value=""/>
     <default-property name="webapp_http_port" value="80"/>
     <default-property name="webapp_https_port" value="443"/>
-    <default-property name="webapp_https_enabled" value="true"/>
+    <default-property name="webapp_https_enabled" value="ture"/>
 
     <default-property name="webapp_require_session_token" value="false"/>
-    <default-property name="elasticsearch_index_prefix" value="localhost_"/>
-    <default-property name="elasticsearch_user" value=""/>
-    <default-property name="elasticsearch_password" value=""/>
 
-    <!--<default-property name="ofbiz.instance.name" value="localhost"/>
-    <default-property name="ofbiz.instance.url" value="https://localhost:8443"/>-->
     <!-- Property for setting timezone - configurable as part of Dockerfile  -->
     <default-property name="default_time_zone" value=""/>
     <default-property name="database_time_zone" value=""/>
 
-    <!-- Added properties for service facade to control schedule job -->
-    <default-property name="scheduled_job_check_time" value="60"/>
-    
     <tools>
         <tool-factory class="org.moqui.impl.tools.H2ServerToolFactory" init-priority="12" disabled="true"/>
     </tools>
-    <server-stats stats-skip-condition="pathInfo?.startsWith('/rpc') || pathInfo?.startsWith('/rest') || pathInfo?.startsWith('/status')" visit-enabled="false" visitor-enabled="false"/>
+    <server-stats stats-skip-condition="pathInfo?.startsWith('/rpc') || pathInfo?.startsWith('/rest') || pathInfo?.startsWith('/status')"/>
 
     <!-- NOTE: using the environment variable is relatively secure in a container environment, but for more security set it here instead -->
     <entity-facade crypt-pass="${entity_ds_crypt_pass}" query-stats="true">
-        <datasource group-name="transactional" database-conf-name="${entity_ds_db_conf}" startup-add-missing="true">
+        <datasource group-name="transactional" database-conf-name="${entity_ds_db_conf}" schema-name="">
             <inline-jdbc pool-maxsize="140" xa-ds-class="com.mysql.cj.jdbc.MysqlXADataSource">
-                <xa-properties pinGlobalTxToPhysicalConnection="true" autoReconnectForPools="true" useSSL="false" allowPublicKeyRetrieval="true"
-                               serverName="${entity_ds_host}" port="${entity_ds_port?:'3306'}"
+                <xa-properties pinGlobalTxToPhysicalConnection="true" autoReconnectForPools="true" useUnicode="true" useSSL="false"
+                               encoding="UTF-8" serverName="${entity_ds_host}" port="${entity_ds_port?:'3306'}"
                                databaseName="${entity_ds_database}" user="${entity_ds_user}" password="${entity_ds_password}"/>
             </inline-jdbc>
         </datasource>
-        <datasource group-name="ofbiz_transactional" database-conf-name="${ofbiz_entity_ds_db_conf}">
+        <datasource group-name="configuration" database-conf-name="${entity_ds_db_conf}" schema-name="">
             <inline-jdbc pool-maxsize="140" xa-ds-class="com.mysql.cj.jdbc.MysqlXADataSource">
-                <xa-properties pinGlobalTxToPhysicalConnection="true" autoReconnectForPools="true" allowPublicKeyRetrieval="true" useSSL="false"
-                               encoding="UTF-8" serverName="${ofbiz_entity_ds_host}" port="${ofbiz_entity_ds_port?:'3306'}"
-                               databaseName="${ofbiz_entity_ds_database}"
-                               user="${ofbiz_entity_ds_user}"
-                               password="${ofbiz_entity_ds_password}"/>
+                <xa-properties pinGlobalTxToPhysicalConnection="true" autoReconnectForPools="true" useUnicode="true" useSSL="false"
+                               encoding="UTF-8" serverName="${entity_ds_host}" port="${entity_ds_port?:'3306'}"
+                               databaseName="${entity_ds_database_configuration}" user="${entity_ds_user}" password="${entity_ds_password}"/>
             </inline-jdbc>
         </datasource>
     </entity-facade>
