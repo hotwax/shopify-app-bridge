@@ -15,13 +15,6 @@
     <default-property name="entity_ds_password" value="moqui"/>
     <default-property name="entity_ds_database" value="moqui"/>
 
-    <default-property name="ofbiz_entity_ds_db_conf" value="mysql"/>
-    <default-property name="ofbiz_entity_ds_host" value="127.0.0.1"/>
-    <default-property name="ofbiz_entity_ds_port" value="3306"/>
-    <default-property name="ofbiz_entity_ds_user" value="moqui"/>
-    <default-property name="ofbiz_entity_ds_password" value="moqui"/>
-    <default-property name="ofbiz_entity_ds_database" value="moqui"/>
-
     <default-property name="webapp_http_host" value=""/>
     <default-property name="webapp_http_port" value="80"/>
     <default-property name="webapp_https_port" value="443"/>
@@ -53,15 +46,6 @@
                 <xa-properties pinGlobalTxToPhysicalConnection="true" autoReconnectForPools="true" useSSL="false" allowPublicKeyRetrieval="true"
                                serverName="${entity_ds_host}" port="${entity_ds_port?:'3306'}"
                                databaseName="${entity_ds_database}" user="${entity_ds_user}" password="${entity_ds_password}"/>
-            </inline-jdbc>
-        </datasource>
-        <datasource group-name="ofbiz_transactional" database-conf-name="${ofbiz_entity_ds_db_conf}">
-            <inline-jdbc pool-maxsize="140" xa-ds-class="com.mysql.cj.jdbc.MysqlXADataSource">
-                <xa-properties pinGlobalTxToPhysicalConnection="true" autoReconnectForPools="true" allowPublicKeyRetrieval="true" useSSL="false"
-                               encoding="UTF-8" serverName="${ofbiz_entity_ds_host}" port="${ofbiz_entity_ds_port?:'3306'}"
-                               databaseName="${ofbiz_entity_ds_database}"
-                               user="${ofbiz_entity_ds_user}"
-                               password="${ofbiz_entity_ds_password}"/>
             </inline-jdbc>
         </datasource>
     </entity-facade>
