@@ -32,7 +32,7 @@ RUN echo "org.gradle.daemon=false" | tee -a gradle.properties
 
 
 # Copy configuration files
-RUN cp -rf runtime/component/financial-audit/docker/MoquiProductionConf.xml runtime/conf/
+RUN cp -rf runtime/component/shopify-app-bridge/docker/MoquiProductionConf.xml runtime/conf/
 
 # Create WAR file and extract it
 RUN ./gradlew addRuntime
@@ -42,7 +42,7 @@ RUN mkdir -p /moqui-deploy && \
 
 # Set environment variables
 ENV DB_LOAD="./gradlew loadProduction -Ptypes=seed,seed-initial,install,ext-seed,ext -Praw"
-ENV JAVA_OPTS="-Xms512m -Xmx4096m"
+ENV JAVA_OPTS="-Xms1024m -Xmx4096m -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/moqui-framework/runtime/log/"
 ENV CONF_FILE="/moqui-framework/runtime/conf/MoquiProductionConf.xml"
 ENV SLEEP="sleep 2"
 
