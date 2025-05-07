@@ -43,7 +43,7 @@ RUN mkdir -p /moqui-deploy && \
 
 # Set environment variables
 ENV DB_LOAD="./gradlew loadProduction -Ptypes=seed,seed-initial,install,ext-seed,ext -Praw"
-ENV JAVA_OPTS="-Xms512m -Xmx4096m"
+ENV JAVA_OPTS="-Xms1024m -Xmx4096m -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/moqui-framework/runtime/log/"
 ENV CONF_FILE="/moqui-framework/runtime/conf/MoquiProductionConf.xml"
 ENV SLEEP="sleep 2"
 
