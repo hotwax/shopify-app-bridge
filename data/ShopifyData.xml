@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<entity-facade-xml type="seed-initial">
+<entity-facade-xml type="ext-seed">
     <moqui.security.ArtifactGroup artifactGroupId="SHOPIFY_APP" description="Shopify"/>
     <moqui.security.ArtifactGroupMember artifactGroupId="SHOPIFY_APP" artifactTypeEnumId="AT_XML_SCREEN"
             inheritAuthz="Y" artifactName="component://shopify-app/screen/ShopifyScreens.xml"/>

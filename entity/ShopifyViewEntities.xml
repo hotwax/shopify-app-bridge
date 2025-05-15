@@ -58,4 +58,20 @@ under the License.
         <alias-all entity-alias="SA"/>
         <alias-all entity-alias="ENUM"/>
     </view-entity>
+    <view-entity entity-name="ShopAppCustomAccessScope" package="co.hotwax.shopify.shop">
+        <member-entity entity-alias="SA" entity-name="co.hotwax.shopify.shop.ShopifyShopCustomScope"/>
+        <member-entity entity-alias="ENUM" entity-name="moqui.basic.Enumeration" join-from-alias="SA">
+            <key-map field-name="scopeEnumId" related="enumId"/>
+        </member-entity>
+        <alias-all entity-alias="SA"/>
+        <alias-all entity-alias="ENUM"/>
+    </view-entity>
+    <view-entity entity-name="ShopAppAndAcceptedScope" package="co.hotwax.shopify.shop">
+        <member-entity entity-alias="SA" entity-name="co.hotwax.shopify.shop.ShopAppAcceptedScope"/>
+        <member-entity entity-alias="ENUM" entity-name="moqui.basic.Enumeration" join-from-alias="SA">
+            <key-map field-name="scopeEnumId" related="enumId"/>
+        </member-entity>
+        <alias-all entity-alias="SA"/>
+        <alias-all entity-alias="ENUM"/>
+    </view-entity>
 </entities>

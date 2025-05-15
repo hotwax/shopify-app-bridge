@@ -7,6 +7,7 @@
         <default-response url="."/></transition>
     <transition name="ShopifyShopDetail"><default-response url="../../ShopifyShop/ShopifyShopDetail"/></transition>
     <transition name="EditAppAccessScope"><default-response url="../EditAppAccessScope"/></transition>
+    <transition name="ShopAppDetail"><default-response url="../../ShopApp/ShopAppDetail"/></transition>
     <transition name="createShopifyShopApp">
         <service-call name="create#co.hotwax.shopify.app.ShopifyShopApp"/>
         <default-response></default-response>
@@ -103,6 +104,10 @@
             </box-toolbar>
             <box-body>
                 <form-list name="ShopifyShopApp" list="ssaList" transition="updateShopifyShopApp">
+                    <field name="view">
+                        <header-field title=""/>
+                        <default-field><link text="" tooltip="View Shop App" url="ShopAppDetail" target-window="_blank" link-type="anchor" parameter-map="[appId: appId, shopId:shopId]" icon="fa fa-external-link"/></default-field>
+                    </field>
                     <field name="shopId"><default-field><hidden/></default-field></field>
                     <field name="shop">
                         <default-field>

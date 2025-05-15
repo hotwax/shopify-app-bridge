@@ -88,7 +88,7 @@ under the License.
     <entity entity-name="ShopifyAppAccessScope" package="co.hotwax.shopify.app">
         <description>Shopify published app on shopify app store</description>
         <field name="appId" type="id" is-pk="true"><description>A globally-unique identifier.</description></field>
-        <field name="scopeEnumId" type="id" is-pk="true"><description>Scople enum id</description></field>
+        <field name="scopeEnumId" type="id" is-pk="true"><description>Scope enum id</description></field>
         <field name="requiredScope" type="text-indicator"/>
         <field name="fromDate" type="date-time"/>
         <field name="thruDate" type="date-time"/>
@@ -126,6 +126,61 @@ under the License.
             <key-map field-name="hotwaxInstanceId" related="instanceId"/>
         </relationship>
     </entity>
+    <entity entity-name="ShopifyShopCustomScope" package="co.hotwax.shopify.shop">
+        <description>
+            Defines custom access scopes that are explicitly granted to a Shopify shop.
+            These scopes are managed at the shop level and may supplement
+            the default scopes defined by the Shopify app.
+
+            Used to support client-specific permissions that are not part of the app’s
+            default access scope configuration.
+        </description>
+        <field name="shopId" type="id" is-pk="true"/>
+        <field name="appId" type="id" is-pk="true"/>
+        <field name="scopeEnumId" type="id" is-pk="true" enable-audit-log="true"><description>Scope enum id</description></field>
+        <field name="fromDate" type="date-time" is-pk="true"/>
+        <field name="thruDate" type="date-time" enable-audit-log="true"/>
+        <field name="createdByUserId" type="id"/>
+        <field name="comments" type="text-medium"/>
+        <relationship type="one" related="co.hotwax.shopify.shop.ShopifyShop" short-alias="shopifyShop">
+            <key-map field-name="shopId"/>
+        </relationship>
+        <relationship type="one" related="co.hotwax.shopify.app.ShopifyApp" short-alias="shopifyApp">
+            <key-map field-name="appId"/>
+        </relationship>
+        <relationship type="one-nofk" related="moqui.basic.StatusItem" short-alias="status">
+            <key-map field-name="statusId"/>
+        </relationship>
+        <relationship type="one-nofk" related="moqui.security.UserAccount" short-alias="user">
+            <key-map field-name="createdByUserId" related="userId"/></relationship>
+        <seed-data>
+            <moqui.basic.StatusType statusTypeId="APP_ACCESS_STATUS" description="Shopify App access status"/>
+            <moqui.basic.StatusItem statusId="APP_ACCESS_REQUESTED" statusTypeId="APP_ACCESS_STATUS" sequenceNum="01" statusCode="DRAFT" description="Requested"/>
+            <moqui.basic.StatusItem statusId="SHOPIFY_APP_APPROVED" statusTypeId="APP_ACCESS_STATUS" sequenceNum="02" statusCode="ACTIVE" description="Approve"/>
+        </seed-data>
+    </entity>
+    <entity entity-name="ShopAppAcceptedScope" package="co.hotwax.shopify.shop">
+        <description>
+            Stores the access scopes granted to a Shopify app installed on a specific shop.
+            Combines both inherited scopes from the app definition and custom scopes defined
+            at the shop level.
+
+            Used to track and manage the actual effective permissions available to the app
+            within a specific client shop context.
+        </description>
+        <field name="shopId" type="id" is-pk="true"/>
+        <field name="appId" type="id" is-pk="true"/>
+        <field name="scopeEnumId" type="id" is-pk="true" enable-audit-log="true"><description>Scope enum id</description></field>
+        <field name="acceptedDate" type="date-time"/>
+        <relationship type="one" related="co.hotwax.shopify.shop.ShopifyShop" short-alias="shopifyShop">
+            <key-map field-name="shopId"/>
+        </relationship>
+        <relationship type="one" related="co.hotwax.shopify.app.ShopifyApp" short-alias="shopifyApp">
+            <key-map field-name="appId"/>
+        </relationship>
+        <relationship type="one" title="AppType" related="moqui.basic.Enumeration">
+            <key-map field-name="scopeEnumId" related="enumId"/></relationship>
+    </entity>
 
     <entity entity-name="HotwaxInstance" package="co.hotwax.shopify.app">
         <description>
@@ -150,7 +205,7 @@ under the License.
         <field name="comments" type="text-medium"/>
     </entity>
 
-    <entity entity-name="ShopifyAppHistory" package="co.hotwax.shopify.app" use="nontransactional">
+    <!--<entity entity-name="ShopifyAppHistory" package="co.hotwax.shopify.app" use="nontransactional">
         <field name="appId" type="id" is-pk="true"/>
         <field name="historySeqId" type="id" is-pk="true"/>
         <field name="reasonEnumId" type="id"/>
@@ -160,5 +215,27 @@ under the License.
         <field name="comments" type="text-long"/>
         <relationship type="one" related="co.hotwax.shopify.app.ShopifyApp"/>
         <relationship type="one-nofk" related="moqui.security.UserAccount" short-alias="user"/>
+    </entity>-->
+
+    <entity entity-name="ShopifyAppHistory" package="co.hotwax.shopify.app" use="nontransactional">
+        <field name="historyId" type="id" is-pk="true"/>
+        <field name="appId" type="id"/>
+        <field name="shopId" type="id"/>
+        <field name="scopeEnumId" type="id"/>
+        <field name="appVersion" type="number-integer"/>
+        <field name="changedDate" type="date-time"/>
+        <field name="changedByUserId" type="id"/>
+        <field name="comments" type="text-long"/>
+        <relationship type="one" related="co.hotwax.shopify.app.ShopifyApp">
+            <key-map field-name="appId"/>
+        </relationship>
+        <relationship type="one-nofk" related="co.hotwax.shopify.shop.ShopifyShop">
+            <key-map field-name="shopId"/>
+        </relationship>
+        <relationship type="one-nofk" related="moqui.security.UserAccount" short-alias="user">
+            <key-map field-name="changedByUserId" related="userId"/>
+        </relationship>
+        <relationship type="one"  related="moqui.basic.Enumeration">
+            <key-map field-name="scopeEnumId" related="enumId"/></relationship>
     </entity>
 </entities>

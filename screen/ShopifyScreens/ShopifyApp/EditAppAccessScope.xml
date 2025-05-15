@@ -6,7 +6,7 @@
         <service-call name="co.hotwax.shopify.app.ShopifyAppServices.update#AppAccessScopes"/>
         <default-response url="../ShopifyAppDetail"><parameter name="appId"/></default-response>
     </transition>
-    <transition name="createShopifyScope">
+    <transition name="createAppAccessScope">
         <service-call name="create#moqui.basic.Enumeration"/>
         <default-response url="../EditAppAccessScope"><parameter name="appId"/></default-response>
     </transition>
@@ -25,7 +25,7 @@
     </actions>
     <widgets>
         <container-dialog id="AddShopifyScope" button-text="Add Shopify Scope">
-            <form-single name="CreateShpifyScope" transition="createShopifyScope">
+            <form-single name="CreateAppAccessScope" transition="createAppAccessScope">
                 <field name="appId"><default-field>
                     <hidden default-value="${appId}"/>
                 </default-field></field>
