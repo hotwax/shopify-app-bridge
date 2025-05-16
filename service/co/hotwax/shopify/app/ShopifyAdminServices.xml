@@ -224,4 +224,51 @@ under the License.
             <set field="validSignature" from="calculatedHmac.equals(hmac)"/>
         </actions>
     </service>
+    <service verb="get" noun="ShopAccessScope">
+        <description>
+            Get the oauth shopify shop AccessScope for the installed app
+            https://shopify.dev/apps/auth/oauth/getting-started#step-5-get-an-access-token
+        </description>
+        <in-parameters>
+            <parameter name="shopId" required="true"/>
+            <parameter name="appId" required="true"/>
+        </in-parameters>
+        <out-parameters>
+            <parameter name="grantedAccessScopes" type="List"/>
+        </out-parameters>
+        <actions>
+            <entity-find entity-name="co.hotwax.shopify.app.ShopifyShopAndApp" list="ssaList">
+                <econdition field-name="shopId" from="shopId"/>
+                <econdition field-name="appId" from="appId"/>
+                <date-filter/>
+                <order-by field-name="-fromDate"/>
+            </entity-find>
+            <if condition="!ssaList">
+                <return error="true" message="No Shopify shop app found for shopId ${shopId} and appId ${appId}"/>
+            </if>
+            <set field="ssa" from="ssaList?ssaList[0]:null"/>
+
+            <script><![CDATA[
+                import org.moqui.util.RestClient
+                import org.moqui.util.RestClient.Method
+
+                RestClient restClient = ec.service.rest()
+                restClient.method(Method.GET)
+                restClient.uri("${shop}//admin/oauth/access_scopes.json")
+                restClient.addHeader("X-Shopify-Access-Token", ssa?.accessToken);
+                response = null;
+                try {
+                    RestClient.RestResponse restResponse = restClient.call()
+                    response = restResponse.jsonObject()
+                    statusCode = restResponse.getStatusCode()
+                    response.checkError()
+                } catch (Exception e) {
+                    ec.logger.error("Error in API call Error: ${e.getMessage()}")
+                    ec.message.addError(e.getMessage());
+                    return
+                }
+                grantedAccessScopes = response.access_scopes*.handle
+            ]]></script>
+        </actions>
+    </service>
 </services>

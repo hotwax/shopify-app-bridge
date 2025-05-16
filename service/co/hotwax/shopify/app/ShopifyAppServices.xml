@@ -105,6 +105,33 @@ under the License.
                 <log message="${appTypeEnum?.description} [${appTypeId}] already register with same access token for ${shop}"/>
             </else>
             </if>
+            <service-call name="co.hotwax.shopify.app.ShopifyAdminServices.get#ShopAccessScope" in-map="[shopId: shopId, appId: shopifyApp.appId]" out-map="outMap" ignore-error="true"/>
+            <set field="grantedAccessScopes" from="outMap.grantedAccessScopes" default-value="[]"/>
+            <if condition="grantedAccessScopes">
+                <entity-find entity-name="co.hotwax.shopify.shop.ShopAppAndAcceptedScope" cache="true" list="shopAcceptedScopes">
+                    <econdition field-name="appId" from="shopifyShopApp.appId"/>
+                    <econdition field-name="shopId" from="shopId"/>
+                    <order-by field-name="-acceptedDate"/>
+                </entity-find>
+                <set field="acceptedScopes" from="shopAcceptedScopes?.enumCode" default-value="[]"/>
+                <script>
+                    toBeAddedScopes = acceptedScopes.findAll { it.enumCode in grantedAccessScopes }*.enumId
+                    toBeRemovedScopes = grantedAccessScopes.findAll { !(it in acceptedCodes) }.collect { missingCode ->
+                            allScopeEnums.find { it.enumCode == missingCode }?.enumId
+                        }.findAll { it } // remove nulls
+                </script>
+                <iterate list="toBeAddedScopes" entry="toBeAddedScope">
+                    <log message="Added ${toBeAddedScope.enumCode} [toBeAddedScope.enumId] for shop [${shopId}] and app ${shopifyApp.appName} [${shopifyApp.appId}]"/>
+                    <service-call name="create#co.hotwax.shopify.shop.ShopAppAcceptedScope" in-map="[shopId: shopId,appId: shopifyApp.appId, scopeEnumId: toBeAddedScope.enumId, acceptedDate: ec.user.nowTimestamp]" ignore-error="true"/>
+                </iterate>
+                <iterate list="toBeRemovedScopes" entry="toBeRemovedScope">
+                    <log message="Removed ${toBeAddedScope.enumCode} [toBeAddedScope.enumId] from shop [${shopId}] for app ${shopifyApp.appName} [${shopifyApp.appId}]"/>
+                    <service-call name="delete#co.hotwax.shopify.shop.ShopAppAcceptedScope" in-map="[shopId: shopId,appId: shopifyApp.appId, scopeEnumId: toBeRemovedScope.enumId]" ignore-error="true"/>
+                </iterate>
+                <if condition="toBeRemoved">
+
+                </if>
+            </if>
         </actions>
     </service>
     <service verb="store" noun="ShopifyShop">
