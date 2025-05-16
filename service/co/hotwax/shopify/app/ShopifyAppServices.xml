@@ -296,7 +296,8 @@ under the License.
                 - Your app has a token for that shop, but it was created before you rotated the app's secret.
                 - Your app has a token for that shop, but your app now requires scopes that differ from the scopes granted with that token: Shopify returns old access token.
             -->
-            <set field="requestAuthorizationCode" value="true" type="Boolean"/>
+            <!--requestAuthorizationCode should return string value, app requires it as string -->
+            <set field="requestAuthorizationCode" value="true"/>
 
             <entity-find entity-name="co.hotwax.shopify.app.ShopifyApp" list="shopifyApps" cache="true">
                 <econdition field-name="clientId" from="clientId"/>
@@ -329,7 +330,7 @@ under the License.
             </if>
             <if condition="shopifyShopApp">
                 <if condition="shopifyShopApp.shopAccessToken">
-                    <set field="requestAuthorizationCode" value="false" type="Boolean"/>
+                    <set field="requestAuthorizationCode" value="false"/>
                 </if>
                 <entity-find entity-name="co.hotwax.shopify.shop.ShopAppCustomAccessScope" cache="true" list="shopCustomScopes">
                     <econdition field-name="appId" from="shopifyShopApp.appId"/>
@@ -352,12 +353,12 @@ under the License.
                 </script>
                 <if condition="missingScopes">
                     <log message="Missing access scope for Shopify shop domain ${shopifyShopApp.myshopifyDomain} [${shopifyShopApp.shopId}] and Shopify app ${shopifyShopApp.appName} [${shopifyShopApp.appId}]." level="warn"/>
-                    <set field="requestAuthorizationCode" value="true" type="Boolean"/>
+                    <set field="requestAuthorizationCode" value="true"/>
                 </if>
                 <set field="instanceAddress" from="shopifyShopApp?.hostAddress"/>
             </if>
 
-            <if condition="requestAuthorizationCode">
+            <if condition="requestAuthorizationCode == 'true'">
                 <set field="accessScopes" from="requiredScopes.join(', ')" />
             </if>
         </actions>

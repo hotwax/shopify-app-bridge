@@ -23,7 +23,7 @@ RUN git clone --depth 1 -b "main" https://github.com/hotwax/moqui-framework.git 
 WORKDIR /moqui-framework
 RUN git clone --depth 1 -b "main" https://github.com/hotwax/moqui-runtime.git runtime
 WORKDIR /moqui-framework/runtime/component
-RUN git clone --depth 1 -b "main" https://github.com/hotwax/shopify-app-bridge.git
+RUN git clone --depth 1 -b "23-support-client-specific-permission-configuration-and-change-detection" https://github.com/hotwax/shopify-app-bridge.git
 WORKDIR /moqui-framework
 
 # Remove git credentials file
