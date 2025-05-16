@@ -254,14 +254,14 @@ under the License.
 
                 RestClient restClient = ec.service.rest()
                 restClient.method(Method.GET)
-                restClient.uri("${shop}//admin/oauth/access_scopes.json")
-                restClient.addHeader("X-Shopify-Access-Token", ssa?.accessToken);
+                restClient.uri("https://${ssa.myshopifyDomain}/admin/oauth/access_scopes.json")
+                restClient.addHeader("X-Shopify-Access-Token", ssa?.shopAccessToken);
                 response = null;
                 try {
                     RestClient.RestResponse restResponse = restClient.call()
                     response = restResponse.jsonObject()
                     statusCode = restResponse.getStatusCode()
-                    response.checkError()
+                    restResponse.checkError()
                 } catch (Exception e) {
                     ec.logger.error("Error in API call Error: ${e.getMessage()}")
                     ec.message.addError(e.getMessage());
