@@ -205,18 +205,6 @@ under the License.
         <field name="comments" type="text-medium"/>
     </entity>
 
-    <!--<entity entity-name="ShopifyAppHistory" package="co.hotwax.shopify.app" use="nontransactional">
-        <field name="appId" type="id" is-pk="true"/>
-        <field name="historySeqId" type="id" is-pk="true"/>
-        <field name="reasonEnumId" type="id"/>
-        <field name="appVersion" type="number-integer"/>
-        <field name="changedDate" type="date-time"/>
-        <field name="userId" type="id"/>
-        <field name="comments" type="text-long"/>
-        <relationship type="one" related="co.hotwax.shopify.app.ShopifyApp"/>
-        <relationship type="one-nofk" related="moqui.security.UserAccount" short-alias="user"/>
-    </entity>-->
-
     <entity entity-name="ShopifyAppHistory" package="co.hotwax.shopify.app" use="nontransactional">
         <field name="historyId" type="id" is-pk="true"/>
         <field name="appId" type="id"/>
