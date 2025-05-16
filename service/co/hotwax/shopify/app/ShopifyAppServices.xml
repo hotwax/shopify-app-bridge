@@ -115,7 +115,8 @@ under the License.
                 </entity-find>
                 <set field="acceptedScopes" from="shopAcceptedScopes?.enumCode" default-value="[]"/>
                 <script>
-                    toBeAddedScopes = grantedAccessScopes.findAll { !(it in acceptedCodes) }
+                    def acceptedSet = acceptedScopes.collect { it.trim().toLowerCase() } as Set
+                    toBeAddedScopes = grantedAccessScopes.findAll { !(it.trim().toLowerCase() in acceptedSet) }
                     toBeRemovedScopes = acceptedCodes.findAll { !(it in grantedAccessScopes) }
                 </script>
                 <iterate list="toBeAddedScopes" entry="toBeAddedScope">
