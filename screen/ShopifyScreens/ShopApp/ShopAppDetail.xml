@@ -5,8 +5,8 @@
     <parameter name="appId" required="true"/>
     <parameter name="shopId" required="true"/>
     <parameter name="fromDate" required="true"/>
-    <transition name="ShopifyAppDetail"><default-response url="../../ShopifyApp/ShopifyAppDetail"/></transition>
-    <transition name="ShopifyShopDetail"><default-response url="../../ShopifyShop/ShopifyShopDetail"/></transition>
+    <transition name="AppDetail"><default-response url="../../App/AppDetail"/></transition>
+    <transition name="ShopDetail"><default-response url="../../Shop/ShopDetail"/></transition>
     <transition name="addShopAppCustomScope">
         <service-call name="create#co.hotwax.shopify.shop.ShopifyShopCustomScope"/>
         <default-response url="../ShopAppDetail"/></transition>
@@ -41,11 +41,11 @@
                 <form-single name="ShopApp" dynamic="true" map="shopApp">
                     <field name="shopId">
                         <default-field>
-                            <link text="${shopId}" url="ShopifyShopDetail" link-type="anchor"/></default-field>
+                            <link text="${shopId}" url="ShopDetail" link-type="anchor"/></default-field>
                     </field>
                     <field name="appId">
                         <default-field>
-                            <link text="${appId}" url="ShopifyAppDetail" link-type="anchor"/></default-field>
+                            <link text="${appId}" url="AppDetail" link-type="anchor"/></default-field>
                     </field>
                     <field name="fromDate"><default-field><display /></default-field></field>
                     <field name="thruDate"><default-field><display/></default-field></field>
@@ -65,7 +65,7 @@
                             <field name="createdByUserId"><default-field><hidden default-value="${ec.user.userId}"/></default-field></field>
                             <field name="appId"><default-field><hidden/></default-field></field>
                             <field name="scopeEnumId">
-                                <default-field>
+                                <default-field title="Access scope">
                                     <drop-down><list-options list="filteredAccessScopes" text="[${enumCode}] ${description}"/></drop-down>
                                 </default-field>
                             </field>
@@ -85,7 +85,7 @@
                                 <field-map field-name="enumId" from="scopeEnumId"/>
                             </entity-find-one>
                         </row-actions>
-                        <field name="scopeEnumId"><default-field tooltip="${enumeration.description}">
+                        <field name="scopeEnumId"><default-field title="Access scope" tooltip="${enumeration.description}">
                         <display text="${enumeration.enumCode}"/>
                         </default-field></field>
                         <field name="createdDate"><default-field><display/></default-field></field>
@@ -130,7 +130,7 @@
                         <order-by field-name="-appVersion"/>
                     </entity-find>
                     <field name="historyId"><default-field><display/></default-field></field>
-                    <field name="scopeEnumId"><default-field title="Scope"><display-entity entity-name="moqui.basic.Enumeration" key-field-name="enumId" text="${enumCode}"/></default-field></field>
+                    <field name="scopeEnumId"><default-field title="Access scope"><display-entity entity-name="moqui.basic.Enumeration" key-field-name="enumId" text="${enumCode}"/></default-field></field>
                     <field name="comments"><default-field><display/></default-field></field>
                     <field name="changedDate"><default-field><display/></default-field></field>
                     <field name="changedByUserId">

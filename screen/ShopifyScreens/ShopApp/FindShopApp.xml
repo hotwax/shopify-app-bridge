@@ -3,8 +3,8 @@
         default-menu-include="false">
 
     <transition name="FindShopApp"><default-response url="."/></transition>
-    <transition name="ShopifyAppDetail"><default-response url="../../ShopifyApp/ShopifyAppDetail"/></transition>
-    <transition name="ShopifyShopDetail"><default-response url="../../ShopifyShop/ShopifyShopDetail"/></transition>
+    <transition name="AppDetail"><default-response url="../../App/AppDetail"/></transition>
+    <transition name="ShopDetail"><default-response url="../../Shop/ShopDetail"/></transition>
     <transition name="ShopAppDetail"><default-response url="../ShopAppDetail"/></transition>
     <pre-actions>
         <set field="html_title" value="Find Shop app"/>
@@ -20,10 +20,10 @@
             <box-body>
             <form-list name="ListShopApp" list="shopApps" skip-form="true" header-dialog="true">
                 <field name="shopId">
-                    <default-field><link text="${shopId}" url="ShopifyShopDetail" link-type="anchor" parameter-map="[shopId:shopId]"/></default-field>
+                    <default-field><link text="${shopId}" url="ShopDetail" link-type="anchor" parameter-map="[shopId:shopId]"/></default-field>
                 </field>
                 <field name="appId">
-                    <default-field><link text="${appId}" url="ShopifyAppDetail" link-type="anchor" parameter-map="[appId:appId]"/></default-field>
+                    <default-field><link text="${appId}" url="AppDetail" link-type="anchor" parameter-map="[appId:appId]"/></default-field>
                 </field>
                 <field name="fromDate" print-width="40">
                     <header-field show-order-by="case-insensitive"><text-find/></header-field>

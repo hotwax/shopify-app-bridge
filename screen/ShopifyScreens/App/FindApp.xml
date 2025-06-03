@@ -2,8 +2,8 @@
 <screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://moqui.org/xsd/xml-screen-3.xsd"
         default-menu-include="false">
 
-    <transition name="FindShopifyApp"><default-response url="."/></transition>
-    <transition name="ShopifyAppDetail"><default-response url="../ShopifyAppDetail"/></transition>
+    <transition name="FindApp"><default-response url="."/></transition>
+    <transition name="AppDetail"><default-response url="../AppDetail"/></transition>
     <transition name="createShopifyApp">
         <service-call name="create#co.hotwax.shopify.app.ShopifyApp"/>
         <default-response></default-response>
@@ -51,7 +51,7 @@
             <form-list name="ListShopifyApp" list="shopifyApps" skip-form="true" header-dialog="true">
                 <field name="app" print-width="10" print-width-type="characters">
                     <header-field><text-find hide-options="true"/></header-field>
-                    <default-field><link text="${appName}" url="ShopifyAppDetail" link-type="anchor" condition="appId"/></default-field>
+                    <default-field><link text="${appName}" url="AppDetail" link-type="anchor" condition="appId"/></default-field>
                 </field>
                 <field name="appTypeId" print-width="40">
                     <header-field title="App Type" show-order-by="case-insensitive"><text-find/></header-field>

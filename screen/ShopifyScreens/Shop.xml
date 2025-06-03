@@ -2,10 +2,10 @@
 
 <screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="http://moqui.org/xsd/xml-screen-3.xsd"
-        default-menu-title="ShopifyApp" default-menu-index="1">
+        default-menu-title="ShopifyShop" default-menu-index="2">
 
-    <subscreens default-item="FindShopifyApp"/>
+    <subscreens default-item="FindShop"/>
     <widgets>
-        <subscreens-panel id="shopify-app" type="tab"/>
+        <subscreens-panel id="shopify-shop" type="tab"/>
     </widgets>
 </screen>
