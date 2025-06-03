@@ -156,18 +156,18 @@ under the License.
         <actions>
             <service-call name="co.hotwax.shopify.app.ShopifyAdminServices.get#ShopifyShop" in-map="context" out-map="context" />
             <if condition="shop">
-                <service-call name="update#co.hotwax.shopify.shop.ShopifyShop" in-map="[externalId: response.shop.id,
-                            shopName: response.shop.name,
-                            email:response.shop.email,
-                            phone: response.shop.phone,
-                            domain: response.shop.domain,
-                            myshopifyDomain:response.shop.myshopify_domain,
-                            shopOwner:response.shop.shop_owner,
-                            timezone:response.shop.timezone,
-                            planName:response.shop.plan_display_name,
-                            weightUnit:response.shop.weight_unit,
-                            currency:response.shop.currency,
-                            countryCode:response.shop.country,
+                <service-call name="update#co.hotwax.shopify.shop.ShopifyShop" in-map="[externalId: shop.id,
+                            shopName: shop.name,
+                            email:shop.email,
+                            phone: shop.phone,
+                            domain: shop.domain,
+                            myshopifyDomain:shop.myshopify_domain,
+                            shopOwner:shop.shop_owner,
+                            timezone:shop.timezone,
+                            planName:shop.plan_display_name,
+                            weightUnit:shop.weight_unit,
+                            currency:shop.currency,
+                            countryCode:shop.country,
                             shopId: shopId]"/>
              <else>
                  <log level="error" message="Unable to get shop data for shopId ${shopId}"/>
