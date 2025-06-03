@@ -13,33 +13,35 @@
 
     <actions>
         <entity-find entity-name="co.hotwax.shopify.app.ShopifyShopApp" list="shopApps">
-            <search-form-inputs default-order-by="^createdDate"/></entity-find>
+            <search-form-inputs default-order-by="^createdDate"/>
+            <date-filter/>
+        </entity-find>
     </actions>
     <widgets>
         <container-box><box-header><label text="Find Shopify Shop installed App" type="h5"/></box-header>
             <box-body>
             <form-list name="ListShopApp" list="shopApps" skip-form="true" header-dialog="true">
+                <field name="view">
+                    <header-field><text-find hide-options="true"/></header-field>
+                    <default-field title=" "><link icon="fa fa-external-link" url="ShopAppDetail" link-type="anchor" tooltip="View shop app" parameter-map="[appId: appId, shopId:shopId]"/></default-field>
+                </field>
                 <field name="shopId">
                     <default-field><link text="${shopId}" url="ShopDetail" link-type="anchor" parameter-map="[shopId:shopId]"/></default-field>
                 </field>
                 <field name="appId">
                     <default-field><link text="${appId}" url="AppDetail" link-type="anchor" parameter-map="[appId:appId]"/></default-field>
                 </field>
-                <field name="fromDate" print-width="40">
+                <field name="fromDate">
                     <header-field show-order-by="case-insensitive"><text-find/></header-field>
                     <default-field><display/></default-field>
                 </field>
-                <field name="hotwaxInstanceId" print-width="40">
+                <field name="hotwaxInstanceId">
                     <header-field title="Version" show-order-by="case-insensitive"><text-find/></header-field>
                     <default-field><display/></default-field>
                 </field>
-                <field name="comments" print-width="40">
+                <field name="comments">
                     <header-field show-order-by="case-insensitive"><text-find/></header-field>
                     <default-field><display/></default-field>
-                </field>
-                <field name="view" print-width="10" print-width-type="characters">
-                    <header-field><text-find hide-options="true"/></header-field>
-                    <default-field><link text="test" url="ShopAppDetail" link-type="anchor" parameter-map="[appId: appId, shopId:shopId]"/></default-field>
                 </field>
                 <field name="findButton"><header-field title=""><submit text="Find"/></header-field>
                     <default-field><ignored/></default-field></field>
