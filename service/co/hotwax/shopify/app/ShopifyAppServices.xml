@@ -106,26 +106,32 @@ under the License.
             </else>
             </if>
             <service-call name="co.hotwax.shopify.app.ShopifyAdminServices.get#ShopAccessScope" in-map="[shopId: shopId, appId: shopifyApp.appId]" out-map="outMap" ignore-error="true"/>
-            <set field="grantedAccessScopes" from="outMap.grantedAccessScopes" default-value="[]"/>
+            <set field="grantedAccessScopes" from="outMap.grantedAccessScopes"/>
             <if condition="grantedAccessScopes">
                 <entity-find entity-name="co.hotwax.shopify.shop.ShopAppAndAcceptedScope" cache="true" list="shopAcceptedScopes">
                     <econdition field-name="appId" from="shopifyApp.appId"/>
                     <econdition field-name="shopId" from="shopId"/>
                     <order-by field-name="-acceptedDate"/>
                 </entity-find>
-                <set field="acceptedScopes" from="shopAcceptedScopes?.enumCode" default-value="[]"/>
+                <set field="acceptedScopes" from="shopAcceptedScopes?.enumCode"/>
+
                 <script>
                     def acceptedSet = acceptedScopes.collect { it.trim().toLowerCase() } as Set
                     toBeAddedScopes = grantedAccessScopes.findAll { !(it.trim().toLowerCase() in acceptedSet) }
-                    toBeRemovedScopes = acceptedCodes.findAll { !(it in grantedAccessScopes) }
+                    toBeRemovedScopes = acceptedSet.findAll { !(it in grantedAccessScopes) }
                 </script>
                 <iterate list="toBeAddedScopes" entry="toBeAddedScope">
                     <entity-find-one entity-name="moqui.basic.Enumeration" value-field="accessScope" cache="true">
                         <field-map field-name="enumCode" from="toBeAddedScope"/>
                         <field-map field-name="enumTypeId" value="SHOPIFY_ACCESS_SCOPES"/>
                     </entity-find-one>
+                    <if condition="accessScope">
                     <log message="Added ${accessScope.enumCode} [${accessScope.enumId}] for shop [${shopId}] and app ${shopifyApp.appName} [${shopifyApp.appId}]"/>
                     <service-call name="create#co.hotwax.shopify.shop.ShopAppAcceptedScope" in-map="[shopId: shopId,appId: shopifyApp.appId, scopeEnumId: accessScope.enumId, acceptedDate: ec.user.nowTimestamp]" ignore-error="true"/>
+                        <else>
+                            <log level="warn" message="Access scope ${toBeAddedScope} for shop [${shopId}] and app ${shopifyApp.appName} [${shopifyApp.appId}] not found in db."/>
+                        </else>
+                    </if>
                 </iterate>
                 <iterate list="toBeRemovedScopes" entry="toBeRemovedScope">
                     <entity-find-one entity-name="moqui.basic.Enumeration" value-field="accessScope" cache="true">
@@ -378,20 +384,24 @@ under the License.
                     <econdition field-name="shopId" from="shopifyShopApp.shopId"/>
                     <order-by field-name="-acceptedDate"/>
                 </entity-find>
-                <set field="acceptedScopes" from="shopAcceptedScopes?.enumCode" default-value="[]"/>
+                <set field="acceptedScopes" from="shopAcceptedScopes?.enumCode"/>
                 <script>
-                    missingScopes =  requiredScopes.find { !(it in acceptedScopes) }
+                    // Scopes required but not accepted
+                    extraInRequired = requiredScopes.findAll { !(it in acceptedScopes) }
+
+                    // Scopes accepted but not required
+                    extraInAccepted = acceptedScopes.findAll { !(it in requiredScopes) }
+
                 </script>
-                <if condition="missingScopes">
+                <!-- TODO: We should send requestAuthorizationCode = true , if system has extra accepted scope-->
+                <if condition="extraInRequired">
                     <log message="Missing access scope for Shopify shop domain ${shopifyShopApp.myshopifyDomain} [${shopifyShopApp.shopId}] and Shopify app ${shopifyShopApp.appName} [${shopifyShopApp.appId}]." level="warn"/>
                     <set field="requestAuthorizationCode" value="true"/>
                 </if>
                 <set field="instanceAddress" from="shopifyShopApp?.hostAddress"/>
             </if>
 
-            <if condition="requestAuthorizationCode == 'true'">
-                <set field="accessScopes" from="requiredScopes.join(', ')" />
-            </if>
+            <set field="accessScopes" from="requiredScopes.join(', ')" />
         </actions>
     </service>
 
