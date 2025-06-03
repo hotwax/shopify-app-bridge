@@ -359,7 +359,7 @@ under the License.
                 <econdition field-name="appId" from="shopifyApp.appId"/>
                 <date-filter/>
                 <order-by field-name="-sequenceNum"/>
-                <order-by field-name="fromDate"/>
+                <order-by field-name="-createdDate"/>
             </entity-find>
             <set field="requiredScopes" from="[] as Set"/>
             <if condition="appAccessScopes?.enumCode">
@@ -373,7 +373,7 @@ under the License.
                     <econdition field-name="appId" from="shopifyShopApp.appId"/>
                     <econdition field-name="shopId" from="shopifyShopApp.shopId"/>
                     <date-filter/>
-                    <order-by field-name="-fromDate"/>
+                    <order-by field-name="-createdDate"/>
                 </entity-find>
                 <if condition="shopCustomScopes?.enumCode">
                     <script>requiredScopes.addAll(shopCustomScopes?.enumCode)</script>
@@ -414,7 +414,7 @@ under the License.
             <entity-find entity-name="co.hotwax.shopify.app.ShopifyAppAndAccessScope" list="appAccessScopes" use-clone="true">
                 <econdition field-name="appId" from="appId"/>
                 <order-by field-name="-sequenceNum"/>
-                <order-by field-name="fromDate"/>
+                <order-by field-name="-createdDate"/>
             </entity-find>
             <set field="accessScopeRemoved" from="[]"/>
             <set field="accessScopeAdded" from="[]"/>
