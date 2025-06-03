@@ -105,6 +105,43 @@ under the License.
                 <log message="${appTypeEnum?.description} [${appTypeId}] already register with same access token for ${shop}"/>
             </else>
             </if>
+            <service-call name="co.hotwax.shopify.app.ShopifyAdminServices.get#ShopAccessScope" in-map="[shopId: shopId, appId: shopifyApp.appId]" out-map="outMap" ignore-error="true"/>
+            <set field="grantedAccessScopes" from="outMap.grantedAccessScopes"/>
+            <if condition="grantedAccessScopes">
+                <entity-find entity-name="co.hotwax.shopify.shop.ShopAppAndAcceptedScope" cache="true" list="shopAcceptedScopes">
+                    <econdition field-name="appId" from="shopifyApp.appId"/>
+                    <econdition field-name="shopId" from="shopId"/>
+                    <order-by field-name="-acceptedDate"/>
+                </entity-find>
+                <set field="acceptedScopes" from="shopAcceptedScopes?.enumCode"/>
+
+                <script>
+                    def acceptedSet = acceptedScopes.collect { it.trim().toLowerCase() } as Set
+                    toBeAddedScopes = grantedAccessScopes.findAll { !(it.trim().toLowerCase() in acceptedSet) }
+                    toBeRemovedScopes = acceptedSet.findAll { !(it in grantedAccessScopes) }
+                </script>
+                <iterate list="toBeAddedScopes" entry="toBeAddedScope">
+                    <entity-find-one entity-name="moqui.basic.Enumeration" value-field="accessScope" cache="true">
+                        <field-map field-name="enumCode" from="toBeAddedScope"/>
+                        <field-map field-name="enumTypeId" value="SHOPIFY_ACCESS_SCOPES"/>
+                    </entity-find-one>
+                    <if condition="accessScope">
+                    <log message="Added ${accessScope.enumCode} [${accessScope.enumId}] for shop [${shopId}] and app ${shopifyApp.appName} [${shopifyApp.appId}]"/>
+                    <service-call name="create#co.hotwax.shopify.shop.ShopAppAcceptedScope" in-map="[shopId: shopId,appId: shopifyApp.appId, scopeEnumId: accessScope.enumId, acceptedDate: ec.user.nowTimestamp]" ignore-error="true"/>
+                        <else>
+                            <log level="warn" message="Access scope ${toBeAddedScope} for shop [${shopId}] and app ${shopifyApp.appName} [${shopifyApp.appId}] not found in db."/>
+                        </else>
+                    </if>
+                </iterate>
+                <iterate list="toBeRemovedScopes" entry="toBeRemovedScope">
+                    <entity-find-one entity-name="moqui.basic.Enumeration" value-field="accessScope" cache="true">
+                        <field-map field-name="enumCode" from="toBeRemovedScope"/>
+                        <field-map field-name="enumTypeId" value="SHOPIFY_ACCESS_SCOPES"/>
+                    </entity-find-one>
+                    <log message="Removed ${accessScope.enumCode} [${accessScope.enumId}] from shop [${shopId}] for app ${shopifyApp.appName} [${shopifyApp.appId}]"/>
+                    <service-call name="delete#co.hotwax.shopify.shop.ShopAppAcceptedScope" in-map="[shopId: shopId,appId: shopifyApp.appId, scopeEnumId: accessScope.enumId]" ignore-error="true"/>
+                </iterate>
+            </if>
         </actions>
     </service>
     <service verb="store" noun="ShopifyShop">
@@ -296,6 +333,7 @@ under the License.
                 - Your app has a token for that shop, but it was created before you rotated the app's secret.
                 - Your app has a token for that shop, but your app now requires scopes that differ from the scopes granted with that token: Shopify returns old access token.
             -->
+            <!--requestAuthorizationCode should return string value, app requires it as string -->
             <set field="requestAuthorizationCode" value="true"/>
 
             <entity-find entity-name="co.hotwax.shopify.app.ShopifyApp" list="shopifyApps" cache="true">
@@ -317,27 +355,53 @@ under the License.
                 For all cases shopifyApp.appVersion should be updated.
                 If app version and shopify shop app version not same system will
             -->
+            <entity-find entity-name="co.hotwax.shopify.app.ShopifyAppAndAccessScope" cache="true" list="appAccessScopes">
+                <econdition field-name="appId" from="shopifyApp.appId"/>
+                <date-filter/>
+                <order-by field-name="-sequenceNum"/>
+                <order-by field-name="-createdDate"/>
+            </entity-find>
+            <set field="requiredScopes" from="[] as Set"/>
+            <if condition="appAccessScopes?.enumCode">
+                <script>requiredScopes.addAll(appAccessScopes?.enumCode)</script>
+            </if>
             <if condition="shopifyShopApp">
-                <if condition="shopifyApp?.appVersion != shopifyShopApp.installedAppVersion">
-                    <log message="Shopify App version [${shopifyApp?.appVersion}] for clientId ${clientId} not matched with shop ${shop} version [${shopifyShopApp.installedAppVersion}]."/>
-                    <set field="requestAuthorizationCode" value="true"/>
-                <else-if condition="shopifyShopApp.shopAccessToken">
-                    <log message="Configuration found for clientId ${clientId} and shop ${shop}"/>
+                <if condition="shopifyShopApp.shopAccessToken">
                     <set field="requestAuthorizationCode" value="false"/>
-                </else-if>
+                </if>
+                <entity-find entity-name="co.hotwax.shopify.shop.ShopAppCustomAccessScope" cache="true" list="shopCustomScopes">
+                    <econdition field-name="appId" from="shopifyShopApp.appId"/>
+                    <econdition field-name="shopId" from="shopifyShopApp.shopId"/>
+                    <date-filter/>
+                    <order-by field-name="-createdDate"/>
+                </entity-find>
+                <if condition="shopCustomScopes?.enumCode">
+                    <script>requiredScopes.addAll(shopCustomScopes?.enumCode)</script>
+                </if>
+
+                <entity-find entity-name="co.hotwax.shopify.shop.ShopAppAndAcceptedScope" cache="true" list="shopAcceptedScopes">
+                    <econdition field-name="appId" from="shopifyShopApp.appId"/>
+                    <econdition field-name="shopId" from="shopifyShopApp.shopId"/>
+                    <order-by field-name="-acceptedDate"/>
+                </entity-find>
+                <set field="acceptedScopes" from="shopAcceptedScopes?.enumCode"/>
+                <script>
+                    // Scopes required but not accepted
+                    extraInRequired = requiredScopes.findAll { !(it in acceptedScopes) }
+
+                    // Scopes accepted but not required
+                    extraInAccepted = acceptedScopes.findAll { !(it in requiredScopes) }
+
+                </script>
+                <!-- TODO: We should send requestAuthorizationCode = true , if system has extra accepted scope-->
+                <if condition="extraInRequired">
+                    <log message="Missing access scope for Shopify shop domain ${shopifyShopApp.myshopifyDomain} [${shopifyShopApp.shopId}] and Shopify app ${shopifyShopApp.appName} [${shopifyShopApp.appId}]." level="warn"/>
+                    <set field="requestAuthorizationCode" value="true"/>
                 </if>
                 <set field="instanceAddress" from="shopifyShopApp?.hostAddress"/>
             </if>
 
-            <if condition="requestAuthorizationCode">
-                <entity-find entity-name="co.hotwax.shopify.app.ShopifyAppAndAccessScope" cache="true" list="accessScopes">
-                    <econdition field-name="appId" from="shopifyApp.appId"/>
-                    <date-filter/>
-                    <order-by field-name="-sequenceNum"/>
-                    <order-by field-name="fromDate"/>
-                </entity-find>
-                <set field="accessScopes" from="accessScopes?.enumCode?.join(', ')" />
-            </if>
+            <set field="accessScopes" from="requiredScopes.join(', ')" />
         </actions>
     </service>
 
@@ -350,7 +414,7 @@ under the License.
             <entity-find entity-name="co.hotwax.shopify.app.ShopifyAppAndAccessScope" list="appAccessScopes" use-clone="true">
                 <econdition field-name="appId" from="appId"/>
                 <order-by field-name="-sequenceNum"/>
-                <order-by field-name="fromDate"/>
+                <order-by field-name="-createdDate"/>
             </entity-find>
             <set field="accessScopeRemoved" from="[]"/>
             <set field="accessScopeAdded" from="[]"/>

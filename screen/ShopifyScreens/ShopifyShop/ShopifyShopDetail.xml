@@ -6,6 +6,7 @@
     <transition name="updateShopifyShop"><service-call name="update#co.hotwax.shopify.shop.ShopifyShop"/>
         <default-response url="."/></transition>
     <transition name="ShopifyAppDetail"><default-response url="../../ShopifyApp/ShopifyAppDetail"/></transition>
+    <transition name="ShopAppDetail"><default-response url="../../ShopApp/ShopAppDetail"/></transition>
     <transition name="downloadContent" read-only="true">
         <parameter name="webhookContentId"/>
         <actions>
@@ -20,11 +21,11 @@
     </transition>
     <transition name="updateShopifyShopApp">
         <service-call name="update#co.hotwax.shopify.app.ShopifyShopApp"/>
-        <default-response></default-response>
+        <default-response url="."/>
     </transition>
     <transition name="expireShopifyShopApp">
         <service-call name="update#co.hotwax.shopify.app.ShopifyShopApp"/>
-        <default-response></default-response>
+        <default-response url="."/>
     </transition>
     <actions>
         <entity-find-one entity-name="co.hotwax.shopify.shop.ShopifyShop" value-field="shopifyShop"/>
@@ -48,10 +49,15 @@
                     </form-single>
                 </box-body>
             </container-box>
-        </row-col></container-row>
+        </row-col>
+        </container-row>
         <container-box><box-header title="Shopify App"/>
             <box-body>
                 <form-list name="ShopifyShopApp" list="ssaList" transition="updateShopifyShopApp">
+                    <field name="view">
+                        <header-field title=""/>
+                        <default-field><link text="" tooltip="View Shop App" url="ShopAppDetail" target-window="_blank" link-type="anchor" parameter-map="[appId: appId, shopId:shopId, fromDate:fromDate]" icon="fa fa-external-link"/></default-field>
+                    </field>
                     <field name="appId"><default-field><hidden/></default-field></field>
                     <field name="shopId"><default-field><hidden/></default-field></field>
                     <field name="app">

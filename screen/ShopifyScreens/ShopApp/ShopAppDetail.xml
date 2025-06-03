@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://moqui.org/xsd/xml-screen-3.xsd"
+        default-menu-include="false">
+
+    <parameter name="appId" required="true"/>
+    <parameter name="shopId" required="true"/>
+    <parameter name="fromDate" required="true"/>
+    <transition name="ShopifyAppDetail"><default-response url="../../ShopifyApp/ShopifyAppDetail"/></transition>
+    <transition name="ShopifyShopDetail"><default-response url="../../ShopifyShop/ShopifyShopDetail"/></transition>
+    <transition name="addShopAppCustomScope">
+        <service-call name="create#co.hotwax.shopify.shop.ShopifyShopCustomScope"/>
+        <default-response url="../ShopAppDetail"/></transition>
+    <transition name="deleteShopAppCustomScope">
+        <service-call name="delete#co.hotwax.shopify.shop.ShopifyShopCustomScope"/>
+        <default-response url="."/>
+    </transition>
+    <actions>
+        <entity-find-one entity-name="co.hotwax.shopify.app.ShopifyShopApp" value-field="shopApp"/>
+        <entity-find entity-name="co.hotwax.shopify.shop.ShopifyShopCustomScope" list="customScopes">
+            <econdition field-name="appId" from="appId"/>
+            <econdition field-name="shopId" from="shopId"/>
+            <order-by field-name="-fromDate"/>
+        </entity-find>
+        <entity-find entity-name="co.hotwax.shopify.shop.ShopAppCustomAccessScope" cache="true" list="appCustomAccessScopes">
+            <econdition field-name="appId" from="appId"/>
+            <econdition field-name="shopId" from="shopId"/>
+            <order-by field-name="-createdDate"/>
+        </entity-find>
+        <entity-find entity-name="moqui.basic.Enumeration" cache="true" list="accessScopes">
+            <econdition field-name="enumTypeId" value="SHOPIFY_ACCESS_SCOPES"/>
+            <order-by field-name="sequenceNum"/>
+        </entity-find>
+        <script>
+            filteredAccessScopes = accessScopes.findAll { !(it.enumId in customScopes*.scopeEnumId) }
+        </script>
+    </actions>
+    <widgets>
+        <container-row><row-col md="6">
+        <container-box><box-header title="Shop App"/>
+            <box-body>
+                <form-single name="ShopApp" dynamic="true" map="shopApp">
+                    <field name="shopId">
+                        <default-field>
+                            <link text="${shopId}" url="ShopifyShopDetail" link-type="anchor"/></default-field>
+                    </field>
+                    <field name="appId">
+                        <default-field>
+                            <link text="${appId}" url="ShopifyAppDetail" link-type="anchor"/></default-field>
+                    </field>
+                    <field name="fromDate"><default-field><display /></default-field></field>
+                    <field name="thruDate"><default-field><display/></default-field></field>
+                    <field name="comments"><default-field><display/></default-field></field>
+                </form-single>
+            </box-body>
+        </container-box>
+        </row-col>
+        <row-col md="6">
+            <container-box><box-header title="Shop app custom scope"/>
+                <box-toolbar>
+                    <container-dialog id="AddShopAppCustomScope" button-text="Add Custom Scope">
+                        <form-single name="AddShopAppCustomScope" transition="addShopAppCustomScope">
+                            <field name="shopId"><default-field><hidden/></default-field></field>
+                            <field name="fromDate"><default-field><hidden/></default-field></field>
+                            <field name="createdDate"><default-field><hidden default-value="${ec.user.nowTimestamp}"/></default-field></field>
+                            <field name="createdByUserId"><default-field><hidden default-value="${ec.user.userId}"/></default-field></field>
+                            <field name="appId"><default-field><hidden/></default-field></field>
+                            <field name="scopeEnumId">
+                                <default-field>
+                                    <drop-down><list-options list="filteredAccessScopes" text="[${enumCode}] ${description}"/></drop-down>
+                                </default-field>
+                            </field>
+                            <field name="comments">
+                                <default-field>
+                                <text-line/>
+                                </default-field>
+                            </field>
+                            <field name="submitButton"><default-field title="Create"><submit/></default-field></field>
+                        </form-single>
+                    </container-dialog>
+                </box-toolbar>
+                <box-body>
+                    <form-list dynamic="true" name="ShopAppCustomScope" list="appCustomAccessScopes">
+                        <row-actions>
+                            <entity-find-one entity-name="moqui.basic.Enumeration" value-field="enumeration" cache="true">
+                                <field-map field-name="enumId" from="scopeEnumId"/>
+                            </entity-find-one>
+                        </row-actions>
+                        <field name="scopeEnumId"><default-field tooltip="${enumeration.description}">
+                        <display text="${enumeration.enumCode}"/>
+                        </default-field></field>
+                        <field name="createdDate"><default-field><display/></default-field></field>
+                        <field name="createdByUserId"><header-field title="Added by User"/><default-field>
+                            <display-entity entity-name="moqui.security.UserAccount" text="${username} - ${userFullName}" key-field-name="userId"/></default-field></field>
+                        <field name="comments"><default-field><display/></default-field> </field>
+                        <field name="delete">
+                            <default-field title="">
+                                <link url="deleteShopAppCustomScope" text="X" confirmation="Remove shop app custom scope ${enumeration.enumCode?:scopeEnumId} ?"
+                                      parameter-map="[shopId:shopId, appId:appId, scopeEnumId:scopeEnumId]"/>
+                            </default-field>
+                        </field>
+                    </form-list>
+                </box-body>
+            </container-box>
+        </row-col>
+        </container-row>
+        <container-box><box-header title="Shop App accepted scope"/>
+            <box-body>
+                <form-list name="ShopAppAcceptedScope" list="acceptedScopes" skip-form="true" header-dialog="true" show-page-size="true">
+                    <entity-find entity-name="co.hotwax.shopify.shop.ShopAppAndAcceptedScope" list="acceptedScopes" limit="50">
+                        <search-form-inputs/>
+                        <econdition field-name="shopId" from="shopId"/>
+                        <econdition field-name="appId" from="appId"/>
+                        <order-by field-name="-createdDate"/>
+                    </entity-find>
+                    <field name="fromDate"><default-field><hidden/></default-field></field>
+                    <field name="enumCode"><default-field title="Scope"><display/></default-field></field>
+                    <field name="description"><default-field><display/></default-field></field>
+                    <field name="acceptedDate"><default-field><display/></default-field></field>
+                </form-list>
+            </box-body>
+        </container-box>
+        <container-box><box-header title="Shop app history"/>
+            <box-body>
+                <form-list dynamic="true" name="ShopifyAppHistory" list="appHistoryList" show-page-size="true" >
+                    <entity-find entity-name="co.hotwax.shopify.app.ShopifyAppHistory" cache="true" list="appHistoryList" limit="10">
+                        <search-form-inputs/>
+                        <econdition field-name="appId" from="appId"/>
+                        <econdition field-name="shopId" from="shopId"/>
+                        <order-by field-name="-changedDate"/>
+                        <order-by field-name="-appVersion"/>
+                    </entity-find>
+                    <field name="historyId"><default-field><display/></default-field></field>
+                    <field name="scopeEnumId"><default-field title="Scope"><display-entity entity-name="moqui.basic.Enumeration" key-field-name="enumId" text="${enumCode}"/></default-field></field>
+                    <field name="comments"><default-field><display/></default-field></field>
+                    <field name="changedDate"><default-field><display/></default-field></field>
+                    <field name="changedByUserId">
+                        <default-field title="User"><display-entity entity-name="moqui.security.UserAccount" text="${username?:userId}" key-field-name="userId"/></default-field></field>
+                </form-list>
+            </box-body>
+        </container-box>
+    </widgets>
+</screen>

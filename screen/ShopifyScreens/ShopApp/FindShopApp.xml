@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://moqui.org/xsd/xml-screen-3.xsd"
+        default-menu-include="false">
+
+    <transition name="FindShopApp"><default-response url="."/></transition>
+    <transition name="ShopifyAppDetail"><default-response url="../../ShopifyApp/ShopifyAppDetail"/></transition>
+    <transition name="ShopifyShopDetail"><default-response url="../../ShopifyShop/ShopifyShopDetail"/></transition>
+    <transition name="ShopAppDetail"><default-response url="../ShopAppDetail"/></transition>
+    <pre-actions>
+        <set field="html_title" value="Find Shop app"/>
+        <set field="html_description" value="A page for finding shop installed app"/>
+    </pre-actions>
+
+    <actions>
+        <entity-find entity-name="co.hotwax.shopify.app.ShopifyShopApp" list="shopApps">
+            <search-form-inputs default-order-by="^createdDate"/></entity-find>
+    </actions>
+    <widgets>
+        <container-box><box-header><label text="Find Shopify Shop installed App" type="h5"/></box-header>
+            <box-body>
+            <form-list name="ListShopApp" list="shopApps" skip-form="true" header-dialog="true">
+                <field name="shopId">
+                    <default-field><link text="${shopId}" url="ShopifyShopDetail" link-type="anchor" parameter-map="[shopId:shopId]"/></default-field>
+                </field>
+                <field name="appId">
+                    <default-field><link text="${appId}" url="ShopifyAppDetail" link-type="anchor" parameter-map="[appId:appId]"/></default-field>
+                </field>
+                <field name="fromDate" print-width="40">
+                    <header-field show-order-by="case-insensitive"><text-find/></header-field>
+                    <default-field><display/></default-field>
+                </field>
+                <field name="hotwaxInstanceId" print-width="40">
+                    <header-field title="Version" show-order-by="case-insensitive"><text-find/></header-field>
+                    <default-field><display/></default-field>
+                </field>
+                <field name="comments" print-width="40">
+                    <header-field show-order-by="case-insensitive"><text-find/></header-field>
+                    <default-field><display/></default-field>
+                </field>
+                <field name="view" print-width="10" print-width-type="characters">
+                    <header-field><text-find hide-options="true"/></header-field>
+                    <default-field><link text="test" url="ShopAppDetail" link-type="anchor" parameter-map="[appId: appId, shopId:shopId]"/></default-field>
+                </field>
+                <field name="findButton"><header-field title=""><submit text="Find"/></header-field>
+                    <default-field><ignored/></default-field></field>
+            </form-list>
+        </box-body></container-box>
+    </widgets>
+</screen>
