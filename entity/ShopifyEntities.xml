@@ -88,11 +88,12 @@ under the License.
     <entity entity-name="ShopifyAppAccessScope" package="co.hotwax.shopify.app">
         <description>Shopify published app on shopify app store</description>
         <field name="appId" type="id" is-pk="true"><description>A globally-unique identifier.</description></field>
-        <field name="scopeEnumId" type="id" is-pk="true"><description>Scope enum id</description></field>
+        <field name="scopeEnumId" type="id" is-pk="true" enable-audit-log="true"><description>Scope enum id</description></field>
         <field name="requiredScope" type="text-indicator"/>
+        <!--TODO: FromDate/ThruDate not required -->
         <field name="fromDate" type="date-time"/>
         <field name="thruDate" type="date-time"/>
-        <field name="createdDate" type="date-time"/>
+        <field name="createdByUserId" type="id"/>
         <field name="comments" type="text-medium"/>
         <relationship type="one" related="co.hotwax.shopify.app.ShopifyApp" short-alias="shopifyApp">
             <key-map field-name="appId"/>
@@ -100,6 +101,8 @@ under the License.
         <relationship type="one-nofk" related="moqui.basic.Enumeration" short-alias="accessScope">
             <key-map field-name="scopeEnumId" related="enumId"/>
         </relationship>
+        <relationship type="one-nofk" related="moqui.security.UserAccount" short-alias="user">
+            <key-map field-name="createdByUserId" related="userId"/></relationship>
     </entity>
 
     <entity entity-name="ShopifyShopApp" package="co.hotwax.shopify.app">
@@ -138,8 +141,7 @@ under the License.
         <field name="shopId" type="id" is-pk="true"/>
         <field name="appId" type="id" is-pk="true"/>
         <field name="scopeEnumId" type="id" is-pk="true" enable-audit-log="true"><description>Scope enum id</description></field>
-        <field name="fromDate" type="date-time" is-pk="true"/>
-        <field name="thruDate" type="date-time" enable-audit-log="true"/>
+        <field name="createdDate" type="date-time"/>
         <field name="createdByUserId" type="id"/>
         <field name="comments" type="text-medium"/>
         <relationship type="one" related="co.hotwax.shopify.shop.ShopifyShop" short-alias="shopifyShop">
