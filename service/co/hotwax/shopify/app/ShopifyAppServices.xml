@@ -383,7 +383,6 @@ under the License.
                 <entity-find entity-name="co.hotwax.shopify.shop.ShopAppCustomAccessScope" cache="true" list="shopCustomScopes">
                     <econdition field-name="appId" from="shopifyShopApp.appId"/>
                     <econdition field-name="shopId" from="shopifyShopApp.shopId"/>
-                    <date-filter/>
                     <order-by field-name="-createdDate"/>
                 </entity-find>
                 <if condition="shopCustomScopes?.enumCode">
