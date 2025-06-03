@@ -5,7 +5,7 @@
     <parameter name="appId" required="true"/>
     <transition name="updateShopifyApp"><service-call name="update#co.hotwax.shopify.app.ShopifyApp"/>
         <default-response url="."/></transition>
-    <transition name="ShopifyShopDetail"><default-response url="../../ShopifyShop/ShopifyShopDetail"/></transition>
+    <transition name="ShopDetail"><default-response url="../../Shop/ShopDetail"/></transition>
     <transition name="ShopAppDetail"><default-response url="../../ShopApp/ShopAppDetail"/></transition>
     <transition name="createShopifyShopApp">
         <service-call name="create#co.hotwax.shopify.app.ShopifyShopApp"/>
@@ -167,7 +167,7 @@
                     <field name="shopId"><default-field><hidden/></default-field></field>
                     <field name="shop">
                         <default-field>
-                            <link text="${shopName?:shopId}" url="ShopifyShopDetail" link-type="anchor" condition="shopId"/>
+                            <link text="${shopName?:shopId}" url="ShopDetail" link-type="anchor" condition="shopId"/>
                         </default-field>
                     </field>
                     <field name="appId"><default-field><hidden/></default-field></field>

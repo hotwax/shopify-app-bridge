@@ -5,7 +5,7 @@
     <parameter name="shopId" required="true"/>
     <transition name="updateShopifyShop"><service-call name="update#co.hotwax.shopify.shop.ShopifyShop"/>
         <default-response url="."/></transition>
-    <transition name="ShopifyAppDetail"><default-response url="../../ShopifyApp/ShopifyAppDetail"/></transition>
+    <transition name="AppDetail"><default-response url="../../App/AppDetail"/></transition>
     <transition name="ShopAppDetail"><default-response url="../../ShopApp/ShopAppDetail"/></transition>
     <transition name="downloadContent" read-only="true">
         <parameter name="webhookContentId"/>
@@ -61,7 +61,7 @@
                     <field name="appId"><default-field><hidden/></default-field></field>
                     <field name="shopId"><default-field><hidden/></default-field></field>
                     <field name="app">
-                        <default-field><link text="${appName}" url="ShopifyAppDetail" link-type="anchor" condition="appId"/></default-field>
+                        <default-field><link text="${appName}" url="AppDetail" link-type="anchor" condition="appId"/></default-field>
                     </field>
                     <field name="appTypeId"><default-field title="Type"><display-entity entity-name="moqui.basic.Enumeration"/></default-field></field>
                     <field name="installedAppVersion"><default-field><display/></default-field></field>

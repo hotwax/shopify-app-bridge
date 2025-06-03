@@ -3,8 +3,8 @@
 <screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://moqui.org/xsd/xml-screen-3.xsd"
         default-menu-include="false">
 
-    <transition name="FindShopifyShop"><default-response url="."/></transition>
-    <transition name="ShopifyShopDetail"><default-response url="../ShopifyShopDetail"/></transition>
+    <transition name="FindShop"><default-response url="."/></transition>
+    <transition name="ShopDetail"><default-response url="../ShopDetail"/></transition>
 
     <pre-actions>
         <set field="html_title" value="Find Shopify Shop"/>
@@ -19,7 +19,7 @@
                         <search-form-inputs default-order-by="^shopName"/></entity-find>
                     <field name="shopId" print-width="10" print-width-type="characters">
                         <header-field><text-find hide-options="true"/></header-field>
-                        <default-field><link text="${shopId}" url="ShopifyShopDetail" link-type="anchor" condition="shopId"/></default-field>
+                        <default-field><link text="${shopId}" url="ShopDetail" link-type="anchor" condition="shopId"/></default-field>
                     </field>
                     <field name="externalId" print-width="10" print-width-type="characters">
                         <header-field><text-find hide-options="true"/></header-field>
