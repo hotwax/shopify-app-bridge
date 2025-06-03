@@ -10,8 +10,8 @@
     <transition name="addShopAppCustomScope">
         <service-call name="create#co.hotwax.shopify.shop.ShopifyShopCustomScope"/>
         <default-response url="../ShopAppDetail"/></transition>
-    <transition name="expireShopAppCustomScope">
-        <service-call name="update#co.hotwax.shopify.shop.ShopifyShopCustomScope"/>
+    <transition name="deleteShopAppCustomScope">
+        <service-call name="delete#co.hotwax.shopify.shop.ShopifyShopCustomScope"/>
         <default-response url="."/>
     </transition>
     <actions>
@@ -19,14 +19,12 @@
         <entity-find entity-name="co.hotwax.shopify.shop.ShopifyShopCustomScope" list="customScopes">
             <econdition field-name="appId" from="appId"/>
             <econdition field-name="shopId" from="shopId"/>
-            <date-filter/>
             <order-by field-name="-fromDate"/>
         </entity-find>
         <entity-find entity-name="co.hotwax.shopify.shop.ShopAppCustomAccessScope" cache="true" list="appCustomAccessScopes">
             <econdition field-name="appId" from="appId"/>
             <econdition field-name="shopId" from="shopId"/>
-            <date-filter/>
-            <order-by field-name="-fromDate"/>
+            <order-by field-name="-createdDate"/>
         </entity-find>
         <entity-find entity-name="moqui.basic.Enumeration" cache="true" list="accessScopes">
             <econdition field-name="enumTypeId" value="SHOPIFY_ACCESS_SCOPES"/>
@@ -62,6 +60,8 @@
                     <container-dialog id="AddShopAppCustomScope" button-text="Add Custom Scope">
                         <form-single name="AddShopAppCustomScope" transition="addShopAppCustomScope">
                             <field name="shopId"><default-field><hidden/></default-field></field>
+                            <field name="fromDate"><default-field><hidden/></default-field></field>
+                            <field name="createdDate"><default-field><hidden default-value="${ec.user.nowTimestamp}"/></default-field></field>
                             <field name="createdByUserId"><default-field><hidden default-value="${ec.user.userId}"/></default-field></field>
                             <field name="appId"><default-field><hidden/></default-field></field>
                             <field name="scopeEnumId">
@@ -88,14 +88,14 @@
                         <field name="scopeEnumId"><default-field tooltip="${enumeration.description}">
                         <display text="${enumeration.enumCode}"/>
                         </default-field></field>
-                        <field name="fromDate"><default-field><display/></default-field> </field>
+                        <field name="createdDate"><default-field><display/></default-field></field>
                         <field name="createdByUserId"><header-field title="Added by User"/><default-field>
                             <display-entity entity-name="moqui.security.UserAccount" text="${username} - ${userFullName}" key-field-name="userId"/></default-field></field>
                         <field name="comments"><default-field><display/></default-field> </field>
                         <field name="delete">
                             <default-field title="">
-                                <link url="expireShopAppCustomScope" text="X" confirmation="Remove shop app custom scope ${enumeration.enumCode?:scopeEnumId} ?"
-                                      parameter-map="[shopId:shopId, appId:appId, scopeEnumId:scopeEnumId, thruDate: ec.user.nowTimestamp]"/>
+                                <link url="deleteShopAppCustomScope" text="X" confirmation="Remove shop app custom scope ${enumeration.enumCode?:scopeEnumId} ?"
+                                      parameter-map="[shopId:shopId, appId:appId, scopeEnumId:scopeEnumId]"/>
                             </default-field>
                         </field>
                     </form-list>

@@ -15,7 +15,7 @@
             <econdition field-name="appId" from="appId"/>
             <date-filter/>
             <order-by field-name="-sequenceNum"/>
-            <order-by field-name="fromDate"/>
+            <order-by field-name="-createdDate"/>
         </entity-find>
         <entity-find entity-name="moqui.basic.Enumeration" cache="true" list="accessScopes">
             <econdition field-name="enumTypeId" value="SHOPIFY_ACCESS_SCOPES"/>
