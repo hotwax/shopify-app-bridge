@@ -19,7 +19,7 @@ under the License.
 -->
 
 <services xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://moqui.org/xsd/service-definition-3.xsd">
-    <service verb="dummy" noun="WebhookListner">
+    <service verb="dummy" noun="WebhookListener">
         <in-parameters>
             <parameter name="shopifyAppId"/>
             <parameter name="webhookPayload"/>
