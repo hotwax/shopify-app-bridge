@@ -112,7 +112,7 @@
                         <search-form-inputs/>
                         <econdition field-name="shopId" from="shopId"/>
                         <econdition field-name="appId" from="appId"/>
-                        <order-by field-name="-createdDate"/>
+                        <order-by field-name="-acceptedDate"/>
                     </entity-find>
                     <field name="fromDate"><default-field><hidden/></default-field></field>
                     <field name="enumCode"><default-field title="Scope"><display/></default-field></field>
