@@ -55,7 +55,7 @@ along with this software (see the LICENSE.md file). If not, see
                     <econdition field-name="enumCode" from="enumCode"/>
                 </entity-find-count>
                 <if condition="count > 0">
-                    <return error="true" message="Record already exists for ${enumCode} already exists."/>
+                    <return error="true" message="Record already exists for ${enumCode}."/>
                 </if>
             </if>
         </actions>
