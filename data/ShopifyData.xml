@@ -9,7 +9,7 @@
         authzTypeEnumId="AUTHZT_ALWAYS" authzActionEnumId="AUTHZA_ALL"/>
 
     <!-- Shopify Access scopes -->
-    <moqui.basic.EnumerationType enumTypeId="SHOPIFY_ACCESS_SCOPES" description="Shopify API access scopea" hasTable="N"/>
+    <moqui.basic.EnumerationType enumTypeId="SHOPIFY_ACCESS_SCOPES" description="Shopify API access scope" hasTable="N"/>
 
     <moqui.basic.Enumeration enumCode="read_products" enumId="SAC_READ_PRODUCTS" enumTypeId="SHOPIFY_ACCESS_SCOPES" description="View products, variants, and collections" sequenceNum="01"/>
     <moqui.basic.Enumeration enumCode="write_products" enumId="SAC_WRITE_PRODUCTS" enumTypeId="SHOPIFY_ACCESS_SCOPES" description="Manage products, variants, and collections" sequenceNum="05"/>

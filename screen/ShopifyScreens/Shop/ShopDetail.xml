@@ -42,7 +42,7 @@
     </actions>
     <widgets>
         <container-row><row-col md="6">
-            <container-box><box-header title="Shopify Shop #${shopId}"/>
+            <container-box><box-header title="Shop #${shopId}"/>
                 <box-body>
                     <form-single name="ShopifyApp" dynamic="true" map="shopifyShop">
                         <auto-fields-entity entity-name="co.hotwax.shopify.shop.ShopifyShop"/>
@@ -51,7 +51,7 @@
             </container-box>
         </row-col>
         </container-row>
-        <container-box><box-header title="Shopify App"/>
+        <container-box><box-header title="App"/>
             <box-body>
                 <form-list name="ShopifyShopApp" list="ssaList" transition="updateShopifyShopApp">
                     <field name="view">
@@ -87,7 +87,7 @@
                 </form-list>
             </box-body>
         </container-box>
-        <container-box><box-header title="Shopify Shop Webhook"/>
+        <container-box><box-header title="Shop Webhook"/>
             <box-body>
                 <form-list name="ShopifyShopWebhook" list="shopWebhooks" transition="updateShopifyShopWebhook" dynamic="true">
                     <field name="webhookContentId"><default-field><hidden/></default-field></field>

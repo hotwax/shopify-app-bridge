@@ -15,7 +15,7 @@
         <default-response url="."/>
     </transition>
     <actions>
-        <entity-find-one entity-name="co.hotwax.shopify.app.ShopifyShopApp" value-field="shopApp"/>
+        <entity-find-one entity-name="co.hotwax.shopify.app.ShopifyShopAndApp" value-field="shopApp"/>
         <entity-find entity-name="co.hotwax.shopify.shop.ShopifyShopCustomScope" list="customScopes">
             <econdition field-name="appId" from="appId"/>
             <econdition field-name="shopId" from="shopId"/>
@@ -39,13 +39,15 @@
         <container-box><box-header title="Shop App"/>
             <box-body>
                 <form-single name="ShopApp" dynamic="true" map="shopApp">
-                    <field name="shopId">
-                        <default-field>
-                            <link text="${shopId}" url="ShopDetail" link-type="anchor"/></default-field>
+                    <field name="shopId"><default-field><hidden/></default-field> </field>
+                    <field name="appId"><default-field><hidden/></default-field> </field>
+                    <field name="shopName">
+                        <default-field title="Shop">
+                            <link text="${shopName}" url="ShopDetail" link-type="anchor" parameter-map="[shopId:shopId]"/></default-field>
                     </field>
-                    <field name="appId">
-                        <default-field>
-                            <link text="${appId}" url="AppDetail" link-type="anchor"/></default-field>
+                    <field name="appName">
+                        <default-field title="App">
+                            <link text="${appName}" url="AppDetail" link-type="anchor" parameter-map="[appId:appId]"/></default-field>
                     </field>
                     <field name="fromDate"><default-field><display /></default-field></field>
                     <field name="thruDate"><default-field><display/></default-field></field>

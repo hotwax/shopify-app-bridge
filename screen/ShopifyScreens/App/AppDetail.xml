@@ -56,7 +56,7 @@
     </actions>
     <widgets>
         <container-row><row-col md="6">
-        <container-box><box-header title="Shopify App #${appId}"/>
+        <container-box><box-header title="App #${appId}"/>
             <box-body>
                 <form-single name="ShopifyApp" dynamic="true" map="shopifyApp" transition="updateShopifyApp">
                     <auto-fields-entity entity-name="co.hotwax.shopify.app.ShopifyApp"/>
@@ -80,7 +80,7 @@
         </container-box>
         </row-col>
         <row-col md="6">
-            <container-box><box-header title="Shopify app access scope"/>
+            <container-box><box-header title="App access scope"/>
                 <box-toolbar>
                     <container-dialog id="AddShopifyScope" button-text="Add Shopify Scope">
                         <form-single name="CreateAppAccessScope" transition="createAppAccessScope">
@@ -144,7 +144,7 @@
             </container-box>
         </row-col>
         </container-row>
-        <container-box><box-header title="Shopify Shop"/>
+        <container-box><box-header title="Shop"/>
             <box-toolbar>
                 <container-dialog id="AddShopifyShopApp" button-text="Add Shopify Shop App">
                     <form-single name="CreateShpifyShopApp" transition="createShopifyShopApp">
