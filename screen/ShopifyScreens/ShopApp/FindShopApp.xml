@@ -20,25 +20,26 @@
     <widgets>
         <container-box><box-header><label text="Find Shop installed App" type="h5"/></box-header>
             <box-body>
-            <form-list name="ListShopApp" list="shopApps" skip-form="true" header-dialog="true">
+            <form-list name="ListShopApp" list="shopApps" header-dialog="true" skip-form="true">
                 <row-actions>
                     <entity-find-one entity-name="co.hotwax.shopify.app.HotwaxInstance" value-field="hotwaxInstance" cache="true"/>
                 </row-actions>
                 <field name="view">
-                    <header-field><text-find hide-options="true"/></header-field>
                     <default-field title=" "><link icon="fa fa-external-link" url="ShopAppDetail" link-type="anchor" tooltip="View shop app" parameter-map="[appId: appId, shopId:shopId]"/></default-field>
                 </field>
-                <field name="shopId"><default-field><hidden/></default-field></field>
-                <field name="appId"><default-field><hidden/></default-field></field>
-                <field name="shopName">
+                <field name="shopId">
+                    <header-field show-order-by="true"><text-find/></header-field>
                     <default-field title="Shop"><link text="${shopName}" url="ShopDetail" link-type="anchor" parameter-map="[shopId:shopId]"/></default-field>
                 </field>
-                <field name="myshopifyDomain"><default-field><link url="https://${myshopifyDomain}" text="${myshopifyDomain}" link-type="anchor" url-type="plain"/></default-field></field>
-                <field name="appName">
+                <field name="myshopifyDomain">
+                    <header-field><text-find/></header-field>
+                    <default-field><link url="https://${myshopifyDomain}" text="${myshopifyDomain}" link-type="anchor" url-type="plain"/></default-field></field>
+                <field name="appId">
+                    <header-field title="App"><text-find/></header-field>
                     <default-field><link text="${appName}" url="AppDetail" link-type="anchor" parameter-map="[appId:appId]"/></default-field>
                 </field>
                 <field name="fromDate">
-                    <header-field show-order-by="case-insensitive"><text-find/></header-field>
+                    <header-field show-order-by="true"><date-find/></header-field>
                     <default-field><display/></default-field>
                 </field>
                 <field name="hotwaxInstanceId">
