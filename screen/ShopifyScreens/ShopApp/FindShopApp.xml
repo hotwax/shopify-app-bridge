@@ -13,14 +13,14 @@
 
     <actions>
         <entity-find entity-name="co.hotwax.shopify.app.ShopifyShopAndApp" list="shopApps">
-            <search-form-inputs default-order-by="^fromDate"/>
+            <search-form-inputs default-order-by="-fromDate"/>
             <date-filter/>
         </entity-find>
     </actions>
     <widgets>
         <container-box><box-header><label text="Find Shop installed App" type="h5"/></box-header>
             <box-body>
-            <form-list name="ListShopApp" list="shopApps" header-dialog="true" skip-form="true">
+            <form-list name="ListShopApp" list="shopApps" header-dialog="true" skip-form="true" show-page-size="true">
                 <row-actions>
                     <entity-find-one entity-name="co.hotwax.shopify.app.HotwaxInstance" value-field="hotwaxInstance" cache="true"/>
                 </row-actions>
