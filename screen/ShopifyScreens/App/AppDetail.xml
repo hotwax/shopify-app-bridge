@@ -42,7 +42,6 @@
         <entity-find entity-name="co.hotwax.shopify.app.ShopifyAppAndAccessScope" cache="true" list="appAccessScopes">
             <econdition field-name="appId" from="appId"/>
             <date-filter/>
-            <order-by field-name="-sequenceNum"/>
             <order-by field-name="-fromDate"/>
         </entity-find>
 
@@ -119,7 +118,6 @@
                     </container-dialog>
                 </box-toolbar>
                 <box-body>
-<!--                    <label text="${accessScopes?.enumCode?.join(', ')}"/>-->
                     <form-list dynamic="true" name="ShopifyAppScope" list="appAccessScopes">
                         <row-actions>
                             <entity-find-one entity-name="moqui.basic.Enumeration" value-field="enumeration" cache="true">
