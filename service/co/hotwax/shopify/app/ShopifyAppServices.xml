@@ -176,6 +176,48 @@ under the License.
         </actions>
     </service>
 
+    <service verb="rotate" noun="ShopifyShopAccessToken">
+        <in-parameters>
+            <parameter name="appId" required="true"/>
+            <parameter name="shopId" required="true"/>
+            <parameter name="refreshToken" required="true"/>
+        </in-parameters>
+        <out-parameters>
+            <parameter name="appId"/>
+            <parameter name="shopId"/>
+            <parameter name="fromDate"/>
+        </out-parameters>
+        <actions>
+            <entity-find entity-name="co.hotwax.shopify.app.ShopifyShopAndApp" list="shopApps">
+                <econdition field-name="appId" from="appId"/>
+                <econdition field-name="shopId" from="shopId"/>
+                <date-filter/>
+                <order-by field-name="fromDate"/>
+            </entity-find>
+            <if condition="!shopApps">
+                <return error="true" message="Unable to rotate the access token for app ${appId} and shop ${shopId}"/>
+            </if>
+            <set field="shopApp" from="shopApps[0]"/>
+            <set field="shop" from="shopApp.myshopifyDomain ? 'https://'+shopApp.myshopifyDomain: null"/>
+            <service-call name="co.hotwax.shopify.app.ShopifyAdminServices.request#ShopNewAccessToken"
+                    in-map="[shop:shop, client_id:shopApp.clientId , client_secret:shopApp.clientSecret, access_token:shopApp.shopAccessToken, refresh_token: refreshToken]"
+                    out-map="result"/>
+
+            <if condition="!result.access_token">
+                <return message="Unable to rotate access token for shop ${shopId} and app ${appId}" error="true"/>
+            </if>
+            <service-call name="update#co.hotwax.shopify.app.ShopifyShopApp"
+                          in-map="shopApp + [thruDate:ec.user.nowTimestamp]" ignore-error="true"/>
+
+            <set field="fromDate" from="ec.user.nowTimestamp"/>
+            <service-call name="create#co.hotwax.shopify.app.ShopifyShopApp"
+                          in-map="shopApp + [fromDate:fromDate, shopAccessToken:result.access_token]" out-map="context" ignore-error="true"/>
+
+            <set field="comments" value="Refresh the Shopify store access token"/>
+            <service-call name="create#co.hotwax.shopify.app.ShopifyAppHistory"
+                          in-map="context + [changedDate: ec.user.nowTimestamp , changedByUserId : ec.user.userId]" ignore-error="true"/>
+        </actions>
+    </service>
     <!-- Shopify embedded app api -->
     <service verb="set" noun="HotwaxInstance">
         <description>

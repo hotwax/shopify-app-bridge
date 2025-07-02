@@ -43,7 +43,7 @@
                     <field name="appId"><default-field><hidden/></default-field> </field>
                     <field name="shopName">
                         <default-field title="Shop">
-                            <link text="${shopName}" url="ShopDetail" link-type="anchor" parameter-map="[shopId:shopId]"/></default-field>
+                            <link text="${shopName} ==${shopApp}" url="ShopDetail" link-type="anchor" parameter-map="[shopId:shopId]"/></default-field>
                     </field>
                     <field name="appName">
                         <default-field title="App">

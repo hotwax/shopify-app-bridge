@@ -65,7 +65,15 @@ under the License.
             ]]></script>
         </actions>
     </service>
-
+    <service verb="request" noun="ShopNewAccessToken" type="remote-rest" method="post" location="${shop}/admin/oauth/access_token">
+        <in-parameters>
+            <parameter name="shop" required="true"/>
+            <parameter name="client_id" required="true"/>
+            <parameter name="client_secret" required="true"/>
+            <parameter name="refresh_token" required="true"/>
+            <parameter name="access_token" required="true"/>
+        </in-parameters>
+    </service>
     <service verb="get" noun="ShopifyShop">
         <description>Get the shopify shop data</description>
         <in-parameters>
