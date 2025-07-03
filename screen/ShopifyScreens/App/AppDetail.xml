@@ -73,6 +73,7 @@
                         </drop-down></default-field>
                     </field>
                     <field name="clientSecret"><default-field ><text-line/></default-field></field>
+                    <field name="oldClientSecret"><default-field ><text-line/></default-field></field>
                     <field name="submitButton"><default-field title="Update"><submit confirmation="Are you sure want to update the shopify app?"/></default-field></field>
                 </form-single>
             </box-body>

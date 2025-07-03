@@ -202,8 +202,8 @@ under the License.
             <service-call name="co.hotwax.shopify.app.ShopifyAdminServices.request#ShopNewAccessToken"
                     in-map="[shop:shop, client_id:shopApp.clientId , client_secret:shopApp.clientSecret, access_token:shopApp.shopAccessToken, refresh_token: refreshToken]"
                     out-map="result"/>
-
-            <if condition="!result.access_token">
+            <set field="accessToken" from="result.access_token"/>
+            <if condition="!accessToken">
                 <return message="Unable to rotate access token for shop ${shopId} and app ${appId}" error="true"/>
             </if>
             <service-call name="update#co.hotwax.shopify.app.ShopifyShopApp"
@@ -211,7 +211,7 @@ under the License.
 
             <set field="fromDate" from="ec.user.nowTimestamp"/>
             <service-call name="create#co.hotwax.shopify.app.ShopifyShopApp"
-                          in-map="shopApp + [fromDate:fromDate, shopAccessToken:result.access_token]" out-map="context" ignore-error="true"/>
+                          in-map="shopApp + [fromDate:fromDate, shopAccessToken:accessToken]" out-map="context" ignore-error="true"/>
 
             <set field="comments" value="Shopify access token refreshed"/>
             <service-call name="create#co.hotwax.shopify.app.ShopifyAppHistory"
@@ -243,7 +243,7 @@ under the License.
             <set field="shopApp" from="shopApps[0]"/>
             <set field="shop" from="shopApp.myshopifyDomain ? 'https://'+shopApp.myshopifyDomain: null"/>
             <service-call name="co.hotwax.shopify.app.ShopifyAppServices.sync#HotwaxInstance"
-                          in-map="[shop: shopApp.myshopifyDomain, accessToken: shopApp.shopAccessToken, sharedSecret: shopApp.clientSecret, instanceAddress: shopApp.hostAddress, instanceToken: jwtToken]"
+                          in-map="[shop: shopApp.myshopifyDomain, accessToken: shopApp.shopAccessToken, sharedSecret: shopApp.clientSecret, oldSharedSecret: shopApp.oldSharedSecret, clientId:shopApp.clientId, instanceAddress: shopApp.hostAddress, instanceToken: jwtToken]"
                           out-map="context"/>
 
             <set field="comments" value="Shop credentials synced with Oms"/>
@@ -286,7 +286,7 @@ under the License.
             <service-call name="update#co.hotwax.shopify.app.ShopifyShopApp"
                           in-map="[shopId: shopApp.shopId, appId: shopApp.appId, fromDate: shopApp.fromDate, hotwaxAccessToken: instanceToken, hotwaxInstanceId: instanceId]"/>
             <service-call name="co.hotwax.shopify.app.ShopifyAppServices.sync#HotwaxInstance"
-                          in-map="[shop: shopApp.myshopifyDomain, accessToken: shopApp.shopAccessToken, sharedSecret: shopApp.clientSecret, instanceAddress: instanceAddress, instanceToken: instanceToken ]"
+                          in-map="[shop: shopApp.myshopifyDomain, accessToken: shopApp.shopAccessToken, sharedSecret: shopApp.clientSecret, oldSharedSecret: shopApp.oldSharedSecret, clientId: shopApp.clientId, instanceAddress: instanceAddress, instanceToken: instanceToken ]"
                           out-map="context" transaction="force-new"/>
 
         </actions>
@@ -296,8 +296,10 @@ under the License.
             Sync the HotWax OMS instance with Shopify access token
         </description>
         <in-parameters>
+            <parameter name="clientId" required="true"/>
             <parameter name="accessToken" required="true"/>
             <parameter name="sharedSecret" required="true"/>
+            <parameter name="oldSharedSecret"/>
             <parameter name="shop" required="true"/>
             <parameter name="instanceAddress" required="true"/>
             <parameter name="instanceToken" required="true"/>
@@ -315,7 +317,11 @@ under the License.
 
                 shop = shop.replace(".myshopify.com", "")
                 // TODO take dynamic values for productStoreId and webSiteId
-                Map parameters = ["shop": shop , "shopifyConfigName": shop, "sharedSecret": sharedSecret, "accessToken": accessToken, "productStoreId": "STORE", "webSiteId": "WEBSTORE"]
+                Map parameters = ["shop": shop , "shopifyConfigName": shop, "sharedSecret": sharedSecret,  "accessToken": accessToken, "clientId": clientId,
+                        "productStoreId": "STORE", "webSiteId": "WEBSTORE"]
+                if (oldSharedSecret != null) {
+                    parameters.put("oldSharedSecret",oldSharedSecret)
+                }
                 restClient.uri("${instanceAddress}/api/service/createUpdateShopifyShop")
                 restClient.addHeader("Authorization", "Bearer " + instanceToken);
                 restClient.addBodyParameters(parameters);
@@ -492,6 +498,93 @@ under the License.
             </if>
 
             <set field="accessScopes" from="requiredScopes.join(', ')" />
+        </actions>
+    </service>
+
+
+    <service verb="rotate" noun="ShopAppClientSecret" transaction-timeout="7200">
+        <description>
+            Rotating the Shopify app's shared secret is a disruptive operation. Once rotated, all connected apps must be updated with a new access token generated using the new shared secret and refresh token.
+            Refer to Shopify's official documentation for the token refresh process:
+            Shopify Docs – Request new access tokens after rotating client secrets
+            https://shopify.dev/docs/apps/build/authentication-authorization/client-secrets/rotate-revoke-client-credentials#step-5-request-new-access-tokens
+        </description>
+        <in-parameters>
+            <parameter name="clientId" required="true"/>
+            <parameter name="newClientSecret" required="true"/>
+            <parameter name="refreshToken" required="true"/>
+        </in-parameters>
+        <actions>
+            <entity-find entity-name="co.hotwax.shopify.app.ShopifyApp" list="apps">
+                <econdition field-name="clientId" from="clientId"/>
+            </entity-find>
+            <if condition="!apps">
+                <return error="true" message="No shopify app configuration found for client id ${clientId}"/>
+            </if>
+            <if condition="apps.size() > 1">
+                <log message="More than one shopify app found for client id ${clientId}"/>
+            </if>
+            <set field="shopifyApp" from="apps[0]"/>
+            <if condition="shopifyApp.clientSecret != newClientSecret">
+                <set field="shopifyApp.oldClientSecret" from="shopifyApp.clientSecret"/>
+            </if>
+            <service-call name="update#co.hotwax.shopify.app.ShopifyApp" in-map="shopifyApp + [clientSecret: newClientSecret]" transaction="force-new"/>
+
+
+            <set field="comments" value="App secret key rotated with refresh token ${refreshToken}"/>
+            <service-call name="create#co.hotwax.shopify.app.ShopifyAppHistory"
+                          in-map="[appId: shopifyApp.appId, changedDate: ec.user.nowTimestamp , changedByUserId : ec.user.userId, comments:comments]" transaction="force-new" ignore-error="true"/>
+
+            <entity-find entity-name="co.hotwax.shopify.app.ShopifyShopAndApp" list="shopApps">
+                <econdition field-name="appId" from="shopifyApp.appId"/>
+                <date-filter/>
+                <order-by field-name="fromDate"/>
+            </entity-find>
+            <iterate list="shopApps" entry="shopApp">
+                <if condition="shopApp.shopAccessToken">
+                    <log message="Rotating shop access token for shop ${shopApp.shopName} [${shopApp.shopId}] for app ${shopApp.appName} [${shopApp.appId}]"/>
+                    <script>
+                        def result = ec.service.sync().name("co.hotwax.shopify.app.ShopifyAppServices.rotate#ShopifyShopAccessToken")
+                            .requireNewTransaction(true)
+                            .parameters([appId: shopApp.appId, shopId: shopApp.shopId, refreshToken: refreshToken])
+                            .call()
+                        if (!ec.message.hasError()) {
+                            if (shopApp.hotwaxAccessToken) {
+                                ec.service.sync().name("co.hotwax.shopify.app.ShopifyAppServices.update#OmsShopifyCredentials")
+                                    .requireNewTransaction(true)
+                                    .parameters([appId: shopApp.appId, shopId: shopApp.shopId, jwtToken: shopApp.hotwaxAccessToken])
+                                    .call()
+                            } else {
+                                ec.logger.error("Failed to push Shopify credentials for ${shopApp.shopName} [${shopApp.shopId}] to OMS: OMS JWT token is missing.");
+                                ec.service.sync().name("create#co.hotwax.shopify.app.ShopifyAppHistory")
+                                    .requireNewTransaction(true)
+                                    .parameters([appId: shopApp.appId, shopId: shopApp.shopId, changedDate: ec.user.nowTimestamp , changedByUserId : ec.user.userId, comments: "Failed to push Shopify credentials for ${shopApp.shopName} [${shopApp.shopId}] to OMS"])
+                                    .call()
+                            }
+                        }
+
+                        if (ec.message.hasError()) {
+                            def message = ec.message.getErrorsString()
+                            if (message != null) {
+                                if (message.length() > 255) {
+                                    message = message.substring(0, 255);
+                                }
+                            } else {
+                                message = "Failed to refresh access token"
+                            }
+                            ec.message.clearErrors()
+                            ec.message.clearAll();
+                            ec.service.sync().name("create#co.hotwax.shopify.app.ShopifyAppHistory")
+                                .requireNewTransaction(true)
+                                .parameters([appId: shopApp.appId, shopId: shopApp.shopId, changedDate: ec.user.nowTimestamp , changedByUserId : ec.user.userId, comments: message])
+                                .call()
+                        }
+                    </script>
+                    <else>
+                        <log message="Shop access token is missing for shop ${shopApp.shopName} [${shopApp.shopId}]. Skipping access token refresh"/>
+                    </else>
+                </if>
+            </iterate>
         </actions>
     </service>
 </services>

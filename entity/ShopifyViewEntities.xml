@@ -49,6 +49,7 @@ under the License.
         <alias entity-alias="SA" name="appName"/>
         <alias entity-alias="SA" name="clientId"/>
         <alias entity-alias="SA" name="clientSecret"/>
+        <alias entity-alias="SA" name="oldClientSecret"/>
     </view-entity>
     <view-entity entity-name="ShopifyAppAndAccessScope" package="co.hotwax.shopify.app">
         <member-entity entity-alias="SA" entity-name="co.hotwax.shopify.app.ShopifyAppAccessScope"/>
