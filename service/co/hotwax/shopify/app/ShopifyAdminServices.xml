@@ -66,6 +66,10 @@ under the License.
         </actions>
     </service>
     <service verb="request" noun="ShopNewAccessToken" type="remote-rest" method="post" location="${shop}/admin/oauth/access_token">
+        <description>
+            Rotate or revoke client credentials
+            https://shopify.dev/docs/apps/build/authentication-authorization/client-secrets/rotate-revoke-client-credentials#step-5-request-new-access-tokens
+        </description>
         <in-parameters>
             <parameter name="shop" required="true"/>
             <parameter name="client_id" required="true"/>

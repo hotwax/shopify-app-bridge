@@ -213,9 +213,43 @@ under the License.
             <service-call name="create#co.hotwax.shopify.app.ShopifyShopApp"
                           in-map="shopApp + [fromDate:fromDate, shopAccessToken:result.access_token]" out-map="context" ignore-error="true"/>
 
-            <set field="comments" value="Refresh the Shopify store access token"/>
+            <set field="comments" value="Shopify access token refreshed"/>
             <service-call name="create#co.hotwax.shopify.app.ShopifyAppHistory"
                           in-map="context + [changedDate: ec.user.nowTimestamp , changedByUserId : ec.user.userId]" ignore-error="true"/>
+            <return message="Shop access token refreshed successfully for shop ${shopApp.shopName} and app ${shopApp.appName}"/>
+        </actions>
+    </service>
+    <service verb="update" noun="OmsShopifyCredentials">
+        <in-parameters>
+            <parameter name="appId" required="true"/>
+            <parameter name="shopId" required="true"/>
+            <parameter name="jwtToken" required="true"/>
+        </in-parameters>
+        <out-parameters>
+            <parameter name="appId"/>
+            <parameter name="shopId"/>
+            <parameter name="fromDate"/>
+        </out-parameters>
+        <actions>
+            <entity-find entity-name="co.hotwax.shopify.app.ShopifyShopAndApp" list="shopApps">
+                <econdition field-name="appId" from="appId"/>
+                <econdition field-name="shopId" from="shopId"/>
+                <date-filter/>
+                <order-by field-name="fromDate"/>
+            </entity-find>
+            <if condition="!shopApps">
+                <return error="true" message="Unable to rotate the access token for app ${appId} and shop ${shopId}"/>
+            </if>
+            <set field="shopApp" from="shopApps[0]"/>
+            <set field="shop" from="shopApp.myshopifyDomain ? 'https://'+shopApp.myshopifyDomain: null"/>
+            <service-call name="co.hotwax.shopify.app.ShopifyAppServices.sync#HotwaxInstance"
+                          in-map="[shop: shopApp.myshopifyDomain, accessToken: shopApp.shopAccessToken, sharedSecret: shopApp.clientSecret, instanceAddress: shopApp.hostAddress, instanceToken: jwtToken]"
+                          out-map="context"/>
+
+            <set field="comments" value="Shop credentials synced with Oms"/>
+            <service-call name="create#co.hotwax.shopify.app.ShopifyAppHistory"
+                          in-map="context + [changedDate: ec.user.nowTimestamp , changedByUserId : ec.user.userId]" ignore-error="true"/>
+            <return message="Shop ${shopApp.shopName} credentials successfully synced to ${shopApp.hostAddress}."/>
         </actions>
     </service>
     <!-- Shopify embedded app api -->
@@ -249,8 +283,12 @@ under the License.
                 <service-call name="create#co.hotwax.shopify.app.HotwaxInstance" in-map="[hostAddress: instanceAddress]" out-map="context"/>
             </else>
             </if>
-            <service-call name="update#co.hotwax.shopify.app.ShopifyShopApp" in-map="[shopId: shopApp.shopId, appId: shopApp.appId, fromDate: shopApp.fromDate, hotwaxAccessToken: instanceToken, hotwaxInstanceId: instanceId]"/>
-            <service-call name="co.hotwax.shopify.app.ShopifyAppServices.sync#HotwaxInstance" in-map="[shop: shopApp.myshopifyDomain, accessToken: shopApp.shopAccessToken, sharedSecret: shopApp.clientSecret, instanceAddress: instanceAddress, instanceToken: instanceToken ]" out-map="context" transaction="force-new"/>
+            <service-call name="update#co.hotwax.shopify.app.ShopifyShopApp"
+                          in-map="[shopId: shopApp.shopId, appId: shopApp.appId, fromDate: shopApp.fromDate, hotwaxAccessToken: instanceToken, hotwaxInstanceId: instanceId]"/>
+            <service-call name="co.hotwax.shopify.app.ShopifyAppServices.sync#HotwaxInstance"
+                          in-map="[shop: shopApp.myshopifyDomain, accessToken: shopApp.shopAccessToken, sharedSecret: shopApp.clientSecret, instanceAddress: instanceAddress, instanceToken: instanceToken ]"
+                          out-map="context" transaction="force-new"/>
+
         </actions>
     </service>
     <service verb="sync" noun="HotwaxInstance">
@@ -288,13 +326,13 @@ under the License.
                     if (restResponse.statusCode < 200 || restResponse.statusCode >= 300) {
                         ec.logger.error("Error connecting to OMS status code: ${statusCode} and response: ${response}")
                         error = response.get("error")
-                        message = error != null && error.get("message") != null ? error.get("message").toString() : "Error connecting to OMS response ${error}";
+                        message = (error != null && error instanceof Map && error.get("message") != null)? error.get("message").toString() : "Error connecting to OMS response ${error}";
                         ec.message.addError(message)
                         return
                     }
                 } catch (Exception e) {
-                    ec.logger.error("Error connecting to OMS API call Error: ${e.getMessage()}")
-                    ec.message.addError("Error connecting to OMS API call Error: ${e.getMessage()}")
+                    ec.logger.error("Error connecting to OMS API call Error: ${e.getMessage()} ${e.getCause()}")
+                    ec.message.addError("Error connecting to OMS API call Error: ${e.getMessage()} ${e.getCause()}")
                     return
                 }
             ]]></script>
