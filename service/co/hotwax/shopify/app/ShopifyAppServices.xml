@@ -243,7 +243,7 @@ under the License.
             <set field="shopApp" from="shopApps[0]"/>
             <set field="shop" from="shopApp.myshopifyDomain ? 'https://'+shopApp.myshopifyDomain: null"/>
             <service-call name="co.hotwax.shopify.app.ShopifyAppServices.sync#HotwaxInstance"
-                          in-map="[shop: shopApp.myshopifyDomain, accessToken: shopApp.shopAccessToken, sharedSecret: shopApp.clientSecret, oldSharedSecret: shopApp.oldSharedSecret, clientId:shopApp.clientId, instanceAddress: shopApp.hostAddress, instanceToken: jwtToken]"
+                          in-map="[shop: shopApp.myshopifyDomain, accessToken: shopApp.shopAccessToken, sharedSecret: shopApp.clientSecret, oldSharedSecret: shopApp.oldClientSecret, clientId:shopApp.clientId, instanceAddress: shopApp.hostAddress, instanceToken: jwtToken]"
                           out-map="context"/>
 
             <set field="comments" value="Shop credentials synced with Oms"/>
@@ -286,7 +286,7 @@ under the License.
             <service-call name="update#co.hotwax.shopify.app.ShopifyShopApp"
                           in-map="[shopId: shopApp.shopId, appId: shopApp.appId, fromDate: shopApp.fromDate, hotwaxAccessToken: instanceToken, hotwaxInstanceId: instanceId]"/>
             <service-call name="co.hotwax.shopify.app.ShopifyAppServices.sync#HotwaxInstance"
-                          in-map="[shop: shopApp.myshopifyDomain, accessToken: shopApp.shopAccessToken, sharedSecret: shopApp.clientSecret, oldSharedSecret: shopApp.oldSharedSecret, clientId: shopApp.clientId, instanceAddress: instanceAddress, instanceToken: instanceToken ]"
+                          in-map="[shop: shopApp.myshopifyDomain, accessToken: shopApp.shopAccessToken, sharedSecret: shopApp.clientSecret, oldSharedSecret: shopApp.oldClientSecret, clientId: shopApp.clientId, instanceAddress: instanceAddress, instanceToken: instanceToken ]"
                           out-map="context" transaction="force-new"/>
 
         </actions>
