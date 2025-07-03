@@ -114,7 +114,7 @@ under the License.
         <field name="appId" type="id" is-pk="true"/>
         <field name="fromDate" type="date-time" is-pk="true"/>
         <field name="installedAppVersion" type="number-integer"/>
-        <field name="shopAccessToken" type="text-intermediate" encrypt="true"><description>An API access token that can be used to access the shopify shop’s data as long as your app is installed.</description></field>
+        <field name="shopAccessToken" type="text-intermediate" encrypt="true" enable-audit-log="true"><description>An API access token that can be used to access the shopify shop’s data as long as your app is installed.</description></field>
         <field name="hotwaxAccessToken" type="text-intermediate" encrypt="true"/>
         <field name="hotwaxInstanceId" type="id"/>
         <field name="comments" type="text-medium"/>
@@ -189,7 +189,7 @@ under the License.
             Store the Hotwax instance details
         </description>
         <field name="instanceId" type="id" is-pk="true"/>
-        <field name="hostAddress" type="text-medium"/>
+        <field name="hostAddress" type="text-medium" enable-audit-log="true"/>
         <relationship type="many" related="co.hotwax.shopify.app.ShopifyShopApp" short-alias="shopifyShopApp">
             <key-map field-name="instanceId"/>
         </relationship>

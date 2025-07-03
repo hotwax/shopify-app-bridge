@@ -60,9 +60,12 @@
                     <field name="clientId"><default-field><display /></default-field></field>
                     <field name="clientSecret"><default-field><display /></default-field></field>
                     <field name="shopAccessToken"><default-field><display/></default-field></field>
-                    <field name="hostAddress">
+                    <field name="oms">
+                        <conditional-field condition="hostAddress" title="OMS">
+                            <link url="${hostAddress}" text="${hostAddress}" link-type="anchor" url-type="plain" target-window="_blank" icon="fa fa-external-link" condition="hostAddress"/>
+                        </conditional-field>
                         <default-field title="OMS">
-                            <link url="${hostAddress}" text="${hostAddress}" link-type="anchor" url-type="plain" target-window="_blank" icon="fa fa-external-link"/>
+                                <display text="No OMS instance linked."/>
                         </default-field></field>
                     <field name="fromDate"><default-field><display /></default-field></field>
                     <field name="thruDate"><default-field><display/></default-field></field>
