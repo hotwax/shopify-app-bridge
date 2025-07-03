@@ -58,6 +58,7 @@ under the License.
         <field name="appVersion" type="number-integer"/>
         <field name="clientId" type="text-intermediate" encrypt="true" enable-audit-log="true"><description>clientId for published app</description></field>
         <field name="clientSecret" type="text-medium" encrypt="true" enable-audit-log="true"><description>clientSecret for published app</description></field>
+        <field name="oldClientSecret" type="text-medium" encrypt="true" enable-audit-log="true"><description>clientSecret for published app</description></field>
         <field name="createdDate" type="date-time"/>
         <field name="publishedDate" type="date-time"/>
         <relationship type="one-nofk" title="AppType" related="moqui.basic.Enumeration" short-alias="appTypeEnum">

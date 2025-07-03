@@ -101,6 +101,16 @@ class ShopifyAppFilter implements Filter {
             Map result = ec.serviceFacade.sync().name("co.hotwax.shopify.app.ShopifyAdminServices.verify#Hmac")
                     .parameters([message:message, hmac:hmac, sharedSecret:shopifyApp.clientSecret, digest: 'Hex'])
                     .disableAuthz().call()
+            // As per shopify recommendation storing the oldClientSecret
+            /*
+                Don't delete your old client secret until you've requested new access tokens for every token stored by your app. Users might not be able to open your app if you delete a client secret that still has tokens associated with it.
+             */
+            if (!result.validSignature && shopifyApp.oldClientSecret) {
+                result = ec.serviceFacade.sync().name("co.hotwax.shopify.app.ShopifyAdminServices.verify#Hmac")
+                        .parameters([message:message, hmac:hmac, sharedSecret:shopifyApp.oldClientSecret, digest: 'Hex'])
+                        .disableAuthz().call()
+            }
+
             if (result.validSignature) {
                 request.setAttribute("appId", shopifyApp.appId)
             } else {
