@@ -275,4 +275,26 @@ under the License.
             ]]></script>
         </actions>
     </service>
+    <service verb="update" noun="HotwaxAccessToken">
+        <description>
+            Update the HotWax Access token for all the installed app
+        </description>
+        <in-parameters>
+            <parameter name="clientId" required="true"/>
+            <parameter name="hostAddress" required="true"/>
+            <parameter name="jwtToken" required="true"/>
+        </in-parameters>
+        <actions>
+            <entity-find entity-name="co.hotwax.shopify.app.ShopifyShopAndApp" list="ssaList">
+                <econdition field-name="clientId" from="clientId"/>
+                <econdition field-name="hostAddress" from="hostAddress"/>
+                <date-filter/>
+                <order-by field-name="-fromDate"/>
+            </entity-find>
+            <iterate list="ssaList" entry="ssa">
+                <service-call name="update#co.hotwax.shopify.app.ShopifyShopApp"
+                              in-map="[shopId: ssa.shopId,appId: ssa.appId,fromDate: ssa.fromDate, hotwaxAccessToken:jwtToken]" ignore-error="true"/>
+            </iterate>
+        </actions>
+    </service>
 </services>

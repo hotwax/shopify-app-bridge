@@ -60,4 +60,13 @@ along with this software (see the LICENSE.md file). If not, see
             </if>
         </actions>
     </eeca>
+    <eeca id="HotwaxAccessTokenHistory" entity="co.hotwax.shopify.app.ShopifyShopApp" on-update="true" on-delete="true" get-original-value="true">
+        <actions>
+            <if condition="eecaOperation == 'update' &amp;&amp; originalValue.hotwaxAccessToken != hotwaxAccessToken">
+                <set field="comments" value="Access scope ${scopeEnum?.enumCode} has been removed by ${ec.user.username} [${ec.user.userId}]"/>
+                <service-call name="create#co.hotwax.shopify.app.ShopifyAppHistory"
+                              in-map="context + [changedDate: ec.user.nowTimestamp , changedByUserId : ec.user.userId, comments:'Hotwax access token has been updated.']" ignore-error="true"/>
+            </if>
+        </actions>
+    </eeca>
 </eecas>

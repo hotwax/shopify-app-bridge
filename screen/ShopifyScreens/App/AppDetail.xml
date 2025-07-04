@@ -31,6 +31,10 @@
         <service-call name="delete#co.hotwax.shopify.app.ShopifyAppAccessScope"/>
         <default-response url="."/>
     </transition>
+    <transition name="rotateShopAppClientSecret">
+        <service-call name="co.hotwax.shopify.app.ShopifyAppServices.rotate#ShopAppClientSecret" async="true"/>
+        <default-response url="."/>
+    </transition>
     <actions>
         <entity-find-one entity-name="co.hotwax.shopify.app.ShopifyApp" value-field="shopifyApp"/>
         <entity-find entity-name="co.hotwax.shopify.app.ShopifyShopAndApp" list="ssaList">
@@ -72,10 +76,19 @@
                                 </entity-options>
                         </drop-down></default-field>
                     </field>
-                    <field name="clientSecret"><default-field ><text-line/></default-field></field>
-                    <field name="oldClientSecret"><default-field ><text-line/></default-field></field>
+                    <field name="clientSecret"><default-field ><display/></default-field></field>
+                    <field name="oldClientSecret"><default-field ><display/></default-field></field>
                     <field name="submitButton"><default-field title="Update"><submit confirmation="Are you sure want to update the shopify app?"/></default-field></field>
                 </form-single>
+                <container-dialog id="RotateShopAppClientSecret" button-text="Rotate App secret">
+                    <form-single name="RotateShopAppClientSecret" transition="rotateShopAppClientSecret" map="shopifyApp">
+                        <field name="appId"><default-field><hidden/></default-field></field>
+                        <field name="clientId"><default-field><hidden/></default-field></field>
+                        <field name="newClientSecret"><default-field><text-line/></default-field></field>
+                        <field name="refreshToken"><default-field><text-line/></default-field></field>
+                        <field name="submitButton"><default-field title="Add"><submit/></default-field></field>
+                    </form-single>
+                </container-dialog>
             </box-body>
         </container-box>
         </row-col>
