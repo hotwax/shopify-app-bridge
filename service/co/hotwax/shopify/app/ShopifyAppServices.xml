@@ -274,20 +274,22 @@ under the License.
                 <return type="warning" error="true" message="Shop ${shop} not registered for app ${clientId}"/>
             </if>
             <set field="shopApp" from="shopApps?.first"/>
-            <!-- TODO: Remove https and leading/trailing space -->
+            <service-call name="co.hotwax.shopify.app.ShopifyAdminServices.sanitize#Url"
+                          in-map="[url: instanceAddress]" out-map="result"/>
+            <set field="hostAddress" from="result.hostAddress"/>
             <entity-find entity-name="co.hotwax.shopify.app.HotwaxInstance" list="hotwaxInstances" cache="true">
-                <econdition field-name="hostAddress" from="instanceAddress"/>
+                <econdition field-name="hostAddress" from="hostAddress"/>
             </entity-find>
             <if condition="hotwaxInstances">
                 <set field="instanceId" from="hotwaxInstances?.first?.instanceId" />
             <else>
-                <service-call name="create#co.hotwax.shopify.app.HotwaxInstance" in-map="[hostAddress: instanceAddress]" out-map="context"/>
+                <service-call name="create#co.hotwax.shopify.app.HotwaxInstance" in-map="[hostAddress: hostAddress]" out-map="context"/>
             </else>
             </if>
             <service-call name="update#co.hotwax.shopify.app.ShopifyShopApp"
                           in-map="[shopId: shopApp.shopId, appId: shopApp.appId, fromDate: shopApp.fromDate, hotwaxAccessToken: instanceToken, hotwaxInstanceId: instanceId]"/>
             <service-call name="co.hotwax.shopify.app.ShopifyAppServices.sync#HotwaxInstance"
-                          in-map="[shop: shopApp.myshopifyDomain, accessToken: shopApp.shopAccessToken, sharedSecret: shopApp.clientSecret, oldSharedSecret: shopApp.oldClientSecret, clientId: shopApp.clientId, instanceAddress: instanceAddress, instanceToken: instanceToken ]"
+                          in-map="[shop: shopApp.myshopifyDomain, accessToken: shopApp.shopAccessToken, sharedSecret: shopApp.clientSecret, oldSharedSecret: shopApp.oldClientSecret, clientId: shopApp.clientId, instanceAddress: hostAddress, instanceToken: instanceToken ]"
                           out-map="context" transaction="force-new"/>
 
         </actions>
@@ -306,9 +308,9 @@ under the License.
             <parameter name="instanceToken" required="true"/>
         </in-parameters>
         <actions>
-            <if condition="!instanceAddress.startsWith('https://')">
-                <set field="instanceAddress" from="'https://' +  instanceAddress"/>
-            </if>
+            <service-call name="co.hotwax.shopify.app.ShopifyAdminServices.sanitize#Url"
+                          in-map="[url: instanceAddress]" out-map="result"/>
+            <set field="hostAddress" from="result.hostAddress"/>
             <script><![CDATA[
                 import org.moqui.util.RestClient
                 import org.moqui.util.RestClient.Method
@@ -323,7 +325,7 @@ under the License.
                 if (oldSharedSecret != null) {
                     parameters.put("oldSharedSecret",oldSharedSecret)
                 }
-                restClient.uri("${instanceAddress}/api/service/createUpdateShopifyShop")
+                restClient.uri("${hostAddress}/api/service/createUpdateShopifyShop")
                 restClient.addHeader("Authorization", "Bearer " + instanceToken);
                 restClient.addBodyParameters(parameters);
                 try {

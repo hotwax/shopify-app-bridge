@@ -285,9 +285,11 @@ under the License.
             <parameter name="jwtToken" required="true"/>
         </in-parameters>
         <actions>
+            <service-call name="co.hotwax.shopify.app.ShopifyAdminServices.sanitize#Url"
+                          in-map="[url: hostAddress]" out-map="result"/>
             <entity-find entity-name="co.hotwax.shopify.app.ShopifyShopAndApp" list="ssaList">
                 <econdition field-name="clientId" from="clientId"/>
-                <econdition field-name="hostAddress" from="hostAddress"/>
+                <econdition field-name="hostAddress" from="result.hostAddress"/>
                 <date-filter/>
                 <order-by field-name="-fromDate"/>
             </entity-find>
@@ -295,6 +297,28 @@ under the License.
                 <service-call name="update#co.hotwax.shopify.app.ShopifyShopApp"
                               in-map="[shopId: ssa.shopId,appId: ssa.appId,fromDate: ssa.fromDate, hotwaxAccessToken:jwtToken]" ignore-error="true"/>
             </iterate>
+        </actions>
+    </service>
+
+    <service verb="sanitize" noun="Url">
+        <in-parameters>
+            <parameter name="url" required="true"/>
+        </in-parameters>
+        <out-parameters>
+            <parameter name="hostAddress"/>
+        </out-parameters>
+        <actions>
+            <script>
+                // Remove trailing slashes
+                url = url.trim().replaceAll('/+$', '')
+
+                // Extract base domain (strip path/query)
+                def matcher = url =~ /^(https?:\/\/)?([^\/]+)/
+                def baseUrl = matcher ? matcher[0][2] : url
+
+                // Ensure HTTPS
+                hostAddress =  "https://${baseUrl}"
+            </script>
         </actions>
     </service>
 </services>
