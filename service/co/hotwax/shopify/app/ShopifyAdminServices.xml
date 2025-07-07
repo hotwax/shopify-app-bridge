@@ -19,7 +19,19 @@ under the License.
 -->
 
 <services xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://moqui.org/xsd/service-definition-3.xsd">
-    <service verb="get" noun="ShopifyShopAccessToken">
+    <service verb="get" noun="ShopifyShopAccessToken" type="remote-rest" method="post" location="${shop}/admin/oauth/access_token">
+        <description>
+            Rotate or revoke client credentials
+            https://shopify.dev/docs/apps/build/authentication-authorization/client-secrets/rotate-revoke-client-credentials#step-5-request-new-access-tokens
+        </description>
+        <in-parameters>
+            <parameter name="shop" required="true"/>
+            <parameter name="code" required="true"/>
+            <parameter name="client_id" required="true"/>
+            <parameter name="client_secret" required="true"/>
+        </in-parameters>
+    </service>
+    <!--<service verb="get" noun="ShopifyShopAccessToken">
         <description>
             Get the oauth shopify shop access token.
             https://shopify.dev/apps/auth/oauth/getting-started#step-5-get-an-access-token
@@ -30,9 +42,6 @@ under the License.
             <parameter name="clientId" required="true"/>
             <parameter name="clientSecret" required="true"/>
         </in-parameters>
-        <out-parameters>
-            <parameter name="accessToken"/>
-        </out-parameters>
         <actions>
             <if condition="!shop.startsWith('https://')">
                 <set field="shop" from="'https://' +  shop"/>
@@ -64,7 +73,7 @@ under the License.
                 accessToken = response.access_token
             ]]></script>
         </actions>
-    </service>
+    </service>-->
     <service verb="request" noun="ShopNewAccessToken" type="remote-rest" method="post" location="${shop}/admin/oauth/access_token">
         <description>
             Rotate or revoke client credentials
