@@ -47,28 +47,62 @@ under the License.
     <service verb="get" noun="ShopifyShop">
         <description>Get the shopify shop data</description>
         <in-parameters>
+            <parameter name="clientId"/>
             <parameter name="shop" required="true"/>
             <parameter name="accessToken" required="true"/>
         </in-parameters>
         <out-parameters>
-            <parameter name="shop" type="Map"/>
+            <parameter name="shopData" type="Map"/>
         </out-parameters>
         <actions>
             <if condition="!shop.startsWith('https://')">
                 <set field="shop" from="'https://' +  shop"/>
             </if>
+            <entity-find entity-name="co.hotwax.shopify.app.ShopifyApp" list="shopifyApps" cache="true">
+                <econdition field-name="clientId" from="clientId"/>
+            </entity-find>
+            <set field="shopifyApp" from="shopifyApps?shopifyApps[0]:null"/>
+            <set field="shopifyApiVersion" from="shopifyApp.shopifyApiVersion?:'2025-07'"/>
             <script><![CDATA[
                 import org.moqui.util.RestClient
                 import org.moqui.util.RestClient.Method
-
-                shopifyApiVersion = System.getProperty("shopify_api_version");
+                //TODO: Use ftl template
+                def query = '''
+                {
+                  shop {
+                    id
+                    name
+                    email
+                    myshopifyDomain
+                    primaryDomain {
+                      host
+                    }
+                    shopOwnerName
+                    timezoneAbbreviation
+                    ianaTimezone
+                    plan {
+                      publicDisplayName
+                      shopifyPlus
+                    }
+                    weightUnit
+                    currencyCode
+                    billingAddress {
+                      countryCodeV2
+                      phone
+                    }
+                  }
+                }
+                '''
                 RestClient restClient = ec.service.rest()
-                restClient.method(Method.GET)
-                restClient.uri("${shop}/admin/api/${shopifyApiVersion}/shop.json")
+                restClient.method(Method.POST)
+                restClient.uri("${shop}/admin/api/${shopifyApiVersion}/graphql.json")
+                restClient.contentType("application/json")
+                restClient.jsonObject([query:query])
                 restClient.addHeader("X-Shopify-Access-Token", accessToken);
                 try {
                     RestClient.RestResponse restResponse = restClient.call()
                     response = restResponse.jsonObject()
+                    shopData = response?.data?.shop
                     statusCode = restResponse.getStatusCode()
                     if (restResponse.statusCode < 200 || restResponse.statusCode >= 300) {
                         ec.logger.warn("Unsuccessful with status code: ${statusCode} and response: ${response}")
@@ -78,7 +112,6 @@ under the License.
                     ec.logger.error("Error in API call Error: ${e.getMessage()}")
                     return
                 }
-                shop = response.shop;
             ]]></script>
         </actions>
     </service>
@@ -138,27 +171,29 @@ under the License.
                 <return error="true" message="No Shopify shop app found for shopId ${shopId} and appId ${appId}"/>
             </if>
             <set field="ssa" from="ssaList?ssaList[0]:null"/>
-
+            <set field="shopifyApiVersion" from="ssa.shopifyApiVersion" default-value="2025-07"/>
             <script><![CDATA[
                 import org.moqui.util.RestClient
                 import org.moqui.util.RestClient.Method
 
+                def query = '{currentAppInstallation {accessScopes {handle}}}'
                 RestClient restClient = ec.service.rest()
-                restClient.method(Method.GET)
-                restClient.uri("https://${ssa.myshopifyDomain}/admin/oauth/access_scopes.json")
+                restClient.method(Method.POST)
+                restClient.uri("https://${ssa.myshopifyDomain}/admin/api/${shopifyApiVersion}/graphql.json")
+                restClient.contentType("application/json")
+                restClient.jsonObject([query:query])
                 restClient.addHeader("X-Shopify-Access-Token", ssa?.shopAccessToken);
                 response = null;
                 try {
                     RestClient.RestResponse restResponse = restClient.call()
                     response = restResponse.jsonObject()
-                    statusCode = restResponse.getStatusCode()
                     restResponse.checkError()
                 } catch (Exception e) {
-                    ec.logger.error("Error in API call Error: ${e.getMessage()}")
+                    ec.logger.error("Error while fetching access scope for shop ${ssa.shopName} [${shopId}]: ${e.getMessage()}")
                     ec.message.addError(e.getMessage());
                     return
                 }
-                grantedAccessScopes = response.access_scopes*.handle
+                grantedAccessScopes = response?.data?.currentAppInstallation?.accessScopes*.handle
             ]]></script>
         </actions>
     </service>

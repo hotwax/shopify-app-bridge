@@ -56,6 +56,7 @@ under the License.
         <field name="statusId" type="id" enable-audit-log="true"><description>Current status of published app</description></field>
         <field name="appName" type="text-short"/>
         <field name="appVersion" type="number-integer"/>
+        <field name="shopifyApiVersion" type="text-short"/>
         <field name="clientId" type="text-intermediate" encrypt="true" enable-audit-log="true"><description>clientId for published app</description></field>
         <field name="clientSecret" type="text-medium" encrypt="true" enable-audit-log="true"><description>clientSecret for published app</description></field>
         <field name="oldClientSecret" type="text-medium" encrypt="true" enable-audit-log="true"><description>clientSecret for published app</description></field>
