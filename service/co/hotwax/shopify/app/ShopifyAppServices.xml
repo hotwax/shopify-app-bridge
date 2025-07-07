@@ -208,7 +208,7 @@ under the License.
             <service-call name="co.hotwax.shopify.app.ShopifyAdminServices.request#ShopNewAccessToken"
                     in-map="[shop:shop, client_id:shopApp.clientId , client_secret:shopApp.clientSecret, access_token:shopApp.shopAccessToken, refresh_token: refreshToken]"
                     out-map="result"/>
-            <log level="warn" message="Rotate access token response for client id ${shopApp.clientId} and shop ${shopApp.shopName} : ${result}"/>
+<!--            <log level="warn" message="Rotate access token response for client id ${shopApp.clientId} and shop ${shopApp.shopName} : ${result}"/>-->
             <set field="accessToken" from="result.access_token"/>
             <if condition="!accessToken">
                 <return message="Unable to rotate access token for shop ${shopId} and app ${appId}" error="true"/>
@@ -252,7 +252,7 @@ under the License.
             <service-call name="co.hotwax.shopify.app.ShopifyAdminServices.sanitize#Url"
                           in-map="[url: shopApp.hostAddress]" out-map="result"/>
             <service-call name="co.hotwax.shopify.app.ShopifyAppServices.sync#HotwaxInstance"
-                          in-map="[shop: shop, accessToken: shopApp.shopAccessToken, sharedSecret: shopApp.clientSecret, oldSharedSecret: shopApp.oldClientSecret, clientId:shopApp.clientId, instanceAddress: result.hostAddress, instanceToken: jwtToken]"
+                          in-map="[shop: shop, shopId: shopApp.externalId, accessToken: shopApp.shopAccessToken, sharedSecret: shopApp.clientSecret, oldSharedSecret: shopApp.oldClientSecret, clientId:shopApp.clientId, instanceAddress: result.hostAddress, instanceToken: jwtToken]"
                           out-map="context"/>
 
             <set field="comments" value="Shop credentials synced with Oms"/>
@@ -297,7 +297,7 @@ under the License.
                           in-map="[shopId: shopApp.shopId, appId: shopApp.appId, fromDate: shopApp.fromDate, hotwaxAccessToken: instanceToken, hotwaxInstanceId: instanceId]"/>
             <set field="shop" from="shopApp.myshopifyDomain.replace('.myshopify.com', '')"/>
             <service-call name="co.hotwax.shopify.app.ShopifyAppServices.sync#HotwaxInstance"
-                          in-map="[shop: shop, accessToken: shopApp.shopAccessToken, sharedSecret: shopApp.clientSecret, oldSharedSecret: shopApp.oldClientSecret, clientId: shopApp.clientId, instanceAddress: hostAddress, instanceToken: instanceToken ]"
+                          in-map="[shop: shop, shopId: shopApp.externalId, accessToken: shopApp.shopAccessToken, sharedSecret: shopApp.clientSecret, oldSharedSecret: shopApp.oldClientSecret, clientId: shopApp.clientId, instanceAddress: hostAddress, instanceToken: instanceToken ]"
                           out-map="context" transaction="force-new"/>
 
         </actions>
@@ -313,6 +313,7 @@ under the License.
             <parameter name="sharedSecret" required="true"/>
             <parameter name="oldSharedSecret"/>
             <parameter name="shop" required="true"/>
+            <parameter name="shopId" required="true"/>
             <parameter name="shopifyConfigName" default="shop"/>
             <parameter name="productStoreId" default-value="STORE"/>
             <parameter name="webSiteId" default-value="WEBSTORE"/>
