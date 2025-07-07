@@ -56,7 +56,10 @@ under the License.
              </else>
             </if>
             <!-- TODO: Handle error properly, return error received from shopify-->
-            <service-call name="co.hotwax.shopify.app.ShopifyAdminServices.get#ShopifyShopAccessToken" in-map="[shop: shop, code: code, clientId: clientId, clientSecret: shopifyApp.clientSecret]" out-map="outMap"/>
+            <service-call name="co.hotwax.shopify.app.ShopifyAdminServices.sanitize#Url"
+                          in-map="[url: shop]" out-map="result"/>
+            <set field="shop" from="result.hostAddress"/>
+            <service-call name="co.hotwax.shopify.app.ShopifyAdminServices.get#ShopifyShopAccessToken" in-map="[shop: shop, code: code, client_id: clientId, client_secret: shopifyApp.clientSecret]" out-map="outMap"/>
             <script>
                 if (ec.message.hasError()) {
                     ec.logger.warn("Ignoring error :" + ec.message.getErrorsString())
@@ -200,7 +203,10 @@ under the License.
                 <return error="true" message="Unable to rotate the access token for app ${appId} and shop ${shopId}"/>
             </if>
             <set field="shopApp" from="shopApps[0]"/>
-            <set field="shop" from="shopApp.myshopifyDomain ? 'https://'+shopApp.myshopifyDomain: null"/>
+<!--            <set field="shop" from="shopApp.myshopifyDomain ? 'https://'+shopApp.myshopifyDomain: null"/>-->
+            <service-call name="co.hotwax.shopify.app.ShopifyAdminServices.sanitize#Url"
+                          in-map="[url: shopApp.myshopifyDomain]" out-map="result"/>
+            <set field="shop" from="result.hostAddress ? result.hostAddress: null"/>
             <service-call name="co.hotwax.shopify.app.ShopifyAdminServices.request#ShopNewAccessToken"
                     in-map="[shop:shop, client_id:shopApp.clientId , client_secret:shopApp.clientSecret, access_token:shopApp.shopAccessToken, refresh_token: refreshToken]"
                     out-map="result"/>
