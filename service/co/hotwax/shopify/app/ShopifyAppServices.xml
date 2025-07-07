@@ -170,7 +170,7 @@ under the License.
                             domain: shopData.primaryDomain?.host,
                             myshopifyDomain:shopData.myshopifyDomain,
                             shopOwner:shopData.myshopifyDomain,
-                            timezone:shopData.timezoneAbbreviation,
+                            timezone:shopData.ianaTimezone,
                             planName:shopData.plan?.publicDisplayName,
                             weightUnit:shopData.weightUnit,
                             currency:shopData.currencyCode,

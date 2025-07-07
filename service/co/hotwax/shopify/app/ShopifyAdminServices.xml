@@ -79,6 +79,7 @@ under the License.
                     }
                     shopOwnerName
                     timezoneAbbreviation
+                    ianaTimezone
                     plan {
                       publicDisplayName
                       shopifyPlus
