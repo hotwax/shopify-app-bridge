@@ -154,24 +154,27 @@ under the License.
         </description>
         <in-parameters>
             <parameter name="shopId" required="true"/>
+            <parameter name="clientId" required="true"/>
             <parameter name="shop" required="true"/>
             <parameter name="accessToken" required="true"/>
         </in-parameters>
         <actions>
             <service-call name="co.hotwax.shopify.app.ShopifyAdminServices.get#ShopifyShop" in-map="context" out-map="context" />
-            <if condition="shop">
-                <service-call name="update#co.hotwax.shopify.shop.ShopifyShop" in-map="[externalId: shop.id,
-                            shopName: shop.name,
-                            email:shop.email,
-                            phone: shop.phone,
-                            domain: shop.domain,
-                            myshopifyDomain:shop.myshopify_domain,
-                            shopOwner:shop.shop_owner,
-                            timezone:shop.timezone,
-                            planName:shop.plan_display_name,
-                            weightUnit:shop.weight_unit,
-                            currency:shop.currency,
-                            countryCode:shop.country,
+            <if condition="shopData">
+                <service-call name="update#co.hotwax.shopify.shop.ShopifyShop"
+                            in-map="[
+                            externalId: shopData.id.tokenize('/')[-1],
+                            shopName: shopData.name,
+                            email:shopData.email,
+                            phone: shopData.billingAddress?.phone,
+                            domain: shopData.primaryDomain?.host,
+                            myshopifyDomain:shopData.myshopifyDomain,
+                            shopOwner:shopData.myshopifyDomain,
+                            timezone:shopData.timezoneAbbreviation,
+                            planName:shopData.plan?.publicDisplayName,
+                            weightUnit:shopData.weightUnit,
+                            currency:shopData.currencyCode,
+                            countryCode:shopData.billingAddress?.countryCodeV2,
                             shopId: shopId]"/>
              <else>
                  <log level="error" message="Unable to get shop data for shopId ${shopId}"/>
