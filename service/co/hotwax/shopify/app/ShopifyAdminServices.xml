@@ -31,49 +31,6 @@ under the License.
             <parameter name="client_secret" required="true"/>
         </in-parameters>
     </service>
-    <!--<service verb="get" noun="ShopifyShopAccessToken">
-        <description>
-            Get the oauth shopify shop access token.
-            https://shopify.dev/apps/auth/oauth/getting-started#step-5-get-an-access-token
-        </description>
-        <in-parameters>
-            <parameter name="shop" required="true"/>
-            <parameter name="code" required="true"/>
-            <parameter name="clientId" required="true"/>
-            <parameter name="clientSecret" required="true"/>
-        </in-parameters>
-        <actions>
-            <if condition="!shop.startsWith('https://')">
-                <set field="shop" from="'https://' +  shop"/>
-            </if>
-            <script><![CDATA[
-                import org.moqui.util.RestClient
-                import org.moqui.util.RestClient.Method
-
-                RestClient restClient = ec.service.rest()
-                restClient.method(Method.POST)
-                restClient.uri("${shop}/admin/oauth/access_token")
-                restClient.addFieldPart("code", code);
-                restClient.addFieldPart("client_id", clientId);
-                restClient.addFieldPart("client_secret", clientSecret);
-                try {
-                    RestClient.RestResponse restResponse = restClient.call()
-                    response = restResponse.jsonObject()
-                    statusCode = restResponse.getStatusCode()
-                    if (restResponse.statusCode < 200 || restResponse.statusCode >= 300) {
-                        ec.logger.warn("Unsuccessful with status code: ${statusCode} and response: ${response}")
-                        ec.message.addError(response.toString());
-                        return
-                    }
-                } catch (Exception e) {
-                    ec.logger.error("Error in API call Error: ${e.getMessage()}")
-                    ec.message.addError(e.getMessage());
-                    return
-                }
-                accessToken = response.access_token
-            ]]></script>
-        </actions>
-    </service>-->
     <service verb="request" noun="ShopNewAccessToken" type="remote-rest" method="post" location="${shop}/admin/oauth/access_token">
         <description>
             Rotate or revoke client credentials
@@ -123,85 +80,6 @@ under the License.
                 }
                 shop = response.shop;
             ]]></script>
-        </actions>
-    </service>
-
-    <service verb="validate" noun="ShopifySessionToken">
-        <description>
-            Shopify session token authentication for embedded app.
-            https://shopify.dev/apps/auth/oauth/session-tokens/getting-started
-        </description>
-        <in-parameters>
-            <parameter name="sessionToken" required="true"/>
-            <parameter name="clientId" required="true"/>
-            <parameter name="clientSecret" required="true"/>
-            <parameter name="shop" required="true"/>
-        </in-parameters>
-        <out-parameters>
-            <parameter name="validToken" type="Boolean"/>
-        </out-parameters>
-        <actions>
-            <set field="validToken" value="false" type="Boolean"/>
-            <if condition="!shop.startsWith('https://')">
-                <set field="shop" from="'https://' + shop"/>
-            </if>
-            <script>
-                import com.auth0.jwt.algorithms.Algorithm;
-                import com.auth0.jwt.exceptions.JWTDecodeException;
-                import com.auth0.jwt.exceptions.JWTVerificationException;
-                import com.auth0.jwt.interfaces.JWTVerifier;
-                import com.auth0.jwt.interfaces.DecodedJWT;
-                import com.auth0.jwt.JWT;
-                <![CDATA[
-                    try {
-                        Algorithm algorithm = Algorithm.HMAC256(clientSecret);
-                        JWTVerifier verifier = JWT.require(algorithm)
-                            .withIssuer(shop + "/admin")
-                            .build(); //Reusable verifier instance
-
-                        DecodedJWT jwt = verifier.verify(sessionToken);
-                        // Extract the exp value from the payload.
-                        def exp = jwt.getClaim('exp').asString()
-                        // TODO Verify that it's in the future.
-
-                        // Extract the nbf value from the payload.
-                        def nbf = jwt.getClaim('nbf').asString()
-                        // TODO Verify that it was in the past.
-
-                        // Extract the iss and dest fields from the payload.
-                        def iss = jwt.getClaim('nbf').asString()
-                        def dest = jwt.getClaim('dest').asString()
-                        // TODO The top-level domains should match.
-                        // The dest field specifies the shops that the request originated from. For example, myshop.myshopify.com.
-                        if (!(shop.equals(dest))) {
-                            ec.logger.warn("shop: ${shop} does not match with dest: ${dest} received in claim")
-                            return;
-                        }
-
-                        // Extract the aud value from the payload.
-                        def aud = jwt.getClaim('aud').asString()
-                        // Verify that it matches the API key of your app.
-                        if (!clientId.equals(aud)) {
-                            ec.logger.warn("clientId: ${clientId} does not match with aud: ${aud} received in claim")
-                            return;
-                        }
-
-                        //Extract the sub value from the payload.
-                        def sub = jwt.getClaim('sub').asString() //This is the ID of the user that made the request.
-                    } catch (JWTVerificationException exception) {
-                        // Invalid signature/claims
-                        ec.logger.warn("JWT Verification failed : ${exception.toString()}")
-                        ec.message.addMessage("JWT Verification failed: : ${exception.toString()}", "danger")
-                        return;
-                    } catch (JWTDecodeException exception) {
-                        // Invalid token
-                        ec.logger.warn("JWT Decoding failed : ${exception.toString()}")
-                        ec.message.addMessage("JWT Decoding failed : ${exception.toString()}", "danger")
-                        return;
-                    }
-                ]]>
-            </script>
-            <set field="validToken" value="true" type="Boolean"/>
         </actions>
     </service>
 

@@ -67,7 +67,6 @@ under the License.
                     ec.message.clearAll()
                 }
             </script>
-            <log level="info" message="===outMap===${outMap}=="/>
             <set field="accessToken" from="outMap.access_token"/>
             <if condition="!accessToken">
                 <return type="warning" message="Failed to get the oauth access token for shop ${shop}" error="true" public="true"/>
@@ -203,7 +202,6 @@ under the License.
                 <return error="true" message="Unable to rotate the access token for app ${appId} and shop ${shopId}"/>
             </if>
             <set field="shopApp" from="shopApps[0]"/>
-<!--            <set field="shop" from="shopApp.myshopifyDomain ? 'https://'+shopApp.myshopifyDomain: null"/>-->
             <service-call name="co.hotwax.shopify.app.ShopifyAdminServices.sanitize#Url"
                           in-map="[url: shopApp.myshopifyDomain]" out-map="result"/>
             <set field="shop" from="result.hostAddress ? result.hostAddress: null"/>
