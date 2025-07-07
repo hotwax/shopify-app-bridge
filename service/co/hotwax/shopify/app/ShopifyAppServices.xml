@@ -261,7 +261,6 @@ under the License.
             <return message="Shop ${shopApp.shopName} credentials successfully synced to ${shopApp.hostAddress}."/>
         </actions>
     </service>
-    <!-- Shopify embedded app api -->
     <service verb="set" noun="HotwaxInstance">
         <description>
             Set the Hotwax instance address and token
@@ -321,59 +320,6 @@ under the License.
             <parameter name="instanceToken" required="true"/>
         </in-parameters>
     </service>
-    <!--<service verb="sync" noun="HotwaxInstance">
-        <description>
-            Sync the HotWax OMS instance with Shopify access token
-        </description>
-        <in-parameters>
-            <parameter name="clientId" required="true"/>
-            <parameter name="accessToken" required="true"/>
-            <parameter name="sharedSecret" required="true"/>
-            <parameter name="oldSharedSecret"/>
-            <parameter name="shop" required="true"/>
-            <parameter name="instanceAddress" required="true"/>
-            <parameter name="instanceToken" required="true"/>
-        </in-parameters>
-        <actions>
-            <service-call name="co.hotwax.shopify.app.ShopifyAdminServices.sanitize#Url"
-                          in-map="[url: instanceAddress]" out-map="result"/>
-            <set field="hostAddress" from="result.hostAddress"/>
-            <script><![CDATA[
-                import org.moqui.util.RestClient
-                import org.moqui.util.RestClient.Method
-
-                RestClient restClient = ec.service.rest()
-                restClient.method(Method.POST)
-
-                shop = shop.replace(".myshopify.com", "")
-                // TODO take dynamic values for productStoreId and webSiteId
-                Map parameters = ["shop": shop , "shopifyConfigName": shop, "sharedSecret": sharedSecret,  "accessToken": accessToken, "clientId": clientId,
-                        "productStoreId": "STORE", "webSiteId": "WEBSTORE"]
-                if (oldSharedSecret != null) {
-                    parameters.put("oldSharedSecret",oldSharedSecret)
-                }
-                restClient.uri("${hostAddress}/api/service/createUpdateShopifyShop")
-                restClient.addHeader("Authorization", "Bearer " + instanceToken);
-                restClient.addBodyParameters(parameters);
-                try {
-                    RestClient.RestResponse restResponse = restClient.call()
-                    response = restResponse.jsonObject()
-                    statusCode = restResponse.getStatusCode()
-                    if (restResponse.statusCode < 200 || restResponse.statusCode >= 300) {
-                        ec.logger.error("Error connecting to OMS status code: ${statusCode} and response: ${response}")
-                        error = response.get("error")
-                        message = (error != null && error instanceof Map && error.get("message") != null)? error.get("message").toString() : "Error connecting to OMS response ${error}";
-                        ec.message.addError(message)
-                        return
-                    }
-                } catch (Exception e) {
-                    ec.logger.error("Error connecting to OMS API call Error: ${e.getMessage()} ${e.getCause()}")
-                    ec.message.addError("Error connecting to OMS API call Error: ${e.getMessage()} ${e.getCause()}")
-                    return
-                }
-            ]]></script>
-        </actions>
-    </service>-->
     <service verb="get" noun="HotwaxInstance">
         <description>
             Get the Hotwax instance address and token for already installed shopify app
@@ -401,7 +347,6 @@ under the License.
             <set field="instanceToken" from="shopApp.hotwaxAccessToken"/>
         </actions>
     </service>
-    <!--Shopify embedded app api end-->
 
     <service verb="get" noun="ShopifyAppClientId">
         <description>
@@ -534,7 +479,12 @@ under the License.
 
     <service verb="rotate" noun="ShopAppClientSecret" transaction-timeout="7200">
         <description>
-            Rotating the Shopify app's shared secret is a disruptive operation. Once rotated, all connected apps must be updated with a new access token generated using the new shared secret and refresh token.
+            This service rotates all Shopify credentials and initiates update requests for all connected OMS instances.
+            If the jwtToken has expired, the OMS Shopify access token will not be updated.
+
+            Rotating the Shopify app's shared secret is a disruptive operation.
+            Once rotated, all connected apps must be updated with a new access token generated using the new shared secret and refresh token.
+
             Refer to Shopify's official documentation for the token refresh process:
             Shopify Docs – Request new access tokens after rotating client secrets
             https://shopify.dev/docs/apps/build/authentication-authorization/client-secrets/rotate-revoke-client-credentials#step-5-request-new-access-tokens
