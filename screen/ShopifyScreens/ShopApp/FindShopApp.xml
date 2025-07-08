@@ -21,32 +21,28 @@
         <container-box><box-header><label text="Find Shop installed App" type="h5"/></box-header>
             <box-body>
             <form-list name="ListShopApp" list="shopApps" header-dialog="true" skip-form="true" show-page-size="true">
-                <row-actions>
-                    <entity-find-one entity-name="co.hotwax.shopify.app.HotwaxInstance" value-field="hotwaxInstance" cache="true"/>
-                </row-actions>
-                <field name="view">
-                    <default-field title=" "><link icon="fa fa-external-link" url="ShopAppDetail" link-type="anchor" tooltip="View shop app" parameter-map="[appId: appId, shopId:shopId]"/></default-field>
+                <field name="shopId"><default-field><hidden/></default-field></field>
+                <field name="appId"><default-field><hidden/></default-field></field>
+                <field name="appName">
+                    <header-field title="App"><text-find/></header-field>
+                    <default-field><link text="${appName}" url="AppDetail" link-type="anchor" parameter-map="[appId:appId]"/></default-field>
                 </field>
-                <field name="shopId">
+                <field name="shopName">
                     <header-field show-order-by="true"><text-find/></header-field>
                     <default-field title="Shop"><link text="${shopName}" url="ShopDetail" link-type="anchor" parameter-map="[shopId:shopId]"/></default-field>
                 </field>
                 <field name="myshopifyDomain">
                     <header-field><text-find/></header-field>
-                    <default-field><link url="https://${myshopifyDomain}" text="${myshopifyDomain}" link-type="anchor" url-type="plain" target-window="_blank"/></default-field></field>
-                <field name="appId">
-                    <header-field title="App"><text-find/></header-field>
-                    <default-field><link text="${appName}" url="AppDetail" link-type="anchor" parameter-map="[appId:appId]"/></default-field>
+                    <default-field><link url="https://${myshopifyDomain}" text="${myshopifyDomain}" link-type="anchor" url-type="plain" target-window="_blank" icon="fa fa-external-link"/></default-field></field>
+                <field name="hostAddress">
+                    <header-field title="OMS" show-order-by="case-insensitive"><text-find/></header-field>
+                    <conditional-field condition="hostAddress">
+                        <link url="${hostAddress}" text="${hostAddress}" link-type="anchor" target-window="_blank" icon="fa fa-external-link"/>
+                    </conditional-field>
+                    <default-field><display/></default-field>
                 </field>
                 <field name="fromDate">
                     <header-field show-order-by="true"><date-find/></header-field>
-                    <default-field><display/></default-field>
-                </field>
-                <field name="hotwaxInstanceId">
-                    <header-field title="OMS" show-order-by="case-insensitive"><text-find/></header-field>
-                    <conditional-field condition="hotwaxInstance">
-                        <link url="${hotwaxInstance.hostAddress}" text="${hotwaxInstance.hostAddress}" link-type="anchor" target-window="_blank"/>
-                    </conditional-field>
                     <default-field><display/></default-field>
                 </field>
                 <field name="comments">
@@ -55,6 +51,9 @@
                 </field>
                 <field name="findButton"><header-field title=""><submit text="Find"/></header-field>
                     <default-field><ignored/></default-field></field>
+                <field name="view">
+                    <default-field title=" "><link text="View" url="ShopAppDetail" link-type="anchor" tooltip="View shop app" parameter-map="[appId: appId, shopId:shopId]"/></default-field>
+                </field>
             </form-list>
         </box-body></container-box>
     </widgets>

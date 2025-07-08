@@ -512,6 +512,10 @@ under the License.
             <if condition="shopifyApp.clientSecret != newClientSecret">
                 <set field="shopifyApp.oldClientSecret" from="shopifyApp.clientSecret"/>
             </if>
+            <!--
+                TODO: Before upgrading the app client secret using partners admin api
+                https://shopify.dev/docs/api/partner/latest#authentication
+            -->
             <service-call name="update#co.hotwax.shopify.app.ShopifyApp" in-map="shopifyApp + [clientSecret: newClientSecret]" transaction="force-new"/>
 
 
