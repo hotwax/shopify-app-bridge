@@ -23,7 +23,7 @@ RUN git clone --depth 1 -b "v3.3.0" https://github.com/hotwax/moqui-framework.gi
 WORKDIR /moqui-framework
 RUN git clone --depth 1 -b "v3.2.0" https://github.com/hotwax/moqui-runtime.git runtime
 WORKDIR /moqui-framework/runtime/component
-RUN git clone -b "v3.2.0" https://github.com/hotwax/shopify-app-bridge.git
+RUN git clone -b "v3.3.0" https://github.com/hotwax/shopify-app-bridge.git
 
 WORKDIR /moqui-framework
 
