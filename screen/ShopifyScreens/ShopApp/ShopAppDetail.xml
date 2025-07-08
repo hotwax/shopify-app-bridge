@@ -22,17 +22,20 @@
         <service-call name="co.hotwax.shopify.app.ShopifyAppServices.update#OmsShopifyCredentials"/>
         <default-response url="../ShopAppDetail"/>
     </transition>
+    <transition name="updateShopifyShopApp">
+        <service-call name="update#co.hotwax.shopify.app.ShopifyShopApp"/>
+        <default-response url="."/>
+    </transition>
+    <transition name="expireShopifyShopApp">
+        <service-call name="update#co.hotwax.shopify.app.ShopifyShopApp"/>
+        <default-response url="."/>
+    </transition>
     <actions>
         <entity-find-one entity-name="co.hotwax.shopify.app.ShopifyShopAndApp" value-field="shopApp"/>
         <entity-find entity-name="co.hotwax.shopify.shop.ShopifyShopCustomScope" list="customScopes">
             <econdition field-name="appId" from="appId"/>
             <econdition field-name="shopId" from="shopId"/>
             <order-by field-name="-fromDate"/>
-        </entity-find>
-        <entity-find entity-name="co.hotwax.shopify.shop.ShopAppCustomAccessScope" cache="true" list="appCustomAccessScopes">
-            <econdition field-name="appId" from="appId"/>
-            <econdition field-name="shopId" from="shopId"/>
-            <order-by field-name="-createdDate"/>
         </entity-find>
         <entity-find entity-name="moqui.basic.Enumeration" cache="true" list="accessScopes">
             <econdition field-name="enumTypeId" value="SHOPIFY_ACCESS_SCOPES"/>
@@ -45,13 +48,57 @@
     <widgets>
         <container-row><row-col md="6">
         <container-box><box-header title="Shop App"/>
+            <box-toolbar>
+                <link url="expireShopifyShopApp" condition="!shopApp.thruDate" text="Expire Shop App"
+                      parameter-map="[appId:appId, shopId:shopId, fromDate:fromDate, thruDate: ec.user.nowTimestamp]"
+                      confirmation="Are you sure want to expire shop app association?"/>
+                <container-dialog id="EditShopApp" button-text="Edit Shop App">
+                    <form-single name="EditShopApp" transition="updateShopifyShopApp" map="shopApp">
+                        <field name="shopId"><default-field><hidden/></default-field></field>
+                        <field name="appId"><default-field><hidden/></default-field></field>
+                        <field name="fromDate"><default-field><hidden/></default-field></field>
+                        <field name="hotwaxInstanceId">
+                            <default-field title="Hotwax instance">
+                                <drop-down allow-empty="true">
+                                    <entity-options key="${instanceId}" text="${hostAddress}">
+                                        <entity-find entity-name="co.hotwax.shopify.app.HotwaxInstance" cache="true">
+                                            <econdition field-name="hostAddress" operator="is-not-null"/>
+                                        </entity-find>
+                                    </entity-options>
+                                </drop-down>
+                            </default-field>
+                        </field>
+                        <field name="hotwaxAccessToken">
+                            <default-field><text-line/></default-field>
+                        </field>
+                        <field name="thruDate">
+                            <default-field><date-time/></default-field>
+                        </field>
+                        <field name="comments">
+                            <default-field><text-line/></default-field>
+                        </field>
+                        <field name="update">
+                            <default-field><submit confirmation="Are you sure want to update?"/></default-field>
+                        </field>
+                    </form-single>
+                </container-dialog>
+            </box-toolbar>
             <box-body>
+
                 <form-single name="ShopApp" dynamic="true" map="shopApp">
                     <field name="shopId"><default-field><hidden/></default-field> </field>
                     <field name="appId"><default-field><hidden/></default-field> </field>
                     <field name="shopName">
                         <default-field title="Shop">
                             <link text="${shopName}" url="ShopDetail" link-type="anchor" parameter-map="[shopId:shopId]"/></default-field>
+                    </field>
+                    <field name="myshopifyDomain">
+                        <conditional-field condition="myshopifyDomain">
+                            <link url="https://${myshopifyDomain}" text="${myshopifyDomain}" link-type="anchor" url-type="plain" target-window="_blank" icon="fa fa-external-link" condition="myshopifyDomain"/>
+                        </conditional-field>
+                        <default-field>
+                            <display/>
+                        </default-field>
                     </field>
                     <field name="appName">
                         <default-field title="App">
@@ -71,7 +118,7 @@
                     <field name="thruDate"><default-field red-when="before-now"><display/></default-field></field>
                     <field name="comments"><default-field><display/></default-field></field>
                 </form-single>
-                <container-dialog id="RefreshAccessToken" button-text="Refresh access token" condition="!shopApp.thruDate">
+                <container-dialog id="RefreshAccessToken" button-text="Refresh access token" condition="!shopApp.thruDate" icon="">
                     <form-single name="RefreshAccessToken" dynamic="true" map="shopApp" transition="rotateShopifyShopAccessToken">
                         <field name="shopId"><default-field><hidden/></default-field> </field>
                         <field name="appId"><default-field><hidden/></default-field> </field>
@@ -96,8 +143,8 @@
                         <field name="shopName"><default-field><display/></default-field></field>
                         <field name="appName"><default-field><display/></default-field></field>
                         <field name="jwtToken">
-                            <default-field tooltip="OMS JWT token">
-                                <text-line/>
+                            <default-field title="OMS JWT token">
+                                <text-line default-value="${shopApp.hotwaxAccessToken?:''}"/>
                             </default-field></field>
                         <field name="sync">
                             <default-field title="Sync">
@@ -136,6 +183,11 @@
                 </box-toolbar>
                 <box-body>
                     <form-list dynamic="true" name="ShopAppCustomScope" list="appCustomAccessScopes">
+                        <entity-find entity-name="co.hotwax.shopify.shop.ShopAppCustomAccessScope" list="appCustomAccessScopes">
+                            <econdition field-name="appId" from="appId"/>
+                            <econdition field-name="shopId" from="shopId"/>
+                            <order-by field-name="-createdDate"/>
+                        </entity-find>
                         <row-actions>
                             <entity-find-one entity-name="moqui.basic.Enumeration" value-field="enumeration" cache="true">
                                 <field-map field-name="enumId" from="scopeEnumId"/>
@@ -162,8 +214,7 @@
         <container-box><box-header title="Shop App accepted scope"/>
             <box-body>
                 <form-list name="ShopAppAcceptedScope" list="acceptedScopes" skip-form="true" header-dialog="true" show-page-size="true">
-                    <entity-find entity-name="co.hotwax.shopify.shop.ShopAppAndAcceptedScope" list="acceptedScopes" limit="50">
-                        <search-form-inputs/>
+                    <entity-find entity-name="co.hotwax.shopify.shop.ShopAppAndAcceptedScope" list="acceptedScopes">
                         <econdition field-name="shopId" from="shopId"/>
                         <econdition field-name="appId" from="appId"/>
                         <order-by field-name="-acceptedDate"/>
@@ -178,8 +229,7 @@
         <container-box><box-header title="Shop app history"/>
             <box-body>
                 <form-list dynamic="true" name="ShopifyAppHistory" list="appHistoryList" show-page-size="true" >
-                    <entity-find entity-name="co.hotwax.shopify.app.ShopifyAppHistory" cache="true" list="appHistoryList" limit="10">
-                        <search-form-inputs/>
+                    <entity-find entity-name="co.hotwax.shopify.app.ShopifyAppHistory" cache="true" list="appHistoryList">
                         <econdition field-name="appId" from="appId"/>
                         <econdition field-name="shopId" from="shopId"/>
                         <order-by field-name="-changedDate"/>

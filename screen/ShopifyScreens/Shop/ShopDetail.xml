@@ -19,14 +19,6 @@
         <service-call name="update#co.hotwax.shopify.shop.ShopifyShopWebhookContent"/>
         <default-response url="."/>
     </transition>
-    <transition name="updateShopifyShopApp">
-        <service-call name="update#co.hotwax.shopify.app.ShopifyShopApp"/>
-        <default-response url="."/>
-    </transition>
-    <transition name="expireShopifyShopApp">
-        <service-call name="update#co.hotwax.shopify.app.ShopifyShopApp"/>
-        <default-response url="."/>
-    </transition>
     <actions>
         <entity-find-one entity-name="co.hotwax.shopify.shop.ShopifyShop" value-field="shopifyShop"/>
         <entity-find entity-name="co.hotwax.shopify.app.ShopifyShopAndApp" list="ssaList">
@@ -53,37 +45,23 @@
         </container-row>
         <container-box><box-header title="App"/>
             <box-body>
-                <form-list name="ShopifyShopApp" list="ssaList" transition="updateShopifyShopApp">
-                    <field name="view">
-                        <header-field title=""/>
-                        <default-field><link text="" tooltip="View Shop App" url="ShopAppDetail" target-window="_blank" link-type="anchor" parameter-map="[appId: appId, shopId:shopId, fromDate:fromDate]" icon="fa fa-external-link"/></default-field>
-                    </field>
+                <form-list name="ShopifyShopApp" list="ssaList">
                     <field name="appId"><default-field><hidden/></default-field></field>
                     <field name="shopId"><default-field><hidden/></default-field></field>
                     <field name="app">
                         <default-field><link text="${appName}" url="AppDetail" link-type="anchor" condition="appId"/></default-field>
                     </field>
                     <field name="appTypeId"><default-field title="Type"><display-entity entity-name="moqui.basic.Enumeration"/></default-field></field>
-                    <field name="installedAppVersion"><default-field><display/></default-field></field>
                     <field name="fromDate"><default-field><display/></default-field></field>
-                    <field name="shopAccessToken"><default-field><text-line/></default-field></field>
                     <field name="hotwaxInstanceId">
                         <default-field title="Hotwax instance">
-                            <drop-down allow-empty="true">
-                                <entity-options key="${instanceId}" text="${hostAddress}">
-                                    <entity-find entity-name="co.hotwax.shopify.app.HotwaxInstance" cache="true">
-                                        <econdition field-name="hostAddress" operator="is-not-null"/>
-                                    </entity-find>
-                                </entity-options>
-                            </drop-down>
+                            <display-entity entity-name="co.hotwax.shopify.app.HotwaxInstance" text="${hostAddress}"/>
                         </default-field>
-                        </field>
-                    <field name="hotwaxAccessToken"><default-field title="Hotwax access token"><text-line/></default-field></field>
-                    <field name="submitButton"><default-field title="Update"><submit/></default-field></field>
-                    <field name="deleteLink"><default-field title="">
-                        <link url="expireShopifyShopApp" text="X" parameter-map="[appId:appId, shopId:shopId, fromDate:fromDate, thruDate:ec.user.nowTimestamp]"
-                              confirmation="Are you sure want to delete app for shop ${shopName?:shopId}?"/>
-                    </default-field></field>
+                    </field>
+                    <field name="view">
+                        <header-field title=" "/>
+                        <default-field><link text="View" tooltip="View Shop App" url="ShopAppDetail" target-window="_blank" link-type="anchor" parameter-map="[appId: appId, shopId:shopId, fromDate:fromDate]"/></default-field>
+                    </field>
                 </form-list>
             </box-body>
         </container-box>

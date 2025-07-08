@@ -11,14 +11,6 @@
         <service-call name="create#co.hotwax.shopify.app.ShopifyShopApp"/>
         <default-response></default-response>
     </transition>
-    <transition name="updateShopifyShopApp">
-        <service-call name="update#co.hotwax.shopify.app.ShopifyShopApp"/>
-        <default-response></default-response>
-    </transition>
-    <transition name="expireShopifyShopApp">
-        <service-call name="update#co.hotwax.shopify.app.ShopifyShopApp"/>
-        <default-response></default-response>
-    </transition>
     <transition name="createAppAccessScope">
         <service-call name="create#moqui.basic.Enumeration"/>
         <default-response url="."><parameter name="appId"/></default-response>
@@ -60,25 +52,40 @@
     <widgets>
         <container-row><row-col md="6">
         <container-box><box-header title="App #${appId}"/>
-            <box-body>
-                <form-single name="ShopifyApp" dynamic="true" map="shopifyApp" transition="updateShopifyApp">
-                    <auto-fields-entity entity-name="co.hotwax.shopify.app.ShopifyApp"/>
-                    <field name="appName"><default-field><text-line/></default-field></field>
-                    <field name="appTypeId">
-                        <default-field><display-entity entity-name="moqui.basic.Enumeration" key-field-name="enumId"/></default-field>
-                    </field>
-                    <field name="statusId">
-                        <default-field><drop-down>
+            <box-toolbar>
+                <container-dialog id="EditShopApp" button-text="Edit Shop App">
+                    <form-single name="EditShopApp" transition="updateShopifyApp" map="shopifyApp">
+                        <field name="appId"><default-field><hidden/></default-field></field>
+                        <field name="appName"><default-field><text-line/></default-field></field>
+                        <field name="appVersion"><default-field><text-line/></default-field></field>
+                        <field name="shopifyApiVersion"><default-field><text-line/></default-field></field>
+                        <field name="statusId">
+                            <default-field><drop-down>
                                 <entity-options >
                                     <entity-find entity-name="moqui.basic.StatusItem" cache="true">
                                         <econdition field-name="statusTypeId" value="SHOPIFY_APP_STATUS"/>
                                     </entity-find>
                                 </entity-options>
-                        </drop-down></default-field>
+                            </drop-down></default-field>
+                        </field>
+                        <field name="update">
+                            <default-field><submit/></default-field>
+                        </field>
+                    </form-single>
+                </container-dialog>
+            </box-toolbar>
+            <box-body>
+                <form-single name="ShopifyApp" dynamic="true" map="shopifyApp">
+                    <auto-fields-entity entity-name="co.hotwax.shopify.app.ShopifyApp"/>
+                    <field name="appName"><default-field><display/></default-field></field>
+                    <field name="appTypeId">
+                        <default-field><display-entity entity-name="moqui.basic.Enumeration" key-field-name="enumId"/></default-field>
+                    </field>
+                    <field name="statusId">
+                        <default-field><display-entity entity-name="moqui.basic.StatusItem"/></default-field>
                     </field>
                     <field name="clientSecret"><default-field ><display/></default-field></field>
                     <field name="oldClientSecret"><default-field ><display/></default-field></field>
-                    <field name="submitButton"><default-field title="Update"><submit confirmation="Are you sure want to update the shopify app?"/></default-field></field>
                 </form-single>
                 <container-dialog id="RotateShopAppClientSecret" button-text="Rotate App secret">
                     <form-single name="RotateShopAppClientSecret" transition="rotateShopAppClientSecret" map="shopifyApp">
@@ -171,11 +178,7 @@
                 </container-dialog>
             </box-toolbar>
             <box-body>
-                <form-list name="ShopifyShopApp" list="ssaList" transition="updateShopifyShopApp">
-                    <field name="view">
-                        <header-field title=""/>
-                        <default-field><link text="" tooltip="View Shop App" url="ShopAppDetail" target-window="_blank" link-type="anchor" parameter-map="[appId: appId, shopId:shopId]" icon="fa fa-external-link"/></default-field>
-                    </field>
+                <form-list name="ShopifyShopApp" list="ssaList">
                     <field name="shopId"><default-field><hidden/></default-field></field>
                     <field name="shop">
                         <default-field>
@@ -185,25 +188,15 @@
                     <field name="appId"><default-field><hidden/></default-field></field>
                     <field name="externalId"><default-field><display/></default-field></field>
                     <field name="domain"><default-field><display/></default-field></field>
-                    <field name="installedAppVersion"><default-field><display/></default-field></field>
                     <field name="fromDate"><default-field><display/></default-field></field>
-                    <field name="shopAccessToken"><default-field><text-line/></default-field></field>
                     <field name="hotwaxInstanceId">
                         <default-field title="Hotwax instance">
-                            <drop-down allow-empty="true">
-                                <entity-options key="${instanceId}" text="${hostAddress}">
-                                    <entity-find entity-name="co.hotwax.shopify.app.HotwaxInstance" cache="true">
-                                        <econdition field-name="hostAddress" operator="is-not-null"/>
-                                    </entity-find>
-                                </entity-options>
-                        </drop-down>
+                            <display-entity entity-name="co.hotwax.shopify.app.HotwaxInstance" text="${hostAddress}"/>
                     </default-field></field>
-                    <field name="hotwaxAccessToken"><default-field title="Hotwax access token"><text-line/></default-field></field>
-                    <field name="submitButton"><default-field title="Update"><submit confirmation="Are you sure want to update the data?"/></default-field></field>
-                    <field name="deleteLink"><default-field title="">
-                        <link url="expireShopifyShopApp" text="X" parameter-map="[appId:appId, shopId:shopId, fromDate:fromDate, thruDate:ec.user.nowTimestamp]"
-                              confirmation="Are you sure want to delete app for shop ${shopName?:shopId}?"/>
-                    </default-field></field>
+                    <field name="view">
+                        <header-field title=" "/>
+                        <default-field><link text="View" tooltip="View Shop App" url="ShopAppDetail" target-window="_blank" link-type="anchor" parameter-map="[appId: appId, shopId:shopId]"/></default-field>
+                    </field>
                 </form-list>
             </box-body>
         </container-box>
