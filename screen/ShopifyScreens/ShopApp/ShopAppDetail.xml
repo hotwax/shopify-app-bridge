@@ -49,7 +49,9 @@
         <container-row><row-col md="6">
         <container-box><box-header title="Shop App"/>
             <box-toolbar>
-                <link url="expireShopifyShopApp" text="Expire Shop App" parameter-map="[appId:appId, shopId:shopId, fromDate:fromDate, thruDate: ec.user.nowTimestamp]" confirmation="Are you sure want to expire shop app association?"/>
+                <link url="expireShopifyShopApp" condition="!shopApp.thruDate" text="Expire Shop App"
+                      parameter-map="[appId:appId, shopId:shopId, fromDate:fromDate, thruDate: ec.user.nowTimestamp]"
+                      confirmation="Are you sure want to expire shop app association?"/>
                 <container-dialog id="EditShopApp" button-text="Edit Shop App">
                     <form-single name="EditShopApp" transition="updateShopifyShopApp" map="shopApp">
                         <field name="shopId"><default-field><hidden/></default-field></field>
