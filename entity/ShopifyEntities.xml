@@ -152,6 +152,8 @@ under the License.
         <relationship type="one" related="co.hotwax.shopify.app.ShopifyApp" short-alias="shopifyApp">
             <key-map field-name="appId"/>
         </relationship>
+        <relationship type="one" related="moqui.basic.Enumeration" short-alias="scope">
+            <key-map field-name="scopeEnumId" related="enumId"/></relationship>
         <relationship type="one-nofk" related="moqui.basic.StatusItem" short-alias="status">
             <key-map field-name="statusId"/>
         </relationship>

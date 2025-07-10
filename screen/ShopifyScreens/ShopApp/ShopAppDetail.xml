@@ -193,8 +193,10 @@
                                 <field-map field-name="enumId" from="scopeEnumId"/>
                             </entity-find-one>
                         </row-actions>
+                        <field name="appId"><default-field><hidden/></default-field> </field>
+                        <field name="shopId"><default-field><hidden/></default-field> </field>
                         <field name="scopeEnumId"><default-field title="Access scope" tooltip="${enumeration.description}">
-                        <display text="${enumeration.enumCode}"/>
+                            <display text="${enumeration.enumCode}"/>
                         </default-field></field>
                         <field name="createdDate"><default-field><display/></default-field></field>
                         <field name="createdByUserId"><header-field title="Added by User"/><default-field>
