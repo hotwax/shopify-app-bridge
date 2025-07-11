@@ -44,6 +44,9 @@
         <script>
             filteredAccessScopes = accessScopes.findAll { !(it.enumId in customScopes*.scopeEnumId) }
         </script>
+        <if condition="!shopApp">
+            <return message="No record found." error="true"/>
+        </if>
     </actions>
     <widgets>
         <container-row><row-col md="6">

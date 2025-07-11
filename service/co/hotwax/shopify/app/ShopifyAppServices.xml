@@ -255,8 +255,7 @@ under the License.
             <service-call name="co.hotwax.shopify.app.ShopifyAdminServices.sanitize#Url"
                           in-map="[url: shopApp.hostAddress]" out-map="result"/>
             <service-call name="co.hotwax.shopify.app.ShopifyAppServices.sync#HotwaxInstance"
-                          in-map="[shop: shop, shopifyConfigName: shopApp.appName, shopifyShopId: shopApp.externalId, accessToken: shopApp.shopAccessToken, sharedSecret: shopApp.clientSecret, oldSharedSecret: shopApp.oldClientSecret, clientId:shopApp.clientId, instanceAddress: result.hostAddress, instanceToken: jwtToken]"
-                          out-map="context"/>
+                          in-map="[shop: shop, shopifyConfigName: shopApp.appName, shopifyShopId: shopApp.externalId, accessToken: shopApp.shopAccessToken, sharedSecret: shopApp.clientSecret, oldSharedSecret: shopApp.oldClientSecret, clientId:shopApp.clientId, instanceAddress: result.hostAddress, instanceToken: jwtToken]"/>
 
             <set field="comments" value="Shop credentials synced with Oms"/>
             <service-call name="create#co.hotwax.shopify.app.ShopifyAppHistory"
