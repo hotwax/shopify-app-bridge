@@ -251,6 +251,9 @@ under the License.
                 <return error="true" message="Unable to rotate the access token for app ${appId} and shop ${shopId}"/>
             </if>
             <set field="shopApp" from="shopApps[0]"/>
+            <if condition="shopApp.hotwaxAccessToken != jwtToken">
+                <service-call name="update#co.hotwax.shopify.app.ShopifyShopApp" in-map="[appId: shopApp.appId, shopId: shopApp.shopId, fromDate: shopApp.fromDate, hotwaxAccessToken: jwtToken]"/>
+            </if>
             <set field="shop" from="shopApp.myshopifyDomain.replace('.myshopify.com', '')"/>
             <service-call name="co.hotwax.shopify.app.ShopifyAdminServices.sanitize#Url"
                           in-map="[url: shopApp.hostAddress]" out-map="result"/>
